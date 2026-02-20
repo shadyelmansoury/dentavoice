@@ -971,6 +971,65 @@ body.recording .method-icon.mic-style {
 }
 
 .file-input-hidden { display: none; }
+
+/* ============================================
+   PATIENT HISTORY PANEL
+   ============================================ */
+.patient-history {
+  display: none; margin-top: 12px;
+  background: linear-gradient(135deg, var(--blue-50), #F0F9FF);
+  border: 1px solid var(--blue-200);
+  border-radius: var(--radius-md); padding: 14px 16px;
+  animation: fadeInUp 0.4s cubic-bezier(0.16,1,0.3,1) both;
+}
+.patient-history.visible { display: block; }
+
+.patient-history-header {
+  display: flex; align-items: center; gap: 8px;
+  margin-bottom: 10px;
+}
+
+.patient-history-icon {
+  width: 28px; height: 28px;
+  background: linear-gradient(135deg, var(--blue-500), var(--cyan-500));
+  border-radius: 7px; display: flex; align-items: center; justify-content: center;
+  font-size: 13px;
+}
+
+.patient-history-title {
+  font-size: 13px; font-weight: 700; color: var(--navy);
+  font-family: 'Sora', sans-serif;
+}
+
+.patient-history-count {
+  font-size: 11px; color: var(--blue-500); font-weight: 500;
+}
+
+.history-item {
+  background: white; border: 1px solid var(--blue-100);
+  border-radius: var(--radius-sm); padding: 10px 14px;
+  margin-bottom: 6px; cursor: pointer;
+  display: flex; justify-content: space-between; align-items: center;
+  width: 100%; font-family: inherit; text-align: left;
+  transition: all 0.2s ease;
+}
+.history-item:hover { border-color: var(--blue-300); box-shadow: 0 2px 8px rgba(59,130,246,0.08); }
+.history-item:active { transform: scale(0.98); }
+.history-item-date { font-size: 13px; font-weight: 600; color: var(--navy); }
+.history-item-preview { font-size: 11px; color: var(--slate-500); margin-top: 2px; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.history-item-arrow { color: var(--blue-400); font-size: 14px; font-weight: 700; }
+
+/* Required field indicator */
+.field-required::after {
+  content: ' *'; color: var(--red-500); font-weight: 700;
+}
+
+.validation-msg {
+  font-size: 11px; color: var(--red-500); font-weight: 500;
+  margin-top: 4px; display: none;
+  animation: fadeIn 0.3s ease;
+}
+.validation-msg.visible { display: block; }
 </style>
 </head>
 <body>
@@ -1055,9 +1114,20 @@ body.recording .method-icon.mic-style {
 
     <div class="card animate-in">
       <div class="patient-row">
-        <div class="field"><label class="field-label">Patient Name</label><input class="field-input" id="patientName" placeholder="Enter patient name"></div>
-        <div class="field-small"><label class="field-label">Patient ID</label><input class="field-input" id="patientId" placeholder="ID #"></div>
+        <div class="field"><label class="field-label field-required">Patient Name</label><input class="field-input" id="patientName" placeholder="Enter patient name" oninput="onPatientInfoChange()"></div>
+        <div class="field-small"><label class="field-label field-required">Patient ID</label><input class="field-input" id="patientId" placeholder="ID #" oninput="onPatientInfoChange()"></div>
         <div class="field-small"><label class="field-label">Visit Date</label><input class="field-input" id="visitDate" type="date"></div>
+      </div>
+      <div class="validation-msg" id="validationMsg">Patient name and ID are required to save a record.</div>
+      <div class="patient-history" id="patientHistory">
+        <div class="patient-history-header">
+          <div class="patient-history-icon">📋</div>
+          <div>
+            <div class="patient-history-title">Previous Records</div>
+            <div class="patient-history-count" id="historyCount"></div>
+          </div>
+        </div>
+        <div id="historyList"></div>
       </div>
     </div>
 
@@ -1167,7 +1237,7 @@ body.recording .method-icon.mic-style {
 
 // ===== SUPABASE CONFIG =====
 const SUPABASE_URL = "https://nzurgcoyjebxswkffduy.supabase.co";
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im56dXJnY295amVieHN3a2ZmZHV5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE1Njc3NDMsImV4cCI6MjA4NzE0Mzc0M30.yFxmvYYw2Uwgvb_TLrlOZn1IunDPZV80ejfY0gVbOAM";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im56dXJnY295amVieHN3a2ZmZHV5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE1Njc3NDMsImV4cCI6MjA4NzE0Mzc0M30.yFxmvYYw2Uwgvb_TLrlOZn1IunDPZV80ejfY0gVbOAM;
 const API_URL = "/api/claude-proxy";
 const { createClient } = supabase;
 const db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -1374,6 +1444,19 @@ async function handleScanInput(event) {
       }
 
       if (data.extracted_text) {
+        // Auto-fill patient name and ID if extracted from scan
+        if (data.patient_name && !document.getElementById("patientName").value.trim()) {
+          document.getElementById("patientName").value = data.patient_name;
+        }
+        if (data.patient_id && !document.getElementById("patientId").value.trim()) {
+          document.getElementById("patientId").value = data.patient_id;
+        }
+
+        // Look up previous records for this patient
+        if (data.patient_name || data.patient_id) {
+          lookupPatientHistory();
+        }
+
         // Append extracted text to existing transcript
         const separator = rawTranscript.trim() ? "\n\n--- Scanned Notes ---\n" : "";
         rawTranscript += separator + data.extracted_text;
@@ -1383,8 +1466,12 @@ async function handleScanInput(event) {
 
         if (data.usage) console.log("OCR usage:", data.usage);
 
-        showToast("✓ Text extracted from image");
-        await logAudit("ocr_scan", "patient_notes", null, { file_type: mediaType, file_size: file.size });
+        const autoFilled = [];
+        if (data.patient_name) autoFilled.push("name");
+        if (data.patient_id) autoFilled.push("ID");
+        const extra = autoFilled.length ? " · Patient " + autoFilled.join(" & ") + " detected" : "";
+        showToast("✓ Text extracted" + extra);
+        await logAudit("ocr_scan", "patient_notes", null, { file_type: mediaType, file_size: file.size, patient_detected: !!data.patient_name });
       }
     } catch (err) {
       document.getElementById("ocrStatus").style.display = "none";
@@ -1402,6 +1489,78 @@ function removeScannedImage() {
   document.getElementById("ocrPreview").classList.remove("visible");
   document.getElementById("ocrPreviewImg").src = "";
   document.getElementById("ocrStatus").style.display = "none";
+}
+
+// ===== PATIENT HISTORY LOOKUP =====
+let historyLookupTimer = null;
+
+function onPatientInfoChange() {
+  // Hide validation message when user starts typing
+  document.getElementById("validationMsg").classList.remove("visible");
+
+  // Debounce: wait 600ms after user stops typing before searching
+  clearTimeout(historyLookupTimer);
+  historyLookupTimer = setTimeout(() => lookupPatientHistory(), 600);
+}
+
+async function lookupPatientHistory() {
+  if (!currentUser) return;
+  const name = document.getElementById("patientName").value.trim();
+  const pid = document.getElementById("patientId").value.trim();
+
+  if (!name && !pid) {
+    document.getElementById("patientHistory").classList.remove("visible");
+    return;
+  }
+
+  try {
+    let query = db.from("patient_notes")
+      .select("id, patient_name, patient_id, visit_date, structured_notes")
+      .eq("status", "active")
+      .order("visit_date", { ascending: false })
+      .limit(10);
+
+    // Search by patient ID first (most specific), otherwise by name
+    if (pid) {
+      query = query.eq("patient_id", pid);
+    } else if (name) {
+      query = query.ilike("patient_name", "%" + name + "%");
+    }
+
+    const { data, error } = await query;
+    if (error) throw error;
+
+    // Exclude the current note from results
+    const records = (data || []).filter(n => n.id !== currentNoteId);
+
+    const panel = document.getElementById("patientHistory");
+    const list = document.getElementById("historyList");
+    const count = document.getElementById("historyCount");
+
+    if (records.length === 0) {
+      panel.classList.remove("visible");
+      return;
+    }
+
+    panel.classList.add("visible");
+    count.textContent = records.length + " previous visit" + (records.length > 1 ? "s" : "");
+
+    list.innerHTML = records.map(n => {
+      // Get a brief preview from structured notes
+      let preview = "";
+      if (n.structured_notes) {
+        const notes = n.structured_notes;
+        preview = notes.subjective_chief_complaint || notes.assessment_diagnosis || notes.plan_treatment_performed || "";
+        if (preview.length > 60) preview = preview.substring(0, 60) + "...";
+      }
+      return '<button class="history-item" onclick="loadNote(\'' + n.id + '\')">' +
+        '<div><div class="history-item-date">' + n.visit_date + '</div>' +
+        (preview ? '<div class="history-item-preview">' + esc(preview) + '</div>' : '') +
+        '</div><div class="history-item-arrow">→</div></button>';
+    }).join("");
+  } catch (e) {
+    console.warn("History lookup failed:", e);
+  }
 }
 
 function updateProcessBtn(){
@@ -1477,7 +1636,30 @@ function toggleEdit(key){
 
 // ===== DATABASE =====
 async function saveNote(){
-  const noteData={user_id:currentUser.id,patient_name:document.getElementById("patientName").value||"Unnamed",patient_id:document.getElementById("patientId").value||null,visit_date:document.getElementById("visitDate").value,raw_transcript:rawTranscript,structured_notes:structuredNotes,recommendations};
+  // Validate required fields
+  const patientName = document.getElementById("patientName").value.trim();
+  const patientId = document.getElementById("patientId").value.trim();
+
+  if (!patientName || !patientId) {
+    document.getElementById("validationMsg").classList.add("visible");
+    // Highlight empty fields
+    if (!patientName) {
+      const el = document.getElementById("patientName");
+      el.style.borderBottomColor = "var(--red-500)";
+      el.focus();
+      setTimeout(() => el.style.borderBottomColor = "", 3000);
+    }
+    if (!patientId) {
+      const el = document.getElementById("patientId");
+      el.style.borderBottomColor = "var(--red-500)";
+      if (patientName) el.focus();
+      setTimeout(() => el.style.borderBottomColor = "", 3000);
+    }
+    showToast("⚠️ Patient name and ID required");
+    return;
+  }
+
+  const noteData={user_id:currentUser.id,patient_name:patientName,patient_id:patientId,visit_date:document.getElementById("visitDate").value,raw_transcript:rawTranscript,structured_notes:structuredNotes,recommendations};
   try{
     let result;
     if(currentNoteId){result=await db.from("patient_notes").update(noteData).eq("id",currentNoteId).select();await logAudit("update_note","patient_notes",currentNoteId,{patient_name:noteData.patient_name});}
@@ -1526,6 +1708,8 @@ function startNew(){
   document.getElementById("recsPanel").classList.remove("visible");
   document.getElementById("savedPanel").classList.remove("visible");
   document.getElementById("btnNew").classList.remove("visible");
+  document.getElementById("patientHistory").classList.remove("visible");
+  document.getElementById("validationMsg").classList.remove("visible");
   removeScannedImage();
   updateTranscriptDisplay("");updateProcessBtn();
 }
