@@ -65,6 +65,15 @@ const OCR_PROMPT = `You are an expert at reading and extracting text from dental
 
 Extract ALL text from the provided image as accurately as possible. Preserve the structure and meaning of the original document.
 
+Additionally, if a patient name or patient ID/chart number is visible in the document, extract those separately.
+
+Respond with ONLY a JSON object in this exact format:
+{
+  "extracted_text": "The full extracted text content here...",
+  "patient_name": "Patient name if found, or null",
+  "patient_id": "Patient ID/chart number if found, or null"
+}
+
 Rules:
 - Read handwritten text carefully, using dental context to resolve ambiguous letters
 - Preserve tooth numbers exactly as written (FDI or Universal notation)
@@ -73,7 +82,9 @@ Rules:
 - Maintain paragraph breaks and logical groupings from the original
 - Include any checkboxes, circled items, or annotations
 - If the image contains a standard form, identify the field labels and their values
-- Return ONLY the extracted text, nothing else — no commentary or explanation`;
+- For patient_name: look for fields labeled "Patient", "Name", "Patient Name", etc.
+- For patient_id: look for fields labeled "ID", "Chart #", "Patient ID", "MRN", "File #", etc.
+- Return ONLY valid JSON, no markdown fences, no explanation`;
 
 const CORS_HEADERS = {
   "Content-Type": "application/json",
@@ -192,13 +203,22 @@ exports.handler = async function (event) {
         };
       }
 
-      const extractedText = data.content[0].text;
+      const extractedRaw = data.content[0].text.replace(/```json|```/g, "").trim();
+      let ocrResult;
+      try {
+        ocrResult = JSON.parse(extractedRaw);
+      } catch (e) {
+        // If JSON parsing fails, treat the whole response as plain text
+        ocrResult = { extracted_text: extractedRaw, patient_name: null, patient_id: null };
+      }
 
       return {
         statusCode: 200,
         headers: CORS_HEADERS,
         body: JSON.stringify({
-          extracted_text: extractedText,
+          extracted_text: ocrResult.extracted_text || extractedRaw,
+          patient_name: ocrResult.patient_name || null,
+          patient_id: ocrResult.patient_id || null,
           usage: {
             input_tokens: data.usage?.input_tokens || 0,
             output_tokens: data.usage?.output_tokens || 0,
