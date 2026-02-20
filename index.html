@@ -6,231 +6,999 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="DentaVoice">
-<meta name="theme-color" content="#1B4D3E">
-<title>DentaVoice — Dr. Amira</title>
+<meta name="theme-color" content="#0F172A">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0%25' stop-color='%233B82F6'/%3E%3Cstop offset='100%25' stop-color='%2306B6D4'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='64' height='64' rx='14' fill='%230F172A'/%3E%3Cpath d='M32 12c-4.5 0-8 1.5-10 4.5C20 19.5 19 24 19 28c0 3 .5 6 1.5 9 1.2 3.5 2.5 7 3.5 11 .8 3 1.5 5 2.5 5s2-2 2.5-5l1-4h4l1 4c.5 3 1.5 5 2.5 5s1.7-2 2.5-5c1-4 2.3-7.5 3.5-11 1-3 1.5-6 1.5-9 0-4-1-8.5-3-11.5-2-3-5.5-4.5-10-4.5z' fill='url(%23g)' opacity='.9'/%3E%3Cpath d='M15 30h3M46 30h3M13 26h3M48 26h3M14 34h3M47 34h3' stroke='%2360A5FA' stroke-width='1.5' stroke-linecap='round' opacity='.5'/%3E%3C/svg%3E">
+<title>DentaVoice — AI Clinical Notes</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&display=swap" rel="stylesheet">
-<!-- Supabase JS client -->
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Sora:wght@400;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
-<!-- jsPDF for PDF export -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
-  :root {
-    --green-dark: #1B4D3E;
-    --green-mid: #2D6A4F;
-    --green-light: #40916C;
-    --green-pale: #E8F5E9;
-    --bg: #F7F6F3;
-    --card: #ffffff;
-    --border: #e8e5e0;
-    --text: #1a1a1a;
-    --text-mid: #555;
-    --text-light: #888;
-    --red: #DC2626;
-    --red-light: #FEF2F2;
-    --red-border: #FECACA;
-    --amber: #D97706;
-    --amber-pale: #FFFBEB;
-    --amber-border: #FDE68A;
-    --blue: #2563EB;
-    --blue-pale: #EFF6FF;
-    --blue-border: #BFDBFE;
-  }
-  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
-  body {
-    font-family: 'DM Sans', 'Segoe UI', system-ui, sans-serif;
-    background: var(--bg); color: var(--text);
-    min-height: 100vh; min-height: 100dvh; overflow-x: hidden;
-  }
+:root {
+  --navy: #0F172A;
+  --navy-light: #1E293B;
+  --slate-800: #1E293B;
+  --slate-700: #334155;
+  --slate-600: #475569;
+  --slate-500: #64748B;
+  --slate-400: #94A3B8;
+  --slate-300: #CBD5E1;
+  --slate-200: #E2E8F0;
+  --slate-100: #F1F5F9;
+  --slate-50: #F8FAFC;
+  --blue-600: #2563EB;
+  --blue-500: #3B82F6;
+  --blue-400: #60A5FA;
+  --blue-300: #93C5FD;
+  --blue-200: #BFDBFE;
+  --blue-100: #DBEAFE;
+  --blue-50: #EFF6FF;
+  --cyan-500: #06B6D4;
+  --cyan-400: #22D3EE;
+  --teal-500: #14B8A6;
+  --amber-500: #F59E0B;
+  --amber-400: #FBBF24;
+  --red-500: #EF4444;
+  --red-100: #FEE2E2;
+  --green-500: #22C55E;
+  --green-100: #DCFCE7;
+  --purple-500: #A855F7;
+  --purple-100: #F3E8FF;
+  --rose-500: #F43F5E;
+  --rose-100: #FFE4E6;
+  --bg: var(--slate-50);
+  --card: #ffffff;
+  --border: var(--slate-200);
+  --text: var(--navy);
+  --text-mid: var(--slate-600);
+  --text-light: var(--slate-400);
+  --shadow-sm: 0 1px 3px rgba(15,23,42,0.06), 0 1px 2px rgba(15,23,42,0.04);
+  --shadow-md: 0 4px 16px rgba(15,23,42,0.08), 0 2px 4px rgba(15,23,42,0.04);
+  --shadow-lg: 0 12px 40px rgba(15,23,42,0.12), 0 4px 12px rgba(15,23,42,0.06);
+  --shadow-xl: 0 20px 60px rgba(15,23,42,0.16), 0 8px 24px rgba(15,23,42,0.08);
+  --shadow-glow: 0 0 30px rgba(59,130,246,0.15);
+  --radius-sm: 10px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  --radius-xl: 24px;
+}
 
-  /* ===== AUTH SCREEN ===== */
-  .auth-screen {
-    min-height: 100vh; display: flex; align-items: center; justify-content: center;
-    background: linear-gradient(135deg, var(--green-dark) 0%, var(--green-mid) 50%, var(--green-light) 100%);
-    padding: 20px;
-  }
-  .auth-card {
-    background: #fff; border-radius: 24px; padding: 36px 28px;
-    max-width: 380px; width: 100%;
-    box-shadow: 0 12px 48px rgba(0,0,0,0.2);
-  }
-  .auth-logo { text-align: center; margin-bottom: 28px; }
-  .auth-logo-icon { font-size: 40px; margin-bottom: 8px; }
-  .auth-logo-title { font-family: 'Fraunces', serif; font-size: 28px; font-weight: 700; color: var(--green-dark); }
-  .auth-logo-sub { font-size: 13px; color: var(--text-light); margin-top: 4px; }
-  .auth-tabs { display: flex; gap: 0; margin-bottom: 24px; border-radius: 10px; overflow: hidden; border: 2px solid var(--border); }
-  .auth-tab {
-    flex: 1; padding: 10px; text-align: center; font-size: 13px; font-weight: 600;
-    cursor: pointer; border: none; background: #fff; color: var(--text-light);
-    font-family: inherit; transition: all 0.2s;
-  }
-  .auth-tab.active { background: var(--green-dark); color: #fff; }
-  .auth-field { margin-bottom: 16px; }
-  .auth-label { font-size: 11px; font-weight: 600; color: var(--text-light); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 6px; display: block; }
-  .auth-input {
-    width: 100%; padding: 12px 14px; border: 2px solid var(--border); border-radius: 10px;
-    font-size: 15px; font-family: inherit; outline: none; transition: border-color 0.2s;
-  }
-  .auth-input:focus { border-color: var(--green-mid); }
-  .auth-btn {
-    width: 100%; padding: 14px; background: linear-gradient(135deg, var(--green-dark), var(--green-mid));
-    color: #fff; border: none; border-radius: 12px; font-size: 15px; font-weight: 600;
-    cursor: pointer; font-family: inherit; margin-top: 8px;
-    box-shadow: 0 4px 16px rgba(27,77,62,0.25); transition: all 0.2s;
-  }
-  .auth-btn:disabled { background: #94A3B8; box-shadow: none; cursor: not-allowed; }
-  .auth-error { background: var(--red-light); border: 1px solid var(--red-border); border-radius: 8px; padding: 10px 12px; font-size: 12px; color: #991B1B; margin-bottom: 12px; display: none; }
-  .auth-error.visible { display: block; }
-  .auth-footer { text-align: center; margin-top: 16px; font-size: 11px; color: var(--text-light); line-height: 1.5; }
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
 
-  /* ===== HEADER ===== */
-  .header {
-    background: linear-gradient(135deg, var(--green-dark) 0%, var(--green-mid) 50%, var(--green-light) 100%);
-    padding: 16px 20px; display: flex; align-items: center; justify-content: space-between;
-    position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 20px rgba(27,77,62,0.15);
-  }
-  .header-left { display: flex; align-items: center; gap: 12px; }
-  .header-icon { width: 40px; height: 40px; background: rgba(255,255,255,0.15); border-radius: 11px; display: flex; align-items: center; justify-content: center; font-size: 20px; backdrop-filter: blur(10px); }
-  .header-title { font-family: 'Fraunces', serif; font-size: 20px; font-weight: 700; color: #fff; letter-spacing: -0.02em; }
-  .header-sub { font-size: 11px; color: rgba(255,255,255,0.7); margin-top: 1px; }
-  .header-actions { display: flex; gap: 8px; }
-  .btn-header { background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.2); border-radius: 10px; padding: 8px 14px; color: #fff; font-size: 12px; font-family: inherit; cursor: pointer; backdrop-filter: blur(10px); transition: all 0.2s; }
-  .btn-header:active { background: rgba(255,255,255,0.25); }
-  .btn-new { background: rgba(255,255,255,0.95); border: none; border-radius: 10px; padding: 8px 14px; color: var(--green-dark); font-size: 12px; font-weight: 600; font-family: inherit; cursor: pointer; display: none; }
-  .btn-new.visible { display: block; }
+body {
+  font-family: 'Outfit', system-ui, -apple-system, sans-serif;
+  background: var(--bg); color: var(--text);
+  min-height: 100vh; min-height: 100dvh;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
 
-  /* ===== MAIN ===== */
-  .app-screen { display: none; }
-  .app-screen.visible { display: block; }
-  .container { max-width: 720px; margin: 0 auto; padding: 16px 14px 120px; }
-  .card { background: var(--card); border-radius: 16px; padding: 16px 18px; margin-bottom: 12px; box-shadow: 0 1px 8px rgba(0,0,0,0.04); border: 1px solid var(--border); }
+/* ============================================
+   ANIMATIONS
+   ============================================ */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeInDown {
+  from { opacity: 0; transform: translateY(-16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.92); }
+  to { opacity: 1; transform: scale(1); }
+}
+@keyframes slideInRight {
+  from { opacity: 0; transform: translateX(30px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+@keyframes slideInLeft {
+  from { opacity: 0; transform: translateX(-30px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+@keyframes float {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  33% { transform: translateY(-8px) rotate(1deg); }
+  66% { transform: translateY(4px) rotate(-1deg); }
+}
+@keyframes shimmer {
+  0% { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+@keyframes pulseGlow {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(59,130,246,0.3); }
+  50% { box-shadow: 0 0 0 12px rgba(59,130,246,0); }
+}
+@keyframes ripple1 {
+  0%, 100% { transform: translate(-50%,-50%) scale(1); opacity: 0.6; }
+  50% { transform: translate(-50%,-50%) scale(1.3); opacity: 0; }
+}
+@keyframes ripple2 {
+  0%, 100% { transform: translate(-50%,-50%) scale(1); opacity: 0.4; }
+  50% { transform: translate(-50%,-50%) scale(1.5); opacity: 0; }
+}
+@keyframes ripple3 {
+  0%, 100% { transform: translate(-50%,-50%) scale(1); opacity: 0.2; }
+  50% { transform: translate(-50%,-50%) scale(1.7); opacity: 0; }
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+@keyframes dotPulse {
+  0%, 80%, 100% { transform: scale(0); opacity: 0; }
+  40% { transform: scale(1); opacity: 1; }
+}
+@keyframes waveBar {
+  0%, 100% { height: 6px; }
+  50% { height: 20px; }
+}
+@keyframes gradientShift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+@keyframes particleFloat {
+  0% { transform: translateY(0) translateX(0) scale(1); opacity: 0; }
+  10% { opacity: 1; }
+  90% { opacity: 1; }
+  100% { transform: translateY(-100vh) translateX(50px) scale(0); opacity: 0; }
+}
 
-  .patient-row { display: flex; gap: 12px; flex-wrap: wrap; }
-  .field { flex: 1 1 160px; }
-  .field-small { flex: 0 1 110px; }
-  .field-label { font-size: 10px; font-weight: 600; color: var(--text-light); text-transform: uppercase; letter-spacing: 0.06em; }
-  .field-input { width: 100%; margin-top: 4px; padding: 8px 0; border: none; border-bottom: 2px solid var(--border); font-size: 15px; font-weight: 500; background: transparent; outline: none; font-family: inherit; color: var(--text); transition: border-color 0.2s; }
-  .field-input:focus { border-bottom-color: var(--green-mid); }
+.animate-in { animation: fadeInUp 0.6s cubic-bezier(0.16,1,0.3,1) both; }
+.animate-in-d1 { animation-delay: 0.08s; }
+.animate-in-d2 { animation-delay: 0.16s; }
+.animate-in-d3 { animation-delay: 0.24s; }
+.animate-in-d4 { animation-delay: 0.32s; }
+.animate-in-d5 { animation-delay: 0.40s; }
+.animate-in-d6 { animation-delay: 0.48s; }
 
-  .error-box { background: var(--red-light); border: 1px solid var(--red-border); border-radius: 12px; padding: 12px 16px; margin-bottom: 12px; font-size: 13px; color: #991B1B; display: none; align-items: center; gap: 8px; }
-  .error-box.visible { display: flex; }
+/* ============================================
+   AUTH SCREEN
+   ============================================ */
+.auth-screen {
+  min-height: 100vh; min-height: 100dvh;
+  display: flex; align-items: center; justify-content: center;
+  position: relative; overflow: hidden;
+  background: var(--navy);
+}
 
-  .record-card { text-align: center; padding: 28px 20px; border-radius: 20px; }
-  .mic-wrapper { position: relative; display: inline-block; margin-bottom: 20px; }
-  .mic-pulse-1, .mic-pulse-2 { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); border-radius: 50%; opacity: 0; pointer-events: none; }
-  .mic-pulse-1 { width: 110px; height: 110px; background: rgba(45,106,79,0.1); }
-  .mic-pulse-2 { width: 140px; height: 140px; background: rgba(45,106,79,0.06); }
-  body.recording .mic-pulse-1 { animation: pulse1 2s ease-in-out infinite; }
-  body.recording .mic-pulse-2 { animation: pulse2 2s ease-in-out infinite 0.3s; }
-  @keyframes pulse1 { 0%,100%{transform:translate(-50%,-50%) scale(1);opacity:1;} 50%{transform:translate(-50%,-50%) scale(1.2);opacity:0.4;} }
-  @keyframes pulse2 { 0%,100%{transform:translate(-50%,-50%) scale(1);opacity:0.7;} 50%{transform:translate(-50%,-50%) scale(1.25);opacity:0.2;} }
+.auth-bg {
+  position: absolute; inset: 0; overflow: hidden;
+}
 
-  .mic-btn { width: 84px; height: 84px; border-radius: 50%; border: none; background: linear-gradient(135deg, var(--green-dark), var(--green-mid)); color: #fff; font-size: 34px; cursor: pointer; position: relative; z-index: 2; box-shadow: 0 4px 24px rgba(27,77,62,0.3); transition: all 0.3s ease; display: flex; align-items: center; justify-content: center; }
-  body.recording .mic-btn { background: linear-gradient(135deg, #DC2626, #EF4444); box-shadow: 0 4px 24px rgba(220,38,38,0.35); }
-  .mic-status { font-size: 15px; font-weight: 600; color: var(--green-dark); margin-bottom: 3px; }
-  body.recording .mic-status { color: var(--red); }
-  .mic-hint { font-size: 12px; color: var(--text-light); margin-bottom: 22px; }
-  .transcript-box { background: var(--bg); border-radius: 14px; padding: 16px; min-height: 80px; text-align: left; }
-  .transcript-label { font-size: 10px; font-weight: 600; color: var(--text-light); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 8px; }
-  .transcript-text { font-size: 14px; line-height: 1.7; color: #333; }
-  .transcript-interim { color: #aaa; font-style: italic; }
-  .transcript-placeholder { color: #bbb; font-size: 13px; font-style: italic; }
-  .manual-input { width: 100%; margin-top: 10px; padding: 12px; border-radius: 12px; border: 2px solid var(--border); font-size: 13px; font-family: inherit; min-height: 56px; resize: vertical; outline: none; transition: border-color 0.2s; }
-  .manual-input:focus { border-color: var(--green-mid); }
-  .btn-process { margin-top: 18px; padding: 14px 28px; background: linear-gradient(135deg, var(--green-dark), var(--green-mid)); color: #fff; border: none; border-radius: 14px; font-size: 15px; font-weight: 600; cursor: pointer; box-shadow: 0 4px 16px rgba(27,77,62,0.25); font-family: inherit; display: none; align-items: center; gap: 8px; transition: all 0.2s; }
-  .btn-process.visible { display: inline-flex; }
-  .btn-process:disabled { background: #94A3B8; box-shadow: none; cursor: not-allowed; }
-  .spinner { display: inline-block; width: 16px; height: 16px; border: 2px solid rgba(255,255,255,0.3); border-top-color: #fff; border-radius: 50%; animation: spin 0.8s linear infinite; }
-  @keyframes spin { to { transform: rotate(360deg); } }
+.auth-bg::before {
+  content: '';
+  position: absolute;
+  top: -50%; left: -50%;
+  width: 200%; height: 200%;
+  background:
+    radial-gradient(ellipse at 20% 50%, rgba(59,130,246,0.15) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 20%, rgba(6,182,212,0.1) 0%, transparent 50%),
+    radial-gradient(ellipse at 50% 80%, rgba(168,85,247,0.08) 0%, transparent 50%);
+  animation: gradientShift 15s ease-in-out infinite;
+  background-size: 200% 200%;
+}
 
-  .structured-view { display: none; }
-  .structured-view.visible { display: block; }
-  .record-view.hidden { display: none; }
-  .action-bar { display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; }
-  .btn-action { padding: 10px 14px; background: var(--card); border: 1px solid var(--border); border-radius: 10px; font-size: 12px; font-weight: 500; cursor: pointer; font-family: inherit; display: flex; align-items: center; gap: 6px; transition: all 0.2s; }
-  .btn-action:active { background: var(--bg); }
-  .btn-action.primary { background: linear-gradient(135deg, var(--green-dark), var(--green-mid)); color: #fff; border: none; font-weight: 600; box-shadow: 0 2px 10px rgba(27,77,62,0.2); }
-  .btn-action.copied { background: var(--green-mid); color: #fff; border-color: var(--green-mid); }
+.auth-particles {
+  position: absolute; inset: 0; overflow: hidden;
+}
 
-  .patient-header { background: linear-gradient(135deg, var(--green-dark), var(--green-mid)); border-radius: 16px; padding: 16px 20px; margin-bottom: 10px; color: #fff; display: flex; justify-content: space-between; align-items: center; }
-  .patient-header-name { font-size: 17px; font-weight: 700; font-family: 'Fraunces', serif; }
-  .patient-header-meta { font-size: 12px; opacity: 0.8; margin-top: 2px; }
-  .section-count { background: rgba(255,255,255,0.15); border-radius: 10px; padding: 5px 11px; font-size: 11px; font-weight: 500; }
+.particle {
+  position: absolute; bottom: -20px;
+  width: 4px; height: 4px;
+  background: var(--blue-400);
+  border-radius: 50%;
+  opacity: 0;
+  animation: particleFloat linear infinite;
+}
 
-  .note-section { background: var(--card); border-radius: 14px; padding: 14px 18px; box-shadow: 0 1px 6px rgba(0,0,0,0.04); border: 1px solid var(--border); margin-bottom: 8px; }
-  .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
-  .section-title { font-size: 11px; font-weight: 700; color: var(--green-dark); text-transform: uppercase; letter-spacing: 0.04em; display: flex; align-items: center; gap: 6px; }
-  .btn-edit { background: var(--bg); color: var(--text-light); border: none; border-radius: 6px; padding: 4px 10px; font-size: 10px; font-weight: 500; cursor: pointer; font-family: inherit; }
-  .btn-edit.saving { background: var(--green-mid); color: #fff; }
-  .section-content { font-size: 14px; line-height: 1.7; color: #444; white-space: pre-wrap; }
-  .section-edit { width: 100%; padding: 10px; border-radius: 8px; border: 2px solid var(--green-mid); font-size: 13px; font-family: inherit; min-height: 55px; resize: vertical; outline: none; line-height: 1.6; display: none; }
+.auth-grid {
+  position: absolute; inset: 0;
+  background-image:
+    linear-gradient(rgba(59,130,246,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(59,130,246,0.03) 1px, transparent 1px);
+  background-size: 60px 60px;
+}
 
-  .recs-panel { background: var(--amber-pale); border: 1px solid var(--amber-border); border-radius: 16px; padding: 18px; margin-bottom: 12px; display: none; }
-  .recs-panel.visible { display: block; }
-  .recs-header { display: flex; align-items: center; gap: 8px; margin-bottom: 14px; }
-  .recs-icon { width: 32px; height: 32px; background: var(--amber); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 16px; }
-  .recs-title { font-family: 'Fraunces', serif; font-size: 15px; font-weight: 700; color: #92400E; }
-  .recs-subtitle { font-size: 11px; color: #B45309; }
-  .rec-item { background: #fff; border: 1px solid var(--amber-border); border-radius: 12px; padding: 12px 14px; margin-bottom: 8px; transition: all 0.2s; }
-  .rec-item.dismissed { opacity: 0.4; text-decoration: line-through; }
-  .rec-category { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; padding: 2px 8px; border-radius: 4px; display: inline-block; margin-bottom: 6px; }
-  .rec-category.clinical { background: #DBEAFE; color: #1E40AF; }
-  .rec-category.followup { background: var(--green-pale); color: var(--green-dark); }
-  .rec-category.medication { background: #F3E8FF; color: #6B21A8; }
-  .rec-category.preventive { background: #FEF3C7; color: #92400E; }
-  .rec-category.diagnostic { background: #FCE7F3; color: #9D174D; }
-  .rec-category.safety { background: var(--red-light); color: #991B1B; }
-  .rec-text { font-size: 13px; line-height: 1.6; color: #444; }
-  .rec-actions { display: flex; gap: 6px; margin-top: 8px; }
-  .btn-rec { padding: 4px 12px; border-radius: 6px; font-size: 10px; font-weight: 600; cursor: pointer; font-family: inherit; border: none; transition: all 0.15s; }
-  .btn-rec.accept { background: var(--green-pale); color: var(--green-dark); }
-  .btn-rec.dismiss { background: #F3F4F6; color: #6B7280; }
-  .recs-disclaimer { font-size: 10px; color: #B45309; font-style: italic; margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--amber-border); line-height: 1.5; }
+.auth-card {
+  position: relative; z-index: 10;
+  background: rgba(255,255,255,0.97);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: var(--radius-xl);
+  padding: 40px 32px;
+  max-width: 400px; width: calc(100% - 40px);
+  box-shadow: var(--shadow-xl), 0 0 80px rgba(59,130,246,0.08);
+  animation: scaleIn 0.7s cubic-bezier(0.16,1,0.3,1) both;
+}
 
-  .loading-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 200; align-items: center; justify-content: center; backdrop-filter: blur(4px); }
-  .loading-overlay.visible { display: flex; }
-  .loading-card { background: #fff; border-radius: 20px; padding: 32px 28px; text-align: center; max-width: 300px; width: 90%; box-shadow: 0 8px 40px rgba(0,0,0,0.2); }
-  .loading-spinner { width: 48px; height: 48px; border: 4px solid var(--border); border-top-color: var(--green-mid); border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 16px; }
-  .loading-title { font-family: 'Fraunces', serif; font-size: 16px; font-weight: 700; color: var(--green-dark); margin-bottom: 6px; }
-  .loading-step { font-size: 13px; color: var(--text-light); }
+.auth-logo { text-align: center; margin-bottom: 32px; animation: fadeInDown 0.7s cubic-bezier(0.16,1,0.3,1) 0.1s both; }
 
-  .saved-panel { display: none; }
-  .saved-panel.visible { display: block; }
-  .saved-title { font-size: 15px; font-weight: 600; font-family: 'Fraunces', serif; margin-bottom: 12px; }
-  .saved-empty { color: var(--text-light); font-size: 13px; padding: 16px 0; text-align: center; }
-  .saved-item { background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; text-align: left; cursor: pointer; display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; width: 100%; font-family: inherit; }
-  .saved-item:active { background: #eee; }
-  .saved-item-name { font-weight: 600; font-size: 13px; color: var(--text); }
-  .saved-item-meta { font-size: 11px; color: var(--text-light); margin-top: 2px; }
-  .saved-item-arrow { font-size: 11px; color: #ccc; }
+.logo-mark {
+  width: 64px; height: 64px;
+  margin: 0 auto 14px;
+  position: relative;
+  animation: float 6s ease-in-out infinite;
+}
 
-  .raw-details { margin-top: 10px; }
-  .raw-details summary { font-size: 12px; font-weight: 600; color: var(--text-light); cursor: pointer; outline: none; padding: 12px 0; }
-  .raw-details-text { font-size: 12px; line-height: 1.7; color: #666; font-style: italic; padding-bottom: 8px; white-space: pre-wrap; }
+.logo-mark svg { width: 100%; height: 100%; }
 
-  .tips-title { font-size: 14px; font-weight: 600; color: var(--green-dark); font-family: 'Fraunces', serif; margin-bottom: 12px; }
-  .tip-row { display: flex; align-items: flex-start; gap: 10px; font-size: 12px; color: #666; line-height: 1.5; margin-bottom: 8px; }
-  .tip-num { background: var(--green-pale); color: var(--green-mid); border-radius: 6px; width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; flex-shrink: 0; }
+.auth-logo-title {
+  font-family: 'Sora', sans-serif;
+  font-size: 28px; font-weight: 800;
+  background: linear-gradient(135deg, var(--navy) 0%, var(--blue-600) 50%, var(--cyan-500) 100%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text;
+  letter-spacing: -0.03em;
+}
 
-  .template-badge { display: inline-flex; align-items: center; gap: 6px; background: var(--blue-pale); border: 1px solid var(--blue-border); border-radius: 8px; padding: 6px 12px; font-size: 11px; font-weight: 600; color: #1E40AF; margin-bottom: 10px; }
+.auth-logo-sub {
+  font-size: 13px; color: var(--text-light); margin-top: 4px;
+  font-weight: 400; letter-spacing: 0.02em;
+}
 
-  .toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(80px); background: var(--green-dark); color: #fff; padding: 12px 24px; border-radius: 12px; font-size: 14px; font-weight: 500; box-shadow: 0 6px 24px rgba(0,0,0,0.2); z-index: 999; transition: transform 0.3s ease; pointer-events: none; }
-  .toast.show { transform: translateX(-50%) translateY(0); }
+.auth-tabs {
+  display: flex; gap: 4px; margin-bottom: 28px;
+  background: var(--slate-100); border-radius: var(--radius-sm); padding: 4px;
+  animation: fadeInUp 0.6s cubic-bezier(0.16,1,0.3,1) 0.2s both;
+}
 
-  /* User bar */
-  .user-bar { display: flex; align-items: center; gap: 8px; font-size: 11px; color: rgba(255,255,255,0.8); }
-  .btn-logout { background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; padding: 6px 12px; color: #fff; font-size: 11px; font-family: inherit; cursor: pointer; }
+.auth-tab {
+  flex: 1; padding: 10px; text-align: center; font-size: 13px; font-weight: 600;
+  cursor: pointer; border: none; background: transparent; color: var(--text-light);
+  font-family: inherit; border-radius: 7px; transition: all 0.3s cubic-bezier(0.16,1,0.3,1);
+  position: relative; letter-spacing: 0.01em;
+}
+
+.auth-tab.active {
+  background: var(--card);
+  color: var(--blue-600);
+  box-shadow: var(--shadow-sm);
+}
+
+.auth-field {
+  margin-bottom: 18px;
+  animation: fadeInUp 0.5s cubic-bezier(0.16,1,0.3,1) both;
+}
+.auth-field:nth-child(1) { animation-delay: 0.25s; }
+.auth-field:nth-child(2) { animation-delay: 0.3s; }
+.auth-field:nth-child(3) { animation-delay: 0.35s; }
+
+.auth-label {
+  font-size: 11px; font-weight: 600; color: var(--slate-500);
+  text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 6px; display: block;
+}
+
+.auth-input {
+  width: 100%; padding: 13px 16px;
+  border: 2px solid var(--slate-200); border-radius: var(--radius-sm);
+  font-size: 15px; font-family: inherit; font-weight: 500;
+  outline: none; transition: all 0.3s cubic-bezier(0.16,1,0.3,1);
+  background: var(--slate-50); color: var(--text);
+}
+
+.auth-input:focus {
+  border-color: var(--blue-500);
+  background: white;
+  box-shadow: 0 0 0 4px rgba(59,130,246,0.1);
+}
+
+.auth-input::placeholder { color: var(--slate-300); font-weight: 400; }
+
+.auth-btn {
+  width: 100%; padding: 14px;
+  background: linear-gradient(135deg, var(--blue-600) 0%, var(--blue-500) 50%, var(--cyan-500) 100%);
+  background-size: 200% 200%;
+  color: #fff; border: none; border-radius: var(--radius-sm);
+  font-size: 15px; font-weight: 700; cursor: pointer;
+  font-family: inherit; margin-top: 10px;
+  box-shadow: 0 4px 16px rgba(59,130,246,0.3);
+  transition: all 0.3s cubic-bezier(0.16,1,0.3,1);
+  animation: fadeInUp 0.5s cubic-bezier(0.16,1,0.3,1) 0.4s both;
+  letter-spacing: 0.01em;
+  position: relative; overflow: hidden;
+}
+
+.auth-btn::after {
+  content: '';
+  position: absolute; inset: 0;
+  background: linear-gradient(135deg, transparent, rgba(255,255,255,0.15), transparent);
+  background-size: 200% 100%;
+  animation: shimmer 3s ease-in-out infinite;
+}
+
+.auth-btn:hover { background-size: 100% 100%; transform: translateY(-1px); box-shadow: 0 6px 24px rgba(59,130,246,0.35); }
+.auth-btn:active { transform: translateY(0); box-shadow: 0 2px 8px rgba(59,130,246,0.3); }
+.auth-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+.auth-error {
+  background: var(--red-100); border: 1px solid #FECACA;
+  border-radius: var(--radius-sm); padding: 11px 14px;
+  font-size: 13px; color: #DC2626; font-weight: 500;
+  margin-bottom: 16px; display: none;
+  animation: scaleIn 0.3s ease both;
+}
+.auth-error.visible { display: block; }
+
+.auth-footer {
+  text-align: center; margin-top: 24px; font-size: 11px; color: var(--text-light);
+  line-height: 1.6; letter-spacing: 0.02em;
+  animation: fadeIn 0.6s 0.5s both;
+}
+
+.auth-footer .lock-icon {
+  display: inline-flex; align-items: center; gap: 4px;
+  background: var(--green-100); color: #16A34A;
+  padding: 3px 10px; border-radius: 20px; font-weight: 600;
+  font-size: 10px; margin-bottom: 4px;
+}
+
+/* ============================================
+   HEADER
+   ============================================ */
+.header {
+  background: var(--navy);
+  padding: 14px 20px;
+  display: flex; align-items: center; justify-content: space-between;
+  position: sticky; top: 0; z-index: 100;
+  box-shadow: 0 2px 24px rgba(15,23,42,0.2);
+  animation: fadeInDown 0.5s cubic-bezier(0.16,1,0.3,1) both;
+}
+
+.header-left { display: flex; align-items: center; gap: 12px; }
+
+.header-logo {
+  width: 38px; height: 38px;
+  background: linear-gradient(135deg, var(--blue-600), var(--cyan-500));
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 2px 12px rgba(59,130,246,0.25);
+  transition: transform 0.3s ease;
+}
+.header-logo:hover { transform: rotate(-5deg) scale(1.05); }
+.header-logo svg { width: 22px; height: 22px; }
+
+.header-title {
+  font-family: 'Sora', sans-serif;
+  font-size: 18px; font-weight: 700; color: #fff;
+  letter-spacing: -0.02em;
+}
+
+.header-sub { font-size: 11px; color: var(--slate-400); margin-top: 0; font-weight: 400; }
+.header-actions { display: flex; gap: 6px; align-items: center; }
+
+.btn-header {
+  background: var(--slate-700);
+  border: 1px solid var(--slate-600);
+  border-radius: var(--radius-sm);
+  padding: 8px 13px; color: var(--slate-300);
+  font-size: 12px; font-weight: 500;
+  font-family: inherit; cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex; align-items: center; gap: 5px;
+}
+.btn-header:hover { background: var(--slate-600); color: white; }
+.btn-header:active { transform: scale(0.96); }
+
+.btn-new {
+  background: linear-gradient(135deg, var(--blue-600), var(--blue-500));
+  border: none; border-radius: var(--radius-sm);
+  padding: 8px 14px; color: #fff;
+  font-size: 12px; font-weight: 600;
+  font-family: inherit; cursor: pointer;
+  display: none; transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(59,130,246,0.3);
+}
+.btn-new.visible { display: flex; align-items: center; gap: 4px; }
+.btn-new:active { transform: scale(0.96); }
+
+/* ============================================
+   MAIN CONTAINER
+   ============================================ */
+.app-screen { display: none; }
+.app-screen.visible { display: block; }
+.container { max-width: 720px; margin: 0 auto; padding: 16px 14px 120px; }
+
+.card {
+  background: var(--card);
+  border-radius: var(--radius-lg);
+  padding: 18px 20px;
+  margin-bottom: 12px;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border);
+  transition: all 0.3s ease;
+}
+
+/* ============================================
+   PATIENT INFO
+   ============================================ */
+.patient-row { display: flex; gap: 14px; flex-wrap: wrap; }
+.field { flex: 1 1 160px; }
+.field-small { flex: 0 1 120px; }
+
+.field-label {
+  font-size: 10px; font-weight: 700; color: var(--slate-400);
+  text-transform: uppercase; letter-spacing: 0.08em;
+}
+
+.field-input {
+  width: 100%; margin-top: 4px; padding: 9px 0;
+  border: none; border-bottom: 2px solid var(--slate-200);
+  font-size: 15px; font-weight: 600;
+  background: transparent; outline: none;
+  font-family: inherit; color: var(--text);
+  transition: border-color 0.3s ease;
+}
+.field-input:focus { border-bottom-color: var(--blue-500); }
+.field-input::placeholder { color: var(--slate-300); font-weight: 400; }
+
+.error-box {
+  background: var(--red-100); border: 1px solid #FECACA;
+  border-radius: var(--radius-md); padding: 12px 16px;
+  margin-bottom: 12px; font-size: 13px; font-weight: 500; color: #DC2626;
+  display: none; align-items: center; gap: 8px;
+  animation: scaleIn 0.3s ease;
+}
+.error-box.visible { display: flex; }
+
+/* ============================================
+   RECORDING
+   ============================================ */
+.record-card {
+  text-align: center; padding: 32px 20px;
+  border-radius: var(--radius-xl);
+  background: linear-gradient(180deg, var(--card) 0%, var(--blue-50) 100%);
+  border: 1px solid var(--blue-200);
+}
+
+.mic-wrapper { position: relative; display: inline-block; margin-bottom: 24px; }
+
+.mic-ring-1, .mic-ring-2, .mic-ring-3 {
+  position: absolute; top: 50%; left: 50%;
+  transform: translate(-50%,-50%);
+  border-radius: 50%; pointer-events: none; opacity: 0;
+  border: 2px solid var(--blue-400);
+}
+.mic-ring-1 { width: 110px; height: 110px; }
+.mic-ring-2 { width: 140px; height: 140px; }
+.mic-ring-3 { width: 170px; height: 170px; }
+
+body.recording .mic-ring-1 { animation: ripple1 2s ease-in-out infinite; }
+body.recording .mic-ring-2 { animation: ripple2 2s ease-in-out infinite 0.3s; }
+body.recording .mic-ring-3 { animation: ripple3 2s ease-in-out infinite 0.6s; }
+
+.mic-btn {
+  width: 88px; height: 88px; border-radius: 50%; border: none;
+  background: linear-gradient(135deg, var(--blue-600), var(--blue-500));
+  color: #fff; font-size: 36px; cursor: pointer;
+  position: relative; z-index: 2;
+  box-shadow: 0 6px 32px rgba(59,130,246,0.35);
+  transition: all 0.3s cubic-bezier(0.16,1,0.3,1);
+  display: flex; align-items: center; justify-content: center;
+}
+.mic-btn:hover { transform: scale(1.05); box-shadow: 0 8px 40px rgba(59,130,246,0.4); }
+.mic-btn:active { transform: scale(0.95); }
+
+body.recording .mic-btn {
+  background: linear-gradient(135deg, #EF4444, #F87171);
+  box-shadow: 0 6px 32px rgba(239,68,68,0.35);
+  animation: pulseGlow 2s infinite;
+}
+
+.mic-status {
+  font-size: 16px; font-weight: 700; color: var(--navy);
+  margin-bottom: 2px; letter-spacing: -0.01em;
+  font-family: 'Sora', sans-serif;
+}
+body.recording .mic-status { color: #EF4444; }
+
+.mic-hint { font-size: 13px; color: var(--text-light); margin-bottom: 24px; font-weight: 400; }
+
+/* Wave bars animation during recording */
+.wave-bars {
+  display: none; align-items: center; justify-content: center;
+  gap: 3px; height: 24px; margin-bottom: 16px;
+}
+body.recording .wave-bars { display: flex; }
+
+.wave-bar {
+  width: 3px; height: 6px;
+  background: var(--blue-500); border-radius: 2px;
+  animation: waveBar 1.2s ease-in-out infinite;
+}
+.wave-bar:nth-child(1) { animation-delay: 0s; }
+.wave-bar:nth-child(2) { animation-delay: 0.1s; }
+.wave-bar:nth-child(3) { animation-delay: 0.2s; }
+.wave-bar:nth-child(4) { animation-delay: 0.3s; }
+.wave-bar:nth-child(5) { animation-delay: 0.4s; }
+.wave-bar:nth-child(6) { animation-delay: 0.3s; }
+.wave-bar:nth-child(7) { animation-delay: 0.2s; }
+
+.transcript-box {
+  background: white; border-radius: var(--radius-md); padding: 16px;
+  min-height: 80px; text-align: left;
+  border: 1px solid var(--slate-200);
+}
+
+.transcript-label {
+  font-size: 10px; font-weight: 700; color: var(--slate-400);
+  text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 8px;
+}
+
+.transcript-text { font-size: 14px; line-height: 1.7; color: var(--slate-700); }
+.transcript-interim { color: var(--blue-400); font-style: italic; }
+.transcript-placeholder { color: var(--slate-300); font-size: 13px; font-style: italic; }
+
+.manual-input {
+  width: 100%; margin-top: 12px; padding: 14px;
+  border-radius: var(--radius-md); border: 2px solid var(--slate-200);
+  font-size: 14px; font-family: inherit; min-height: 60px;
+  resize: vertical; outline: none; transition: all 0.3s ease;
+  background: white; color: var(--text);
+}
+.manual-input:focus { border-color: var(--blue-500); box-shadow: 0 0 0 4px rgba(59,130,246,0.08); }
+
+.btn-process {
+  margin-top: 20px; padding: 14px 32px;
+  background: linear-gradient(135deg, var(--blue-600), var(--cyan-500));
+  color: #fff; border: none; border-radius: var(--radius-md);
+  font-size: 15px; font-weight: 700; cursor: pointer;
+  box-shadow: 0 4px 20px rgba(59,130,246,0.3);
+  font-family: inherit; display: none;
+  align-items: center; gap: 8px;
+  transition: all 0.3s cubic-bezier(0.16,1,0.3,1);
+  position: relative; overflow: hidden;
+  letter-spacing: 0.01em;
+}
+.btn-process::after {
+  content: '';
+  position: absolute; inset: 0;
+  background: linear-gradient(135deg, transparent, rgba(255,255,255,0.1), transparent);
+  background-size: 200% 100%;
+  animation: shimmer 2.5s ease-in-out infinite;
+}
+.btn-process.visible { display: inline-flex; }
+.btn-process:hover { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(59,130,246,0.35); }
+.btn-process:active { transform: translateY(0); }
+.btn-process:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+/* ============================================
+   STRUCTURED VIEW
+   ============================================ */
+.structured-view { display: none; }
+.structured-view.visible { display: block; }
+.record-view.hidden { display: none; }
+
+.action-bar { display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; }
+
+.btn-action {
+  padding: 10px 14px; background: var(--card);
+  border: 1px solid var(--border); border-radius: var(--radius-sm);
+  font-size: 12px; font-weight: 600; cursor: pointer;
+  font-family: inherit; display: flex; align-items: center;
+  gap: 6px; transition: all 0.2s ease;
+  color: var(--slate-600);
+}
+.btn-action:hover { background: var(--slate-50); border-color: var(--slate-300); }
+.btn-action:active { transform: scale(0.96); }
+.btn-action.primary {
+  background: linear-gradient(135deg, var(--blue-600), var(--blue-500));
+  color: #fff; border: none; font-weight: 700;
+  box-shadow: 0 2px 12px rgba(59,130,246,0.25);
+}
+.btn-action.primary:hover { box-shadow: 0 4px 20px rgba(59,130,246,0.3); }
+.btn-action.copied { background: var(--green-500); color: #fff; border-color: var(--green-500); }
+
+.patient-header {
+  background: linear-gradient(135deg, var(--navy) 0%, var(--slate-800) 100%);
+  border-radius: var(--radius-lg); padding: 18px 22px; margin-bottom: 10px;
+  color: #fff; display: flex; justify-content: space-between; align-items: center;
+  box-shadow: 0 4px 24px rgba(15,23,42,0.15);
+  animation: fadeInUp 0.5s cubic-bezier(0.16,1,0.3,1) both;
+}
+
+.patient-header-name {
+  font-size: 18px; font-weight: 800;
+  font-family: 'Sora', sans-serif;
+  letter-spacing: -0.02em;
+}
+.patient-header-meta { font-size: 12px; opacity: 0.6; margin-top: 3px; }
+
+.section-count {
+  background: rgba(59,130,246,0.2); border: 1px solid rgba(59,130,246,0.3);
+  border-radius: var(--radius-sm);
+  padding: 5px 12px; font-size: 11px; font-weight: 600;
+  color: var(--blue-300);
+}
+
+.template-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: var(--blue-50); border: 1px solid var(--blue-200);
+  border-radius: var(--radius-sm); padding: 7px 14px;
+  font-size: 11px; font-weight: 600; color: var(--blue-600);
+  margin-bottom: 10px;
+  animation: fadeIn 0.4s 0.3s both;
+}
+
+.note-section {
+  background: var(--card);
+  border-radius: var(--radius-md);
+  padding: 16px 20px;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border);
+  margin-bottom: 8px;
+  transition: all 0.3s ease;
+  animation: fadeInUp 0.4s cubic-bezier(0.16,1,0.3,1) both;
+}
+.note-section:hover { box-shadow: var(--shadow-md); border-color: var(--blue-200); }
+
+.section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+
+.section-title {
+  font-size: 11px; font-weight: 700; color: var(--blue-600);
+  text-transform: uppercase; letter-spacing: 0.04em;
+  display: flex; align-items: center; gap: 6px;
+}
+
+.btn-edit {
+  background: var(--slate-100); color: var(--slate-500); border: none;
+  border-radius: 6px; padding: 5px 12px; font-size: 11px;
+  font-weight: 600; cursor: pointer; font-family: inherit;
+  transition: all 0.2s ease;
+}
+.btn-edit:hover { background: var(--slate-200); }
+.btn-edit.saving { background: var(--blue-500); color: #fff; }
+
+.section-content { font-size: 14px; line-height: 1.75; color: var(--slate-700); white-space: pre-wrap; }
+
+.section-edit {
+  width: 100%; padding: 12px; border-radius: 8px;
+  border: 2px solid var(--blue-500); font-size: 14px;
+  font-family: inherit; min-height: 55px; resize: vertical;
+  outline: none; line-height: 1.6; display: none;
+  background: var(--blue-50);
+}
+
+/* ============================================
+   RECOMMENDATIONS
+   ============================================ */
+.recs-panel {
+  background: linear-gradient(135deg, #FFFBEB 0%, #FEF3C7 100%);
+  border: 1px solid #FDE68A; border-radius: var(--radius-lg);
+  padding: 20px; margin-bottom: 12px; display: none;
+  animation: fadeInUp 0.5s cubic-bezier(0.16,1,0.3,1) both;
+}
+.recs-panel.visible { display: block; }
+
+.recs-header { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; }
+
+.recs-icon {
+  width: 36px; height: 36px;
+  background: linear-gradient(135deg, var(--amber-500), var(--amber-400));
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; box-shadow: 0 2px 8px rgba(245,158,11,0.3);
+}
+
+.recs-title { font-family: 'Sora', sans-serif; font-size: 16px; font-weight: 700; color: #92400E; letter-spacing: -0.01em; }
+.recs-subtitle { font-size: 11px; color: #B45309; font-weight: 400; }
+
+.rec-item {
+  background: #fff; border: 1px solid #FDE68A;
+  border-radius: var(--radius-md); padding: 14px 16px;
+  margin-bottom: 8px; transition: all 0.3s ease;
+}
+.rec-item:hover { box-shadow: 0 2px 12px rgba(245,158,11,0.1); }
+.rec-item.dismissed { opacity: 0.35; }
+
+.rec-category {
+  font-size: 9px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.06em; padding: 3px 8px; border-radius: 5px;
+  display: inline-block; margin-bottom: 6px;
+}
+.rec-category.clinical { background: var(--blue-100); color: var(--blue-600); }
+.rec-category.followup { background: var(--green-100); color: #16A34A; }
+.rec-category.medication { background: var(--purple-100); color: var(--purple-500); }
+.rec-category.preventive { background: #FEF3C7; color: #92400E; }
+.rec-category.diagnostic { background: var(--rose-100); color: var(--rose-500); }
+.rec-category.safety { background: var(--red-100); color: var(--red-500); }
+
+.rec-text { font-size: 13px; line-height: 1.65; color: var(--slate-600); }
+.rec-actions { display: flex; gap: 6px; margin-top: 10px; }
+
+.btn-rec {
+  padding: 5px 14px; border-radius: 7px; font-size: 11px; font-weight: 600;
+  cursor: pointer; font-family: inherit; border: none; transition: all 0.2s ease;
+}
+.btn-rec.accept { background: var(--green-100); color: #16A34A; }
+.btn-rec.accept:hover { background: #BBF7D0; }
+.btn-rec.accept:active { transform: scale(0.96); }
+.btn-rec.dismiss { background: var(--slate-100); color: var(--slate-500); }
+.btn-rec.dismiss:hover { background: var(--slate-200); }
+
+.recs-disclaimer {
+  font-size: 10px; color: #B45309; font-style: italic;
+  margin-top: 12px; padding-top: 12px;
+  border-top: 1px solid #FDE68A; line-height: 1.5;
+}
+
+/* ============================================
+   LOADING
+   ============================================ */
+.loading-overlay {
+  display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(15,23,42,0.6); z-index: 200;
+  align-items: center; justify-content: center;
+  backdrop-filter: blur(8px);
+}
+.loading-overlay.visible { display: flex; }
+
+.loading-card {
+  background: #fff; border-radius: var(--radius-xl);
+  padding: 40px 32px; text-align: center;
+  max-width: 300px; width: 90%;
+  box-shadow: var(--shadow-xl);
+  animation: scaleIn 0.4s cubic-bezier(0.16,1,0.3,1) both;
+}
+
+.loading-spinner {
+  width: 52px; height: 52px;
+  border: 3px solid var(--slate-200);
+  border-top-color: var(--blue-500);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin: 0 auto 20px;
+}
+
+.loading-dots { display: flex; justify-content: center; gap: 6px; margin-bottom: 18px; }
+.loading-dot {
+  width: 8px; height: 8px;
+  background: var(--blue-500); border-radius: 50%;
+  animation: dotPulse 1.4s ease-in-out infinite;
+}
+.loading-dot:nth-child(2) { animation-delay: 0.16s; }
+.loading-dot:nth-child(3) { animation-delay: 0.32s; }
+
+.loading-title {
+  font-family: 'Sora', sans-serif;
+  font-size: 17px; font-weight: 700;
+  color: var(--navy); margin-bottom: 6px;
+  letter-spacing: -0.01em;
+}
+
+.loading-step { font-size: 13px; color: var(--text-light); font-weight: 400; }
+
+/* ============================================
+   SAVED NOTES
+   ============================================ */
+.saved-panel { display: none; }
+.saved-panel.visible { display: block; }
+
+.saved-title {
+  font-size: 16px; font-weight: 700;
+  font-family: 'Sora', sans-serif;
+  margin-bottom: 14px; letter-spacing: -0.01em;
+  display: flex; align-items: center; gap: 8px;
+}
+
+.saved-empty { color: var(--text-light); font-size: 13px; padding: 20px 0; text-align: center; }
+
+.saved-item {
+  background: var(--slate-50); border: 1px solid var(--border);
+  border-radius: var(--radius-md); padding: 14px 16px;
+  text-align: left; cursor: pointer;
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 6px; width: 100%; font-family: inherit;
+  transition: all 0.2s ease;
+}
+.saved-item:hover { background: var(--blue-50); border-color: var(--blue-200); }
+.saved-item:active { transform: scale(0.98); }
+.saved-item-name { font-weight: 700; font-size: 14px; color: var(--text); }
+.saved-item-meta { font-size: 11px; color: var(--text-light); margin-top: 2px; }
+.saved-item-arrow { color: var(--blue-400); font-size: 16px; font-weight: 700; }
+
+/* ============================================
+   RAW DETAILS & TIPS
+   ============================================ */
+.raw-details { margin-top: 10px; }
+.raw-details summary {
+  font-size: 12px; font-weight: 600; color: var(--text-light);
+  cursor: pointer; outline: none; padding: 14px 0;
+  transition: color 0.2s;
+}
+.raw-details summary:hover { color: var(--blue-500); }
+.raw-details-text { font-size: 12px; line-height: 1.7; color: var(--slate-500); font-style: italic; padding-bottom: 8px; white-space: pre-wrap; }
+
+.tips-title {
+  font-size: 15px; font-weight: 700; color: var(--navy);
+  font-family: 'Sora', sans-serif; margin-bottom: 14px;
+  letter-spacing: -0.01em;
+  display: flex; align-items: center; gap: 8px;
+}
+
+.tip-row {
+  display: flex; align-items: flex-start; gap: 12px;
+  font-size: 13px; color: var(--slate-600); line-height: 1.6;
+  margin-bottom: 10px;
+}
+
+.tip-num {
+  background: var(--blue-100); color: var(--blue-600);
+  border-radius: 8px; width: 24px; height: 24px; min-width: 24px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 700; flex-shrink: 0;
+}
+
+/* ============================================
+   TOAST
+   ============================================ */
+.toast {
+  position: fixed; bottom: 32px; left: 50%;
+  transform: translateX(-50%) translateY(80px);
+  background: var(--navy); color: #fff;
+  padding: 13px 28px; border-radius: var(--radius-md);
+  font-size: 14px; font-weight: 600;
+  box-shadow: var(--shadow-lg);
+  z-index: 999; transition: all 0.4s cubic-bezier(0.16,1,0.3,1);
+  pointer-events: none;
+  display: flex; align-items: center; gap: 8px;
+}
+.toast.show { transform: translateX(-50%) translateY(0); }
+
+/* ============================================
+   USER BAR
+   ============================================ */
+.btn-logout {
+  background: transparent;
+  border: 1px solid var(--slate-600);
+  border-radius: var(--radius-sm);
+  padding: 7px 12px; color: var(--slate-400);
+  font-size: 11px; font-weight: 500;
+  font-family: inherit; cursor: pointer;
+  transition: all 0.2s;
+}
+.btn-logout:hover { border-color: var(--slate-400); color: white; }
+
+/* ============================================
+   SPINNER INLINE
+   ============================================ */
+.spinner {
+  display: inline-block; width: 16px; height: 16px;
+  border: 2px solid rgba(255,255,255,0.3);
+  border-top-color: #fff; border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+/* ============================================
+   OCR / SCAN
+   ============================================ */
+.input-methods {
+  display: flex; align-items: center; justify-content: center;
+  gap: 20px; margin-bottom: 24px;
+}
+
+.method-btn {
+  display: flex; flex-direction: column; align-items: center; gap: 8px;
+  cursor: pointer; border: none; background: none; font-family: inherit;
+  transition: all 0.3s cubic-bezier(0.16,1,0.3,1);
+}
+.method-btn:active { transform: scale(0.92); }
+
+.method-icon {
+  width: 88px; height: 88px; border-radius: 50%; border: none;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 36px; cursor: pointer; position: relative; z-index: 2;
+  transition: all 0.3s cubic-bezier(0.16,1,0.3,1);
+}
+
+.method-icon.mic-style {
+  background: linear-gradient(135deg, var(--blue-600), var(--blue-500));
+  color: #fff;
+  box-shadow: 0 6px 32px rgba(59,130,246,0.35);
+}
+.method-icon.mic-style:hover { transform: scale(1.05); box-shadow: 0 8px 40px rgba(59,130,246,0.4); }
+
+body.recording .method-icon.mic-style {
+  background: linear-gradient(135deg, #EF4444, #F87171);
+  box-shadow: 0 6px 32px rgba(239,68,68,0.35);
+  animation: pulseGlow 2s infinite;
+}
+
+.method-icon.scan-style {
+  background: linear-gradient(135deg, var(--cyan-500), var(--teal-500));
+  color: #fff;
+  box-shadow: 0 6px 32px rgba(6,182,212,0.3);
+}
+.method-icon.scan-style:hover { transform: scale(1.05); box-shadow: 0 8px 40px rgba(6,182,212,0.35); }
+
+.method-label {
+  font-size: 12px; font-weight: 600; color: var(--slate-500);
+  letter-spacing: 0.01em;
+}
+
+.method-divider {
+  font-size: 11px; font-weight: 600; color: var(--slate-300);
+  text-transform: uppercase; letter-spacing: 0.1em;
+  padding-bottom: 28px;
+}
+
+.ocr-preview {
+  display: none; margin-top: 12px;
+  background: var(--slate-50); border: 2px solid var(--blue-200);
+  border-radius: var(--radius-md); padding: 12px;
+  position: relative; animation: fadeInUp 0.4s cubic-bezier(0.16,1,0.3,1) both;
+}
+.ocr-preview.visible { display: block; }
+
+.ocr-preview-header {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 10px;
+}
+
+.ocr-preview-label {
+  font-size: 10px; font-weight: 700; color: var(--cyan-500);
+  text-transform: uppercase; letter-spacing: 0.08em;
+  display: flex; align-items: center; gap: 6px;
+}
+
+.btn-remove-img {
+  background: var(--slate-200); border: none; border-radius: 6px;
+  padding: 4px 10px; font-size: 10px; font-weight: 600;
+  color: var(--slate-500); cursor: pointer; font-family: inherit;
+  transition: all 0.2s;
+}
+.btn-remove-img:hover { background: var(--red-100); color: var(--red-500); }
+
+.ocr-preview-img {
+  max-width: 100%; max-height: 240px;
+  border-radius: var(--radius-sm);
+  object-fit: contain; display: block;
+  margin: 0 auto;
+  box-shadow: var(--shadow-sm);
+}
+
+.ocr-status {
+  text-align: center; padding: 16px 0;
+  font-size: 13px; color: var(--blue-500); font-weight: 600;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+}
+
+.ocr-status .spinner {
+  border-color: rgba(59,130,246,0.2);
+  border-top-color: var(--blue-500);
+}
+
+.file-input-hidden { display: none; }
 </style>
 </head>
 <body>
 
 <!-- ===== AUTH SCREEN ===== -->
 <div class="auth-screen" id="authScreen">
+  <div class="auth-bg">
+    <div class="auth-grid"></div>
+    <div class="auth-particles" id="authParticles"></div>
+  </div>
+
   <div class="auth-card">
     <div class="auth-logo">
-      <div class="auth-logo-icon">🦷</div>
+      <div class="logo-mark">
+        <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="logoGrad" x1="0" y1="0" x2="64" y2="64">
+              <stop offset="0%" stop-color="#2563EB"/>
+              <stop offset="100%" stop-color="#06B6D4"/>
+            </linearGradient>
+          </defs>
+          <rect width="64" height="64" rx="16" fill="#0F172A"/>
+          <path d="M32 12c-4.5 0-8 1.5-10 4.5C20 19.5 19 24 19 28c0 3 .5 6 1.5 9 1.2 3.5 2.5 7 3.5 11 .8 3 1.5 5 2.5 5s2-2 2.5-5l1-4h4l1 4c.5 3 1.5 5 2.5 5s1.7-2 2.5-5c1-4 2.3-7.5 3.5-11 1-3 1.5-6 1.5-9 0-4-1-8.5-3-11.5-2-3-5.5-4.5-10-4.5z" fill="url(#logoGrad)" opacity="0.9"/>
+          <path d="M14 28h4M46 28h4M12 24h4M48 24h4M13 32h4M47 32h4" stroke="#60A5FA" stroke-width="1.8" stroke-linecap="round" opacity="0.5"/>
+        </svg>
+      </div>
       <div class="auth-logo-title">DentaVoice</div>
-      <div class="auth-logo-sub">Clinical Notes — Secure Login</div>
+      <div class="auth-logo-sub">AI-Powered Clinical Notes</div>
     </div>
 
     <div class="auth-tabs">
@@ -241,35 +1009,21 @@
     <div class="auth-error" id="authError"></div>
 
     <div id="loginForm">
-      <div class="auth-field">
-        <label class="auth-label">Email</label>
-        <input class="auth-input" id="loginEmail" type="email" placeholder="amira@clinic.com">
-      </div>
-      <div class="auth-field">
-        <label class="auth-label">Password</label>
-        <input class="auth-input" id="loginPassword" type="password" placeholder="Enter password">
-      </div>
+      <div class="auth-field"><label class="auth-label">Email</label><input class="auth-input" id="loginEmail" type="email" placeholder="name@clinic.com"></div>
+      <div class="auth-field"><label class="auth-label">Password</label><input class="auth-input" id="loginPassword" type="password" placeholder="Enter your password"></div>
       <button class="auth-btn" id="loginBtn" onclick="handleLogin()">Log In</button>
     </div>
 
     <div id="signupForm" style="display:none;">
-      <div class="auth-field">
-        <label class="auth-label">Full Name</label>
-        <input class="auth-input" id="signupName" type="text" placeholder="Dr. Amira Mahmoud">
-      </div>
-      <div class="auth-field">
-        <label class="auth-label">Email</label>
-        <input class="auth-input" id="signupEmail" type="email" placeholder="amira@clinic.com">
-      </div>
-      <div class="auth-field">
-        <label class="auth-label">Password</label>
-        <input class="auth-input" id="signupPassword" type="password" placeholder="Min 8 characters">
-      </div>
+      <div class="auth-field"><label class="auth-label">Full Name</label><input class="auth-input" id="signupName" type="text" placeholder="Dr. Amira Mahmoud"></div>
+      <div class="auth-field"><label class="auth-label">Email</label><input class="auth-input" id="signupEmail" type="email" placeholder="name@clinic.com"></div>
+      <div class="auth-field"><label class="auth-label">Password</label><input class="auth-input" id="signupPassword" type="password" placeholder="Min 8 characters"></div>
       <button class="auth-btn" id="signupBtn" onclick="handleSignup()">Create Account</button>
     </div>
 
     <div class="auth-footer">
-      🔒 Patient data stored on encrypted Canadian servers<br>PHIPA/PIPEDA compliant
+      <div class="lock-icon">🔒 Encrypted</div><br>
+      Patient data on Canadian servers · PHIPA/PIPEDA compliant
     </div>
   </div>
 </div>
@@ -278,7 +1032,9 @@
 <div class="app-screen" id="appScreen">
   <div class="header">
     <div class="header-left">
-      <div class="header-icon">🦷</div>
+      <div class="header-logo">
+        <svg viewBox="0 0 32 32" fill="none"><path d="M16 5c-2.5 0-4.5.8-5.5 2.5S9 12 9 14.2c0 1.7.3 3.4.8 5 .7 2 1.4 4 2 6.3.4 1.5.8 2.7 1.4 2.7s1.1-1.1 1.4-2.7l.5-2.3h2l.5 2.3c.3 1.6.8 2.7 1.4 2.7s1-.9 1.4-2.7c.6-2.3 1.3-4.3 2-6.3.5-1.6.8-3.3.8-5 0-2.2-.6-4.8-1.7-6.5S18.5 5 16 5z" fill="white" opacity="0.95"/><path d="M6 14.5h2.5M23.5 14.5H26M5 12h2.5M24.5 12H27M5.5 17h2.5M24 17h2.5" stroke="white" stroke-width="1.2" stroke-linecap="round" opacity="0.4"/></svg>
+      </div>
       <div>
         <div class="header-title">DentaVoice</div>
         <div class="header-sub" id="headerUser">Clinical Notes</div>
@@ -286,8 +1042,8 @@
     </div>
     <div class="header-actions">
       <button class="btn-header" id="btnHistory" onclick="toggleSaved()">📂 History</button>
-      <button class="btn-new" id="btnNew" onclick="startNew()">+ New</button>
-      <button class="btn-logout" onclick="handleLogout()">Logout</button>
+      <button class="btn-new" id="btnNew" onclick="startNew()">＋ New</button>
+      <button class="btn-logout" onclick="handleLogout()">Log out</button>
     </div>
   </div>
 
@@ -297,49 +1053,68 @@
       <div id="savedList"><div class="saved-empty">Loading notes...</div></div>
     </div>
 
-    <div class="card">
+    <div class="card animate-in">
       <div class="patient-row">
-        <div class="field">
-          <label class="field-label">Patient Name</label>
-          <input class="field-input" id="patientName" placeholder="Enter patient name">
-        </div>
-        <div class="field-small">
-          <label class="field-label">Patient ID</label>
-          <input class="field-input" id="patientId" placeholder="ID #">
-        </div>
-        <div class="field-small">
-          <label class="field-label">Visit Date</label>
-          <input class="field-input" id="visitDate" type="date">
-        </div>
+        <div class="field"><label class="field-label">Patient Name</label><input class="field-input" id="patientName" placeholder="Enter patient name"></div>
+        <div class="field-small"><label class="field-label">Patient ID</label><input class="field-input" id="patientId" placeholder="ID #"></div>
+        <div class="field-small"><label class="field-label">Visit Date</label><input class="field-input" id="visitDate" type="date"></div>
       </div>
     </div>
 
     <div class="error-box" id="errorBox"><span>⚠️</span><span id="errorText"></span></div>
 
     <div class="record-view" id="recordView">
-      <div class="card record-card">
-        <div class="mic-wrapper">
-          <div class="mic-pulse-1"></div>
-          <div class="mic-pulse-2"></div>
-          <button class="mic-btn" id="micBtn" onclick="toggleRecording()">🎙</button>
+      <div class="card record-card animate-in animate-in-d1">
+        <div class="input-methods">
+          <button class="method-btn" onclick="toggleRecording()">
+            <div class="mic-wrapper">
+              <div class="mic-ring-1"></div>
+              <div class="mic-ring-2"></div>
+              <div class="mic-ring-3"></div>
+              <div class="method-icon mic-style" id="micBtn">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="micIcon"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+              </div>
+            </div>
+            <span class="method-label" id="micLabel">Dictate</span>
+          </button>
+          <div class="method-divider">or</div>
+          <button class="method-btn" onclick="triggerScan()">
+            <div class="method-icon scan-style">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+            </div>
+            <span class="method-label">Scan Notes</span>
+          </button>
         </div>
-        <div class="mic-status" id="micStatus">Tap to start dictating</div>
-        <div class="mic-hint" id="micHint">Dictate chief complaint, findings, treatment, and plan</div>
+        <input type="file" accept="image/*" capture="environment" class="file-input-hidden" id="scanInput" onchange="handleScanInput(event)">
+        <div class="wave-bars"><div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div></div>
+        <div class="mic-status" id="micStatus">Dictate or scan clinical notes</div>
+        <div class="mic-hint" id="micHint">Voice record a patient visit, or photograph handwritten/printed notes</div>
+
+        <div class="ocr-preview" id="ocrPreview">
+          <div class="ocr-preview-header">
+            <div class="ocr-preview-label">📷 Scanned Image</div>
+            <button class="btn-remove-img" onclick="removeScannedImage()">✕ Remove</button>
+          </div>
+          <img class="ocr-preview-img" id="ocrPreviewImg">
+          <div class="ocr-status" id="ocrStatus" style="display:none;"><div class="spinner"></div> Extracting text from image...</div>
+        </div>
+
         <div class="transcript-box">
-          <div class="transcript-label">Raw Transcript</div>
+          <div class="transcript-label">Live Transcript</div>
           <div id="transcriptArea"><div class="transcript-placeholder">Your dictation will appear here in real-time...</div></div>
         </div>
         <textarea class="manual-input" id="manualInput" placeholder="Or type / paste notes manually here..." oninput="onManualInput()"></textarea>
         <button class="btn-process" id="btnProcess" onclick="processNotes()">✨ Structure with AI</button>
       </div>
-      <div class="card" id="tipsCard">
+
+      <div class="card animate-in animate-in-d2" id="tipsCard">
         <div class="tips-title">💡 Tips for best results</div>
-        <div class="tip-row"><span class="tip-num">1</span> Start with the chief complaint — why the patient came in</div>
-        <div class="tip-row"><span class="tip-num">2</span> Mention relevant medical history or allergies</div>
-        <div class="tip-row"><span class="tip-num">3</span> Describe your clinical findings with tooth numbers</div>
-        <div class="tip-row"><span class="tip-num">4</span> State your diagnosis and any differential diagnoses</div>
-        <div class="tip-row"><span class="tip-num">5</span> Detail the treatment, materials, and anesthesia used</div>
-        <div class="tip-row"><span class="tip-num">6</span> End with post-op instructions and follow-up plan</div>
+        <div class="tip-row"><span class="tip-num">1</span>Start with the chief complaint — why the patient came in</div>
+        <div class="tip-row"><span class="tip-num">2</span>Mention relevant medical history or allergies</div>
+        <div class="tip-row"><span class="tip-num">3</span>Describe clinical findings with tooth numbers</div>
+        <div class="tip-row"><span class="tip-num">4</span>State your diagnosis and any differentials</div>
+        <div class="tip-row"><span class="tip-num">5</span>Detail the treatment, materials, and anesthesia</div>
+        <div class="tip-row"><span class="tip-num">6</span>End with post-op instructions and follow-up plan</div>
       </div>
     </div>
 
@@ -351,40 +1126,22 @@
         <button class="btn-action" onclick="exportCSV()">📊 CSV</button>
         <button class="btn-action primary" onclick="saveNote()">💾 Save</button>
       </div>
-
-      <div class="patient-header">
-        <div>
-          <div class="patient-header-name" id="structPatientName">Patient Notes</div>
-          <div class="patient-header-meta" id="structPatientMeta"></div>
-        </div>
-        <div class="section-count" id="sectionCount"></div>
-      </div>
-
-      <div class="template-badge">📄 Standard Dental Clinical Note (SOAP Format)</div>
+      <div class="patient-header"><div><div class="patient-header-name" id="structPatientName">Patient Notes</div><div class="patient-header-meta" id="structPatientMeta"></div></div><div class="section-count" id="sectionCount"></div></div>
+      <div class="template-badge">📄 Standard Dental Clinical Note — SOAP Format</div>
       <div id="sectionsContainer"></div>
-
       <div class="recs-panel" id="recsPanel">
-        <div class="recs-header">
-          <div class="recs-icon">💡</div>
-          <div><div class="recs-title">Clinical Considerations</div><div class="recs-subtitle">AI-generated suggestions for your review</div></div>
-        </div>
+        <div class="recs-header"><div class="recs-icon">💡</div><div><div class="recs-title">Clinical Considerations</div><div class="recs-subtitle">AI-generated suggestions for your review</div></div></div>
         <div id="recsContainer"></div>
         <div class="recs-disclaimer">⚕️ AI-generated suggestions only — not clinical directives. Always apply professional judgment.</div>
       </div>
-
-      <div class="card raw-details">
-        <details>
-          <summary>View Raw Transcript</summary>
-          <div class="raw-details-text" id="rawTranscriptText"></div>
-        </details>
-      </div>
+      <div class="card raw-details"><details><summary>View Raw Transcript</summary><div class="raw-details-text" id="rawTranscriptText"></div></details></div>
     </div>
   </div>
 </div>
 
 <div class="loading-overlay" id="loadingOverlay">
   <div class="loading-card">
-    <div class="loading-spinner"></div>
+    <div class="loading-dots"><div class="loading-dot"></div><div class="loading-dot"></div><div class="loading-dot"></div></div>
     <div class="loading-title">Processing Notes</div>
     <div class="loading-step" id="loadingStep">Analyzing dictation...</div>
   </div>
@@ -393,27 +1150,33 @@
 <div class="toast" id="toast"></div>
 
 <script>
+// ===== PARTICLES =====
+(function(){
+  const c = document.getElementById("authParticles");
+  for(let i=0; i<20; i++){
+    const p = document.createElement("div");
+    p.className = "particle";
+    p.style.left = Math.random()*100+"%";
+    p.style.animationDuration = (8+Math.random()*12)+"s";
+    p.style.animationDelay = Math.random()*10+"s";
+    p.style.width = p.style.height = (2+Math.random()*4)+"px";
+    p.style.opacity = 0.2+Math.random()*0.3;
+    c.appendChild(p);
+  }
+})();
+
 // ===== SUPABASE CONFIG =====
-// These are safe to be public — Row Level Security protects the data
 const SUPABASE_URL = "https://nzurgcoyjebxswkffduy.supabase.co";
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im56dXJnY295amVieHN3a2ZmZHV5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE1Njc3NDMsImV4cCI6MjA4NzE0Mzc0M30.yFxmvYYw2Uwgvb_TLrlOZn1IunDPZV80ejfY0gVbOAM";
 const API_URL = "/api/claude-proxy";
-
-// Initialize Supabase
 const { createClient } = supabase;
 const db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 // ===== STATE =====
-let currentUser = null;
-let isRecording = false;
-let recognition = null;
-let rawTranscript = "";
-let structuredNotes = null;
-let recommendations = null;
-let savedNotes = [];
-let currentNoteId = null;
+let currentUser = null, isRecording = false, recognition = null;
+let rawTranscript = "", structuredNotes = null, recommendations = null;
+let savedNotes = [], currentNoteId = null;
 
-// ===== SECTION CONFIG =====
 const LABELS = {
   subjective_chief_complaint:"S — Chief Complaint", subjective_hpi:"S — History of Present Illness",
   subjective_medical_history:"S — Medical / Dental History", subjective_allergies:"S — Allergies & Medications",
@@ -442,444 +1205,387 @@ const SECTION_GROUPS = {
 
 // ===== AUTH =====
 function switchAuthTab(tab) {
-  document.getElementById("tabLogin").classList.toggle("active", tab === "login");
-  document.getElementById("tabSignup").classList.toggle("active", tab === "signup");
-  document.getElementById("loginForm").style.display = tab === "login" ? "block" : "none";
-  document.getElementById("signupForm").style.display = tab === "signup" ? "block" : "none";
+  document.getElementById("tabLogin").classList.toggle("active", tab==="login");
+  document.getElementById("tabSignup").classList.toggle("active", tab==="signup");
+  document.getElementById("loginForm").style.display = tab==="login"?"block":"none";
+  document.getElementById("signupForm").style.display = tab==="signup"?"block":"none";
   document.getElementById("authError").classList.remove("visible");
 }
 
 async function handleLogin() {
-  const email = document.getElementById("loginEmail").value.trim();
-  const password = document.getElementById("loginPassword").value;
-  if (!email || !password) { showAuthError("Please enter email and password."); return; }
-  document.getElementById("loginBtn").disabled = true;
-  document.getElementById("loginBtn").textContent = "Logging in...";
-  const { data, error } = await db.auth.signInWithPassword({ email, password });
-  if (error) { showAuthError(error.message); document.getElementById("loginBtn").disabled = false; document.getElementById("loginBtn").textContent = "Log In"; return; }
-  currentUser = data.user;
-  await logAudit("login", "session", null, { method: "email" });
-  showApp();
+  const email=document.getElementById("loginEmail").value.trim(), pw=document.getElementById("loginPassword").value;
+  if(!email||!pw){showAuthError("Please enter email and password.");return;}
+  const btn=document.getElementById("loginBtn"); btn.disabled=true; btn.textContent="Logging in...";
+  const{data,error}=await db.auth.signInWithPassword({email,password:pw});
+  if(error){showAuthError(error.message);btn.disabled=false;btn.textContent="Log In";return;}
+  currentUser=data.user; await logAudit("login","session",null,{method:"email"}); showApp();
 }
 
 async function handleSignup() {
-  const name = document.getElementById("signupName").value.trim();
-  const email = document.getElementById("signupEmail").value.trim();
-  const password = document.getElementById("signupPassword").value;
-  if (!name || !email || !password) { showAuthError("Please fill in all fields."); return; }
-  if (password.length < 8) { showAuthError("Password must be at least 8 characters."); return; }
-  document.getElementById("signupBtn").disabled = true;
-  document.getElementById("signupBtn").textContent = "Creating account...";
-  const { data, error } = await db.auth.signUp({ email, password, options: { data: { full_name: name } } });
-  if (error) { showAuthError(error.message); document.getElementById("signupBtn").disabled = false; document.getElementById("signupBtn").textContent = "Create Account"; return; }
-  if (data.user && !data.user.confirmed_at) {
-    showAuthError("Check your email to confirm your account, then log in.");
-    switchAuthTab("login");
-    document.getElementById("signupBtn").disabled = false;
-    document.getElementById("signupBtn").textContent = "Create Account";
-    return;
-  }
-  currentUser = data.user;
-  showApp();
+  const name=document.getElementById("signupName").value.trim(), email=document.getElementById("signupEmail").value.trim(), pw=document.getElementById("signupPassword").value;
+  if(!name||!email||!pw){showAuthError("Please fill in all fields.");return;}
+  if(pw.length<8){showAuthError("Password must be at least 8 characters.");return;}
+  const btn=document.getElementById("signupBtn"); btn.disabled=true; btn.textContent="Creating account...";
+  const{data,error}=await db.auth.signUp({email,password:pw,options:{data:{full_name:name}}});
+  if(error){showAuthError(error.message);btn.disabled=false;btn.textContent="Create Account";return;}
+  if(data.user&&!data.user.confirmed_at){showAuthError("Check your email to confirm your account, then log in.");switchAuthTab("login");btn.disabled=false;btn.textContent="Create Account";return;}
+  currentUser=data.user; showApp();
 }
 
 async function handleLogout() {
-  await logAudit("logout", "session", null, {});
-  await db.auth.signOut();
-  currentUser = null;
+  await logAudit("logout","session",null,{});
+  await db.auth.signOut(); currentUser=null;
   document.getElementById("appScreen").classList.remove("visible");
-  document.getElementById("authScreen").style.display = "flex";
-  document.getElementById("loginBtn").disabled = false;
-  document.getElementById("loginBtn").textContent = "Log In";
+  document.getElementById("authScreen").style.display="flex";
+  document.getElementById("loginBtn").disabled=false;
+  document.getElementById("loginBtn").textContent="Log In";
 }
 
-function showAuthError(msg) {
-  const el = document.getElementById("authError");
-  el.textContent = msg;
-  el.classList.add("visible");
+function showAuthError(msg){const el=document.getElementById("authError");el.textContent=msg;el.classList.add("visible");}
+
+async function initApp(){
+  const{data:{session}}=await db.auth.getSession();
+  if(session){currentUser=session.user;showApp();}
 }
 
-// ===== INIT =====
-async function initApp() {
-  const { data: { session } } = await db.auth.getSession();
-  if (session) {
-    currentUser = session.user;
-    showApp();
-  }
-}
-
-function showApp() {
-  document.getElementById("authScreen").style.display = "none";
+function showApp(){
+  document.getElementById("authScreen").style.display="none";
   document.getElementById("appScreen").classList.add("visible");
-  const name = currentUser.user_metadata?.full_name || currentUser.email;
-  document.getElementById("headerUser").textContent = name;
-  document.getElementById("visitDate").value = new Date().toISOString().split("T")[0];
+  const name=currentUser.user_metadata?.full_name||currentUser.email;
+  document.getElementById("headerUser").textContent=name;
+  document.getElementById("visitDate").value=new Date().toISOString().split("T")[0];
   loadSavedNotes();
 }
 
 initApp();
 
-// ===== AUDIT LOGGING (PHIPA) =====
-async function logAudit(action, resourceType, resourceId, details) {
-  if (!currentUser) return;
-  try {
-    await db.from("audit_log").insert({
-      user_id: currentUser.id,
-      action: action,
-      resource_type: resourceType,
-      resource_id: resourceId,
-      details: details
-    });
-  } catch(e) { console.warn("Audit log failed:", e); }
+// ===== AUDIT =====
+async function logAudit(action,rType,rId,details){
+  if(!currentUser)return;
+  try{await db.from("audit_log").insert({user_id:currentUser.id,action,resource_type:rType,resource_id:rId,details});}catch(e){}
 }
 
 // ===== RECORDING =====
-function toggleRecording() { isRecording ? stopRecording() : startRecording(); }
+function toggleRecording(){isRecording?stopRecording():startRecording();}
 
-function startRecording() {
+function startRecording(){
   hideError();
-  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-  if (!SR) { showError("Speech recognition not supported. Please use Chrome."); return; }
-  recognition = new SR();
-  recognition.continuous = true; recognition.interimResults = true; recognition.lang = "en-US";
-  recognition.onresult = function(e) {
-    let interim = "", final = "";
-    for (let i = e.resultIndex; i < e.results.length; i++) {
-      const t = e.results[i][0].transcript;
-      if (e.results[i].isFinal) final += t + " "; else interim += t;
-    }
-    if (final) { rawTranscript += final; document.getElementById("manualInput").value = rawTranscript; }
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(!SR){showError("Speech recognition not supported. Please use Chrome.");return;}
+  recognition=new SR(); recognition.continuous=true; recognition.interimResults=true; recognition.lang="en-US";
+  recognition.onresult=function(e){
+    let interim="",final="";
+    for(let i=e.resultIndex;i<e.results.length;i++){const t=e.results[i][0].transcript;if(e.results[i].isFinal)final+=t+" ";else interim+=t;}
+    if(final){rawTranscript+=final;document.getElementById("manualInput").value=rawTranscript;}
     updateTranscriptDisplay(interim);
   };
-  recognition.onerror = function(e) {
-    if (e.error === "not-allowed") { showError("Microphone access denied."); stopRecording(); }
-    else if (e.error !== "no-speech" && e.error !== "aborted") showError("Speech error: " + e.error);
+  recognition.onerror=function(e){
+    if(e.error==="not-allowed"){showError("Microphone access denied.");stopRecording();}
+    else if(e.error!=="no-speech"&&e.error!=="aborted")showError("Speech error: "+e.error);
   };
-  recognition.onend = function() { if (isRecording) try { recognition.start(); } catch(e) {} };
-  try {
-    recognition.start(); isRecording = true;
-    document.body.classList.add("recording");
-    document.getElementById("micBtn").textContent = "⏹";
-    document.getElementById("micStatus").textContent = "Recording... Tap to stop";
-    document.getElementById("micHint").textContent = "Speak naturally — describe the patient visit";
-    document.getElementById("manualInput").style.display = "none";
+  recognition.onend=function(){if(isRecording)try{recognition.start();}catch(e){}};
+  try{
+    recognition.start();isRecording=true;document.body.classList.add("recording");
+    document.getElementById("micIcon").innerHTML='<rect x="6" y="4" width="12" height="16" rx="2" fill="currentColor"/>';
+    document.getElementById("micLabel").textContent="Stop";
+    document.getElementById("micStatus").textContent="Listening... Tap mic to stop";
+    document.getElementById("micHint").textContent="Speak naturally — describe the patient visit";
+    document.getElementById("manualInput").style.display="none";
     updateProcessBtn();
-  } catch(e) { showError("Could not start recording."); }
+  }catch(e){showError("Could not start recording.");}
 }
 
-function stopRecording() {
-  if (recognition) { recognition.onend = null; recognition.stop(); recognition = null; }
-  isRecording = false; document.body.classList.remove("recording");
-  document.getElementById("micBtn").textContent = "🎙";
-  document.getElementById("micStatus").textContent = "Tap to start dictating";
-  document.getElementById("micHint").textContent = "Dictate chief complaint, findings, treatment, and plan";
-  document.getElementById("manualInput").style.display = "block";
+function stopRecording(){
+  if(recognition){recognition.onend=null;recognition.stop();recognition=null;}
+  isRecording=false;document.body.classList.remove("recording");
+  document.getElementById("micIcon").innerHTML='<path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/>';
+  document.getElementById("micLabel").textContent="Dictate";
+  document.getElementById("micStatus").textContent="Dictate or scan clinical notes";
+  document.getElementById("micHint").textContent="Voice record a patient visit, or photograph handwritten/printed notes";
+  document.getElementById("manualInput").style.display="block";
   updateProcessBtn();
 }
 
-function updateTranscriptDisplay(interim) {
-  const area = document.getElementById("transcriptArea");
-  if (rawTranscript || interim) {
-    area.innerHTML = '<span class="transcript-text">' + esc(rawTranscript) + '</span>' +
-      (interim ? '<span class="transcript-interim">' + esc(interim) + '</span>' : '');
-  } else area.innerHTML = '<div class="transcript-placeholder">Your dictation will appear here...</div>';
+function updateTranscriptDisplay(interim){
+  const area=document.getElementById("transcriptArea");
+  if(rawTranscript||interim)area.innerHTML='<span class="transcript-text">'+esc(rawTranscript)+'</span>'+(interim?'<span class="transcript-interim">'+esc(interim)+'</span>':'');
+  else area.innerHTML='<div class="transcript-placeholder">Your dictation will appear here...</div>';
 }
 
-function onManualInput() { rawTranscript = document.getElementById("manualInput").value; updateTranscriptDisplay(""); updateProcessBtn(); }
+function onManualInput(){rawTranscript=document.getElementById("manualInput").value;updateTranscriptDisplay("");updateProcessBtn();}
 
-function updateProcessBtn() {
-  const has = rawTranscript.trim().length > 0;
-  document.getElementById("btnProcess").classList.toggle("visible", has && !isRecording);
-  document.getElementById("tipsCard").style.display = (has || isRecording) ? "none" : "block";
-  document.getElementById("btnNew").classList.toggle("visible", has || !!structuredNotes);
+// ===== OCR / SCAN =====
+function triggerScan() {
+  document.getElementById("scanInput").click();
 }
 
-// ===== AI PROCESSING =====
-async function processNotes() {
-  rawTranscript = document.getElementById("manualInput").value || rawTranscript;
-  if (!rawTranscript.trim()) { showError("No notes to process."); return; }
-  showLoading("Analyzing dictation...");
+async function handleScanInput(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  // Validate file type
+  if (!file.type.startsWith("image/")) {
+    showError("Please select an image file (photo of notes).");
+    return;
+  }
+
+  // Validate file size (max 10MB)
+  if (file.size > 10 * 1024 * 1024) {
+    showError("Image is too large. Please use a smaller photo (under 10MB).");
+    return;
+  }
+
   hideError();
-  try {
+
+  // Show image preview
+  const preview = document.getElementById("ocrPreview");
+  const previewImg = document.getElementById("ocrPreviewImg");
+  const reader = new FileReader();
+
+  reader.onload = async function(e) {
+    const dataUrl = e.target.result;
+    previewImg.src = dataUrl;
+    preview.classList.add("visible");
+
+    // Extract base64 data and media type
+    const base64 = dataUrl.split(",")[1];
+    const mediaType = file.type; // image/jpeg, image/png, etc.
+
+    // Show extracting status
+    document.getElementById("ocrStatus").style.display = "flex";
+
+    try {
+      const response = await fetch(API_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          mode: "ocr",
+          image: base64,
+          media_type: mediaType,
+        }),
+      });
+
+      const data = await response.json();
+      document.getElementById("ocrStatus").style.display = "none";
+
+      if (data.error) {
+        showError("OCR failed: " + data.error);
+        return;
+      }
+
+      if (data.extracted_text) {
+        // Append extracted text to existing transcript
+        const separator = rawTranscript.trim() ? "\n\n--- Scanned Notes ---\n" : "";
+        rawTranscript += separator + data.extracted_text;
+        document.getElementById("manualInput").value = rawTranscript;
+        updateTranscriptDisplay("");
+        updateProcessBtn();
+
+        if (data.usage) console.log("OCR usage:", data.usage);
+
+        showToast("✓ Text extracted from image");
+        await logAudit("ocr_scan", "patient_notes", null, { file_type: mediaType, file_size: file.size });
+      }
+    } catch (err) {
+      document.getElementById("ocrStatus").style.display = "none";
+      showError("Failed to extract text: " + err.message);
+    }
+  };
+
+  reader.readAsDataURL(file);
+
+  // Reset file input so same file can be selected again
+  event.target.value = "";
+}
+
+function removeScannedImage() {
+  document.getElementById("ocrPreview").classList.remove("visible");
+  document.getElementById("ocrPreviewImg").src = "";
+  document.getElementById("ocrStatus").style.display = "none";
+}
+
+function updateProcessBtn(){
+  const has=rawTranscript.trim().length>0;
+  document.getElementById("btnProcess").classList.toggle("visible",has&&!isRecording);
+  document.getElementById("tipsCard").style.display=(has||isRecording)?"none":"block";
+  document.getElementById("btnNew").classList.toggle("visible",has||!!structuredNotes);
+}
+
+// ===== AI =====
+async function processNotes(){
+  rawTranscript=document.getElementById("manualInput").value||rawTranscript;
+  if(!rawTranscript.trim()){showError("No notes to process.");return;}
+  showLoading("Analyzing dictation...");hideError();
+  try{
     updateLoadingStep("Structuring notes & generating insights...");
-    const response = await fetch(API_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ transcript: rawTranscript.trim() })
-    });
-    const data = await response.json();
-    if (data.error) throw new Error(data.error);
-    structuredNotes = data.notes || {};
-    recommendations = data.recommendations || [];
-    if (data.usage) console.log("Usage:", data.usage.input_tokens, "in /", data.usage.output_tokens, "out /", data.usage.cache_read, "cached");
-    await logAudit("process_notes", "patient_notes", null, { patient_name: document.getElementById("patientName").value });
-    hideLoading();
-    showStructuredView();
-  } catch(err) { hideLoading(); showError("Failed: " + err.message); }
+    const r=await fetch(API_URL,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({transcript:rawTranscript.trim()})});
+    const data=await r.json();if(data.error)throw new Error(data.error);
+    structuredNotes=data.notes||{};recommendations=data.recommendations||[];
+    if(data.usage)console.log("Usage:",data.usage);
+    await logAudit("process_notes","patient_notes",null,{patient_name:document.getElementById("patientName").value});
+    hideLoading();showStructuredView();
+  }catch(err){hideLoading();showError("Failed: "+err.message);}
 }
 
 // ===== STRUCTURED VIEW =====
-function showStructuredView() {
+function showStructuredView(){
   document.getElementById("recordView").classList.add("hidden");
   document.getElementById("structuredView").classList.add("visible");
-  const name = document.getElementById("patientName").value || "Patient Notes";
-  const id = document.getElementById("patientId").value;
-  const date = document.getElementById("visitDate").value;
-  document.getElementById("structPatientName").textContent = name;
-  document.getElementById("structPatientMeta").textContent = date + (id ? " · ID: " + id : "");
-  const entries = Object.entries(structuredNotes).filter(([k,v]) => v && LABELS[k]);
-  document.getElementById("sectionCount").textContent = entries.length + " sections";
-  const container = document.getElementById("sectionsContainer");
-  container.innerHTML = "";
-  Object.entries(SECTION_GROUPS).forEach(([group, keys]) => {
-    keys.filter(k => structuredNotes[k] && String(structuredNotes[k]).trim()).forEach(key => {
-      const s = document.createElement("div"); s.className = "note-section"; s.id = "section-" + key;
-      s.innerHTML = '<div class="section-header"><div class="section-title">' + (ICONS[key]||"📝") + " " + LABELS[key] + '</div><button class="btn-edit" onclick="toggleEdit(\'' + key + '\')">Edit</button></div><div class="section-content" id="content-' + key + '">' + esc(String(structuredNotes[key])) + '</div><textarea class="section-edit" id="edit-' + key + '">' + esc(String(structuredNotes[key])) + '</textarea>';
-      container.appendChild(s);
+  const name=document.getElementById("patientName").value||"Patient Notes";
+  const id=document.getElementById("patientId").value;
+  const date=document.getElementById("visitDate").value;
+  document.getElementById("structPatientName").textContent=name;
+  document.getElementById("structPatientMeta").textContent=date+(id?" · ID: "+id:"");
+  const entries=Object.entries(structuredNotes).filter(([k,v])=>v&&LABELS[k]);
+  document.getElementById("sectionCount").textContent=entries.length+" sections";
+  const container=document.getElementById("sectionsContainer");container.innerHTML="";
+  let idx=0;
+  Object.entries(SECTION_GROUPS).forEach(([g,keys])=>{
+    keys.filter(k=>structuredNotes[k]&&String(structuredNotes[k]).trim()).forEach(key=>{
+      const s=document.createElement("div");s.className="note-section";s.id="section-"+key;
+      s.style.animationDelay=(0.1+idx*0.06)+"s";
+      s.innerHTML='<div class="section-header"><div class="section-title">'+(ICONS[key]||"📝")+" "+LABELS[key]+'</div><button class="btn-edit" onclick="toggleEdit(\''+key+'\')">Edit</button></div><div class="section-content" id="content-'+key+'">'+esc(String(structuredNotes[key]))+'</div><textarea class="section-edit" id="edit-'+key+'">'+esc(String(structuredNotes[key]))+'</textarea>';
+      container.appendChild(s);idx++;
     });
   });
   renderRecommendations();
-  document.getElementById("rawTranscriptText").textContent = rawTranscript;
+  document.getElementById("rawTranscriptText").textContent=rawTranscript;
   document.getElementById("btnNew").classList.add("visible");
 }
 
-function renderRecommendations() {
-  const panel = document.getElementById("recsPanel"); const container = document.getElementById("recsContainer");
-  if (!recommendations || !recommendations.length) { panel.classList.remove("visible"); return; }
-  panel.classList.add("visible"); container.innerHTML = "";
-  const order = {high:0,medium:1,low:2};
-  [...recommendations].sort((a,b) => (order[a.priority]||2) - (order[b.priority]||2)).forEach((rec, i) => {
-    const item = document.createElement("div"); item.className = "rec-item"; item.id = "rec-" + i;
-    item.innerHTML = '<span class="rec-category ' + (rec.category||"clinical") + '">' + (rec.category||"").toUpperCase() + (rec.priority==="high"?" ●":"") + '</span><div style="font-size:13px;font-weight:600;color:#333;margin-bottom:3px;">' + esc(rec.title) + '</div><div class="rec-text">' + esc(rec.detail) + '</div><div class="rec-actions"><button class="btn-rec accept" onclick="acceptRec(' + i + ')">✓ Noted</button><button class="btn-rec dismiss" onclick="dismissRec(' + i + ')">✕ Dismiss</button></div>';
+function renderRecommendations(){
+  const panel=document.getElementById("recsPanel"),container=document.getElementById("recsContainer");
+  if(!recommendations||!recommendations.length){panel.classList.remove("visible");return;}
+  panel.classList.add("visible");container.innerHTML="";
+  const order={high:0,medium:1,low:2};
+  [...recommendations].sort((a,b)=>(order[a.priority]||2)-(order[b.priority]||2)).forEach((rec,i)=>{
+    const item=document.createElement("div");item.className="rec-item";item.id="rec-"+i;
+    item.innerHTML='<span class="rec-category '+(rec.category||"clinical")+'">'+(rec.category||"").toUpperCase()+(rec.priority==="high"?" ●":"")+'</span><div style="font-size:14px;font-weight:700;color:var(--navy);margin-bottom:4px;">'+esc(rec.title)+'</div><div class="rec-text">'+esc(rec.detail)+'</div><div class="rec-actions"><button class="btn-rec accept" onclick="acceptRec('+i+')">✓ Noted</button><button class="btn-rec dismiss" onclick="dismissRec('+i+')">✕ Dismiss</button></div>';
     container.appendChild(item);
   });
 }
 
-function acceptRec(i) { const el = document.getElementById("rec-"+i); if(el){el.style.borderColor="#86EFAC";el.style.background="#F0FDF4";el.querySelector(".rec-actions").innerHTML='<span style="font-size:11px;color:#16A34A;font-weight:600;">✓ Noted</span>';} }
-function dismissRec(i) { const el = document.getElementById("rec-"+i); if(el){el.classList.add("dismissed");el.querySelector(".rec-actions").innerHTML='<span style="font-size:11px;color:#999;">Dismissed</span>';} }
-function showRecordView() { document.getElementById("structuredView").classList.remove("visible"); document.getElementById("recordView").classList.remove("hidden"); }
+function acceptRec(i){const el=document.getElementById("rec-"+i);if(el){el.style.borderColor="#86EFAC";el.style.background="#F0FDF4";el.querySelector(".rec-actions").innerHTML='<span style="font-size:11px;color:#16A34A;font-weight:600;">✓ Noted</span>';}}
+function dismissRec(i){const el=document.getElementById("rec-"+i);if(el){el.classList.add("dismissed");el.querySelector(".rec-actions").innerHTML='<span style="font-size:11px;color:#999;">Dismissed</span>';}}
+function showRecordView(){document.getElementById("structuredView").classList.remove("visible");document.getElementById("recordView").classList.remove("hidden");}
 
-function toggleEdit(key) {
-  const c = document.getElementById("content-"+key), e = document.getElementById("edit-"+key), b = document.querySelector("#section-"+key+" .btn-edit");
-  if (e.style.display==="block") { structuredNotes[key]=e.value; c.textContent=e.value; c.style.display="block"; e.style.display="none"; b.textContent="Edit"; b.classList.remove("saving"); }
-  else { c.style.display="none"; e.style.display="block"; e.focus(); b.textContent="✓ Save"; b.classList.add("saving"); }
+function toggleEdit(key){
+  const c=document.getElementById("content-"+key),e=document.getElementById("edit-"+key),b=document.querySelector("#section-"+key+" .btn-edit");
+  if(e.style.display==="block"){structuredNotes[key]=e.value;c.textContent=e.value;c.style.display="block";e.style.display="none";b.textContent="Edit";b.classList.remove("saving");}
+  else{c.style.display="none";e.style.display="block";e.focus();b.textContent="✓ Save";b.classList.add("saving");}
 }
 
-// ===== SAVE TO DATABASE =====
-async function saveNote() {
-  const noteData = {
-    user_id: currentUser.id,
-    patient_name: document.getElementById("patientName").value || "Unnamed",
-    patient_id: document.getElementById("patientId").value || null,
-    visit_date: document.getElementById("visitDate").value,
-    raw_transcript: rawTranscript,
-    structured_notes: structuredNotes,
-    recommendations: recommendations
-  };
-
-  try {
+// ===== DATABASE =====
+async function saveNote(){
+  const noteData={user_id:currentUser.id,patient_name:document.getElementById("patientName").value||"Unnamed",patient_id:document.getElementById("patientId").value||null,visit_date:document.getElementById("visitDate").value,raw_transcript:rawTranscript,structured_notes:structuredNotes,recommendations};
+  try{
     let result;
-    if (currentNoteId) {
-      result = await db.from("patient_notes").update(noteData).eq("id", currentNoteId).select();
-      await logAudit("update_note", "patient_notes", currentNoteId, { patient_name: noteData.patient_name });
-    } else {
-      result = await db.from("patient_notes").insert(noteData).select();
-      if (result.data && result.data[0]) currentNoteId = result.data[0].id;
-      await logAudit("create_note", "patient_notes", currentNoteId, { patient_name: noteData.patient_name });
-    }
-    if (result.error) throw result.error;
-    showToast("✓ Saved to secure database");
-    loadSavedNotes();
-  } catch(e) { showError("Failed to save: " + e.message); }
+    if(currentNoteId){result=await db.from("patient_notes").update(noteData).eq("id",currentNoteId).select();await logAudit("update_note","patient_notes",currentNoteId,{patient_name:noteData.patient_name});}
+    else{result=await db.from("patient_notes").insert(noteData).select();if(result.data&&result.data[0])currentNoteId=result.data[0].id;await logAudit("create_note","patient_notes",currentNoteId,{patient_name:noteData.patient_name});}
+    if(result.error)throw result.error;
+    showToast("✓ Saved to secure database");loadSavedNotes();
+  }catch(e){showError("Failed to save: "+e.message);}
 }
 
-// ===== LOAD FROM DATABASE =====
-async function loadSavedNotes() {
-  try {
-    const { data, error } = await db.from("patient_notes")
-      .select("id, patient_name, patient_id, visit_date, created_at")
-      .eq("status", "active")
-      .order("visit_date", { ascending: false })
-      .limit(50);
-    if (error) throw error;
-    savedNotes = data || [];
-    renderSavedList();
-  } catch(e) { console.warn("Load failed:", e); }
+async function loadSavedNotes(){
+  try{
+    const{data,error}=await db.from("patient_notes").select("id,patient_name,patient_id,visit_date,created_at").eq("status","active").order("visit_date",{ascending:false}).limit(50);
+    if(error)throw error;savedNotes=data||[];renderSavedList();
+  }catch(e){console.warn("Load failed:",e);}
 }
 
-function renderSavedList() {
-  const list = document.getElementById("savedList");
-  document.getElementById("btnHistory").textContent = "📂 History" + (savedNotes.length > 0 ? " (" + savedNotes.length + ")" : "");
-  if (!savedNotes.length) { list.innerHTML = '<div class="saved-empty">No saved notes yet.</div>'; return; }
-  list.innerHTML = savedNotes.map((n, i) =>
-    '<button class="saved-item" onclick="loadNote(\'' + n.id + '\')">' +
-    '<div><div class="saved-item-name">' + esc(n.patient_name) + '</div>' +
-    '<div class="saved-item-meta">' + n.visit_date + (n.patient_id ? " · ID: " + n.patient_id : "") + '</div></div>' +
-    '<div class="saved-item-arrow">→</div></button>'
-  ).join("");
+function renderSavedList(){
+  const list=document.getElementById("savedList");
+  document.getElementById("btnHistory").textContent="📂 History"+(savedNotes.length>0?" ("+savedNotes.length+")":"");
+  if(!savedNotes.length){list.innerHTML='<div class="saved-empty">No saved notes yet.</div>';return;}
+  list.innerHTML=savedNotes.map(n=>'<button class="saved-item" onclick="loadNote(\''+n.id+'\')"><div><div class="saved-item-name">'+esc(n.patient_name)+'</div><div class="saved-item-meta">'+n.visit_date+(n.patient_id?" · ID: "+n.patient_id:"")+'</div></div><div class="saved-item-arrow">→</div></button>').join("");
 }
 
-async function loadNote(id) {
-  try {
-    const { data, error } = await db.from("patient_notes").select("*").eq("id", id).single();
-    if (error) throw error;
-    currentNoteId = data.id;
-    document.getElementById("patientName").value = data.patient_name || "";
-    document.getElementById("patientId").value = data.patient_id || "";
-    document.getElementById("visitDate").value = data.visit_date || "";
-    rawTranscript = data.raw_transcript || "";
-    document.getElementById("manualInput").value = rawTranscript;
-    structuredNotes = data.structured_notes;
-    recommendations = data.recommendations || [];
-    await logAudit("view_note", "patient_notes", id, { patient_name: data.patient_name });
-    if (structuredNotes) showStructuredView();
-    else { showRecordView(); updateTranscriptDisplay(""); updateProcessBtn(); }
+async function loadNote(id){
+  try{
+    const{data,error}=await db.from("patient_notes").select("*").eq("id",id).single();if(error)throw error;
+    currentNoteId=data.id;document.getElementById("patientName").value=data.patient_name||"";
+    document.getElementById("patientId").value=data.patient_id||"";document.getElementById("visitDate").value=data.visit_date||"";
+    rawTranscript=data.raw_transcript||"";document.getElementById("manualInput").value=rawTranscript;
+    structuredNotes=data.structured_notes;recommendations=data.recommendations||[];
+    await logAudit("view_note","patient_notes",id,{patient_name:data.patient_name});
+    if(structuredNotes)showStructuredView();else{showRecordView();updateTranscriptDisplay("");updateProcessBtn();}
     document.getElementById("savedPanel").classList.remove("visible");
-  } catch(e) { showError("Failed to load note: " + e.message); }
+  }catch(e){showError("Failed to load: "+e.message);}
 }
 
-function toggleSaved() { document.getElementById("savedPanel").classList.toggle("visible"); }
+function toggleSaved(){document.getElementById("savedPanel").classList.toggle("visible");}
 
-function startNew() {
-  rawTranscript = ""; structuredNotes = null; recommendations = null; currentNoteId = null;
-  document.getElementById("patientName").value = "";
-  document.getElementById("patientId").value = "";
-  document.getElementById("visitDate").value = new Date().toISOString().split("T")[0];
-  document.getElementById("manualInput").value = "";
+function startNew(){
+  rawTranscript="";structuredNotes=null;recommendations=null;currentNoteId=null;
+  document.getElementById("patientName").value="";document.getElementById("patientId").value="";
+  document.getElementById("visitDate").value=new Date().toISOString().split("T")[0];
+  document.getElementById("manualInput").value="";
   document.getElementById("structuredView").classList.remove("visible");
   document.getElementById("recordView").classList.remove("hidden");
   document.getElementById("recsPanel").classList.remove("visible");
   document.getElementById("savedPanel").classList.remove("visible");
   document.getElementById("btnNew").classList.remove("visible");
-  updateTranscriptDisplay(""); updateProcessBtn();
+  removeScannedImage();
+  updateTranscriptDisplay("");updateProcessBtn();
 }
 
-// ===== COPY =====
-function buildPlainText() {
-  const name = document.getElementById("patientName").value;
-  const id = document.getElementById("patientId").value;
-  const date = document.getElementById("visitDate").value;
-  let t = "DENTAL CLINICAL NOTES (SOAP FORMAT)\n═══════════════════════════════════════\n";
-  if (name) t += "Patient: " + name + "\n";
-  if (id) t += "ID: " + id + "\n";
-  t += "Date: " + date + "\nProvider: Dr. Amira Mahmoud\n═══════════════════════════════════════\n\n";
-  Object.entries(SECTION_GROUPS).forEach(([g, keys]) => {
-    keys.filter(k => structuredNotes[k] && String(structuredNotes[k]).trim()).forEach(k => {
-      t += LABELS[k].toUpperCase() + "\n" + structuredNotes[k] + "\n\n";
-    });
-  });
-  if (recommendations && recommendations.length) {
-    t += "═══════════════════════════════════════\nAI CLINICAL CONSIDERATIONS (Advisory)\n───────────────────────────────────────\n";
-    recommendations.forEach(r => t += "• [" + r.category.toUpperCase() + "] " + r.title + "\n  " + r.detail + "\n");
-    t += "\n";
-  }
-  t += "═══════════════════════════════════════\nDocumented via DentaVoice\n";
-  return t;
+// ===== EXPORT =====
+function buildPlainText(){
+  const name=document.getElementById("patientName").value,id=document.getElementById("patientId").value,date=document.getElementById("visitDate").value;
+  let t="DENTAL CLINICAL NOTES (SOAP FORMAT)\n═══════════════════════════════════════\n";
+  if(name)t+="Patient: "+name+"\n";if(id)t+="ID: "+id+"\n";
+  t+="Date: "+date+"\nProvider: Dr. Amira Mahmoud\n═══════════════════════════════════════\n\n";
+  Object.entries(SECTION_GROUPS).forEach(([g,keys])=>{keys.filter(k=>structuredNotes[k]&&String(structuredNotes[k]).trim()).forEach(k=>{t+=LABELS[k].toUpperCase()+"\n"+structuredNotes[k]+"\n\n";});});
+  if(recommendations&&recommendations.length){t+="═══════════════════════════════════════\nAI CLINICAL CONSIDERATIONS (Advisory)\n───────────────────────────────────────\n";recommendations.forEach(r=>t+="• ["+r.category.toUpperCase()+"] "+r.title+"\n  "+r.detail+"\n");t+="\n";}
+  t+="═══════════════════════════════════════\nDocumented via DentaVoice\n";return t;
 }
 
-function copyAll() {
-  if (!structuredNotes) return;
-  navigator.clipboard.writeText(buildPlainText()).then(() => {
-    const b = document.getElementById("btnCopy"); b.classList.add("copied"); b.innerHTML = "✓ Copied!";
-    setTimeout(() => { b.classList.remove("copied"); b.innerHTML = "📋 Copy"; }, 2000);
-  });
-  logAudit("copy_note", "patient_notes", currentNoteId, {});
+function copyAll(){
+  if(!structuredNotes)return;
+  navigator.clipboard.writeText(buildPlainText()).then(()=>{const b=document.getElementById("btnCopy");b.classList.add("copied");b.innerHTML="✓ Copied!";setTimeout(()=>{b.classList.remove("copied");b.innerHTML="📋 Copy";},2000);});
+  logAudit("copy_note","patient_notes",currentNoteId,{});
 }
 
-// ===== PDF EXPORT =====
-function exportPDF() {
-  if (!structuredNotes) return;
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF();
-  const name = document.getElementById("patientName").value;
-  const id = document.getElementById("patientId").value;
-  const date = document.getElementById("visitDate").value;
-  const pageW = doc.internal.pageSize.getWidth();
-  let y = 20;
-
-  // Header
-  doc.setFillColor(27, 77, 62);
-  doc.rect(0, 0, pageW, 35, "F");
-  doc.setTextColor(255, 255, 255);
-  doc.setFontSize(18); doc.setFont(undefined, "bold");
-  doc.text("DentaVoice — Clinical Notes", 14, 15);
-  doc.setFontSize(10); doc.setFont(undefined, "normal");
-  doc.text("SOAP Format · Dr. Amira Mahmoud", 14, 23);
-  doc.text("Generated: " + new Date().toLocaleString(), 14, 30);
-
-  y = 45;
-  doc.setTextColor(0, 0, 0);
-
-  // Patient info
-  doc.setFontSize(11); doc.setFont(undefined, "bold");
-  if (name) { doc.text("Patient: " + name, 14, y); y += 6; }
-  if (id) { doc.text("ID: " + id, 14, y); y += 6; }
-  doc.text("Visit Date: " + date, 14, y); y += 10;
-
-  doc.setDrawColor(200); doc.line(14, y, pageW - 14, y); y += 8;
-
-  // Sections
-  Object.entries(SECTION_GROUPS).forEach(([group, keys]) => {
-    keys.filter(k => structuredNotes[k] && String(structuredNotes[k]).trim()).forEach(key => {
-      if (y > 265) { doc.addPage(); y = 20; }
-      doc.setFontSize(9); doc.setFont(undefined, "bold"); doc.setTextColor(27, 77, 62);
-      doc.text(LABELS[key].toUpperCase(), 14, y); y += 5;
-      doc.setFontSize(10); doc.setFont(undefined, "normal"); doc.setTextColor(60, 60, 60);
-      const lines = doc.splitTextToSize(String(structuredNotes[key]), pageW - 28);
-      lines.forEach(line => {
-        if (y > 275) { doc.addPage(); y = 20; }
-        doc.text(line, 14, y); y += 5;
-      });
-      y += 4;
-    });
-  });
-
-  // Footer
-  doc.setFontSize(8); doc.setTextColor(150);
-  doc.text("Confidential — PHIPA/PIPEDA Protected · DentaVoice", 14, 290);
-
-  const filename = "DentaVoice_" + (name || "Note").replace(/\s+/g, "_") + "_" + date + ".pdf";
-  doc.save(filename);
-  logAudit("export_pdf", "patient_notes", currentNoteId, { patient_name: name });
-  showToast("✓ PDF downloaded");
+function exportPDF(){
+  if(!structuredNotes)return;
+  const{jsPDF}=window.jspdf;const doc=new jsPDF();
+  const name=document.getElementById("patientName").value,id=document.getElementById("patientId").value,date=document.getElementById("visitDate").value;
+  const pageW=doc.internal.pageSize.getWidth();let y=20;
+  doc.setFillColor(15,23,42);doc.rect(0,0,pageW,35,"F");
+  doc.setTextColor(255,255,255);doc.setFontSize(18);doc.setFont(undefined,"bold");
+  doc.text("DentaVoice — Clinical Notes",14,15);
+  doc.setFontSize(10);doc.setFont(undefined,"normal");
+  doc.text("SOAP Format · Dr. Amira Mahmoud",14,23);
+  doc.text("Generated: "+new Date().toLocaleString(),14,30);
+  y=45;doc.setTextColor(0,0,0);doc.setFontSize(11);doc.setFont(undefined,"bold");
+  if(name){doc.text("Patient: "+name,14,y);y+=6;}if(id){doc.text("ID: "+id,14,y);y+=6;}
+  doc.text("Visit Date: "+date,14,y);y+=10;doc.setDrawColor(200);doc.line(14,y,pageW-14,y);y+=8;
+  Object.entries(SECTION_GROUPS).forEach(([g,keys])=>{keys.filter(k=>structuredNotes[k]&&String(structuredNotes[k]).trim()).forEach(key=>{if(y>265){doc.addPage();y=20;}doc.setFontSize(9);doc.setFont(undefined,"bold");doc.setTextColor(37,99,235);doc.text(LABELS[key].toUpperCase(),14,y);y+=5;doc.setFontSize(10);doc.setFont(undefined,"normal");doc.setTextColor(60,60,60);doc.splitTextToSize(String(structuredNotes[key]),pageW-28).forEach(line=>{if(y>275){doc.addPage();y=20;}doc.text(line,14,y);y+=5;});y+=4;});});
+  doc.setFontSize(8);doc.setTextColor(150);doc.text("Confidential — PHIPA/PIPEDA Protected · DentaVoice",14,290);
+  doc.save("DentaVoice_"+(name||"Note").replace(/\s+/g,"_")+"_"+date+".pdf");
+  logAudit("export_pdf","patient_notes",currentNoteId,{});showToast("✓ PDF downloaded");
 }
 
-// ===== CSV EXPORT =====
-function exportCSV() {
-  if (!structuredNotes) return;
-  const name = document.getElementById("patientName").value;
-  const id = document.getElementById("patientId").value;
-  const date = document.getElementById("visitDate").value;
-
-  let csv = "Section,Content\n";
-  csv += '"Patient Name","' + (name||"").replace(/"/g,'""') + '"\n';
-  csv += '"Patient ID","' + (id||"").replace(/"/g,'""') + '"\n';
-  csv += '"Visit Date","' + date + '"\n';
-  csv += '"Provider","Dr. Amira Mahmoud"\n';
-
-  Object.entries(SECTION_GROUPS).forEach(([g, keys]) => {
-    keys.filter(k => structuredNotes[k] && String(structuredNotes[k]).trim()).forEach(k => {
-      csv += '"' + LABELS[k].replace(/"/g,'""') + '","' + String(structuredNotes[k]).replace(/"/g,'""') + '"\n';
-    });
-  });
-
-  const blob = new Blob([csv], { type: "text/csv" });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a"); a.href = url;
-  a.download = "DentaVoice_" + (name||"Note").replace(/\s+/g,"_") + "_" + date + ".csv";
-  a.click(); URL.revokeObjectURL(url);
-  logAudit("export_csv", "patient_notes", currentNoteId, { patient_name: name });
-  showToast("✓ CSV downloaded");
+function exportCSV(){
+  if(!structuredNotes)return;
+  const name=document.getElementById("patientName").value,id=document.getElementById("patientId").value,date=document.getElementById("visitDate").value;
+  let csv="Section,Content\n";csv+='"Patient Name","'+(name||"").replace(/"/g,'""')+'"\n';csv+='"Patient ID","'+(id||"").replace(/"/g,'""')+'"\n';
+  csv+='"Visit Date","'+date+'"\n';csv+='"Provider","Dr. Amira Mahmoud"\n';
+  Object.entries(SECTION_GROUPS).forEach(([g,keys])=>{keys.filter(k=>structuredNotes[k]&&String(structuredNotes[k]).trim()).forEach(k=>{csv+='"'+LABELS[k].replace(/"/g,'""')+'","'+String(structuredNotes[k]).replace(/"/g,'""')+'"\n';});});
+  const blob=new Blob([csv],{type:"text/csv"});const url=URL.createObjectURL(blob);const a=document.createElement("a");a.href=url;
+  a.download="DentaVoice_"+(name||"Note").replace(/\s+/g,"_")+"_"+date+".csv";a.click();URL.revokeObjectURL(url);
+  logAudit("export_csv","patient_notes",currentNoteId,{});showToast("✓ CSV downloaded");
 }
 
 // ===== HELPERS =====
-function showError(msg) { document.getElementById("errorText").textContent = msg; document.getElementById("errorBox").classList.add("visible"); }
-function hideError() { document.getElementById("errorBox").classList.remove("visible"); }
-function showToast(msg) { const t = document.getElementById("toast"); t.textContent = msg; t.classList.add("show"); setTimeout(() => t.classList.remove("show"), 2000); }
-function showLoading(s) { document.getElementById("loadingStep").textContent = s; document.getElementById("loadingOverlay").classList.add("visible"); }
-function updateLoadingStep(s) { document.getElementById("loadingStep").textContent = s; }
-function hideLoading() { document.getElementById("loadingOverlay").classList.remove("visible"); }
-function esc(str) { const d = document.createElement("div"); d.textContent = str||""; return d.innerHTML; }
+function showError(msg){document.getElementById("errorText").textContent=msg;document.getElementById("errorBox").classList.add("visible");}
+function hideError(){document.getElementById("errorBox").classList.remove("visible");}
+function showToast(msg){const t=document.getElementById("toast");t.textContent=msg;t.classList.add("show");setTimeout(()=>t.classList.remove("show"),2500);}
+function showLoading(s){document.getElementById("loadingStep").textContent=s;document.getElementById("loadingOverlay").classList.add("visible");}
+function updateLoadingStep(s){document.getElementById("loadingStep").textContent=s;}
+function hideLoading(){document.getElementById("loadingOverlay").classList.remove("visible");}
+function esc(str){const d=document.createElement("div");d.textContent=str||"";return d.innerHTML;}
 </script>
 </body>
 </html>
