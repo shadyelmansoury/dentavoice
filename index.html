@@ -777,28 +777,7 @@ body.recording .wave-bars { display: flex; }
 .saved-panel { display: none; }
 .saved-panel.visible { display: block; }
 
-.saved-title {
-  font-size: 16px; font-weight: 700;
-  font-family: 'Sora', sans-serif;
-  margin-bottom: 14px; letter-spacing: -0.01em;
-  display: flex; align-items: center; gap: 8px;
-}
-
 .saved-empty { color: var(--text-light); font-size: 13px; padding: 20px 0; text-align: center; }
-
-.saved-item {
-  background: var(--slate-50); border: 1px solid var(--border);
-  border-radius: var(--radius-md); padding: 14px 16px;
-  text-align: left; cursor: pointer;
-  display: flex; justify-content: space-between; align-items: center;
-  margin-bottom: 6px; width: 100%; font-family: inherit;
-  transition: all 0.2s ease;
-}
-.saved-item:hover { background: var(--blue-50); border-color: var(--blue-200); }
-.saved-item:active { transform: scale(0.98); }
-.saved-item-name { font-weight: 700; font-size: 14px; color: var(--text); }
-.saved-item-meta { font-size: 11px; color: var(--text-light); margin-top: 2px; }
-.saved-item-arrow { color: var(--blue-400); font-size: 16px; font-weight: 700; }
 
 /* ============================================
    RAW DETAILS & TIPS
@@ -831,6 +810,225 @@ body.recording .wave-bars { display: flex; }
   display: flex; align-items: center; justify-content: center;
   font-size: 11px; font-weight: 700; flex-shrink: 0;
 }
+
+/* ============================================
+   SEARCH PANEL
+   ============================================ */
+.search-panel { display: none; }
+.search-panel.visible { display: block; animation: fadeInDown 0.35s cubic-bezier(0.16,1,0.3,1) both; }
+
+.search-header {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 14px;
+}
+
+.search-title {
+  font-size: 16px; font-weight: 700;
+  font-family: 'Sora', sans-serif;
+  letter-spacing: -0.01em;
+}
+
+.btn-close-panel {
+  background: var(--slate-100); border: none; border-radius: 8px;
+  width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;
+  font-size: 14px; color: var(--slate-500); cursor: pointer;
+  font-family: inherit; transition: all 0.2s;
+}
+.btn-close-panel:hover { background: var(--slate-200); color: var(--navy); }
+
+.search-bar {
+  position: relative; display: flex; align-items: center;
+  background: var(--slate-50); border: 2px solid var(--slate-200);
+  border-radius: var(--radius-sm); padding: 0 14px;
+  transition: all 0.3s ease; margin-bottom: 14px;
+}
+.search-bar:focus-within { border-color: var(--blue-500); background: white; box-shadow: 0 0 0 4px rgba(59,130,246,0.08); }
+
+.search-icon { color: var(--slate-400); flex-shrink: 0; }
+
+.search-input {
+  flex: 1; padding: 12px 10px; border: none; background: transparent;
+  font-size: 15px; font-family: inherit; font-weight: 500;
+  outline: none; color: var(--text);
+}
+.search-input::placeholder { color: var(--slate-300); font-weight: 400; }
+
+.search-clear {
+  background: none; border: none; font-size: 16px; color: var(--slate-400);
+  cursor: pointer; padding: 4px; display: none; transition: color 0.2s;
+}
+.search-clear.visible { display: block; }
+.search-clear:hover { color: var(--red-500); }
+
+.search-result-group {
+  margin-bottom: 14px;
+  animation: fadeInUp 0.3s cubic-bezier(0.16,1,0.3,1) both;
+}
+
+.search-result-patient {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 12px 14px; background: var(--blue-50); border: 1px solid var(--blue-200);
+  border-radius: var(--radius-sm); cursor: pointer;
+  transition: all 0.2s ease; width: 100%; font-family: inherit; text-align: left;
+}
+.search-result-patient:hover { background: var(--blue-100); border-color: var(--blue-300); }
+.search-result-patient:active { transform: scale(0.98); }
+
+.search-result-info { display: flex; align-items: center; gap: 10px; }
+
+.search-result-avatar {
+  width: 36px; height: 36px; border-radius: 10px;
+  background: linear-gradient(135deg, var(--blue-500), var(--cyan-500));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; font-weight: 700; color: white;
+}
+
+.search-result-name { font-size: 14px; font-weight: 700; color: var(--navy); }
+.search-result-meta { font-size: 11px; color: var(--slate-500); margin-top: 1px; }
+.search-result-visits {
+  font-size: 11px; font-weight: 600; color: var(--blue-500);
+  background: white; padding: 4px 10px; border-radius: 6px;
+}
+
+/* ============================================
+   SAVED PANEL (IMPROVED)
+   ============================================ */
+.saved-panel { display: none; }
+.saved-panel.visible { display: block; animation: fadeInDown 0.35s cubic-bezier(0.16,1,0.3,1) both; }
+
+.saved-panel-header {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 14px;
+}
+
+.saved-title {
+  font-size: 16px; font-weight: 700;
+  font-family: 'Sora', sans-serif;
+  margin-bottom: 0; letter-spacing: -0.01em;
+  display: flex; align-items: center; gap: 8px;
+}
+
+.saved-empty { color: var(--text-light); font-size: 13px; padding: 20px 0; text-align: center; }
+
+.saved-group { margin-bottom: 16px; }
+.saved-group-label {
+  font-size: 10px; font-weight: 700; color: var(--slate-400);
+  text-transform: uppercase; letter-spacing: 0.08em;
+  margin-bottom: 8px; padding-left: 2px;
+}
+
+.saved-item {
+  background: var(--slate-50); border: 1px solid var(--border);
+  border-radius: var(--radius-md); padding: 14px 16px;
+  text-align: left; cursor: pointer;
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 6px; width: 100%; font-family: inherit;
+  transition: all 0.2s ease;
+}
+.saved-item:hover { background: var(--blue-50); border-color: var(--blue-200); }
+.saved-item:active { transform: scale(0.98); }
+.saved-item-left { display: flex; align-items: center; gap: 12px; }
+.saved-item-avatar {
+  width: 32px; height: 32px; border-radius: 8px;
+  background: var(--slate-200);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 700; color: var(--slate-500);
+  flex-shrink: 0;
+}
+.saved-item-name { font-weight: 700; font-size: 14px; color: var(--text); }
+.saved-item-meta { font-size: 11px; color: var(--text-light); margin-top: 2px; }
+.saved-item-arrow { color: var(--blue-400); font-size: 16px; font-weight: 700; }
+
+/* ============================================
+   PATIENT TIMELINE
+   ============================================ */
+.patient-timeline-panel { display: none; }
+.patient-timeline-panel.visible { display: block; animation: fadeInUp 0.4s cubic-bezier(0.16,1,0.3,1) both; }
+
+.timeline-header {
+  display: flex; align-items: center; gap: 14px; margin-bottom: 12px;
+}
+
+.btn-back-timeline {
+  background: var(--slate-100); border: none; border-radius: var(--radius-sm);
+  padding: 8px 14px; font-size: 13px; font-weight: 600;
+  color: var(--slate-600); cursor: pointer; font-family: inherit;
+  transition: all 0.2s;
+}
+.btn-back-timeline:hover { background: var(--slate-200); }
+.btn-back-timeline:active { transform: scale(0.96); }
+
+.timeline-patient-name {
+  font-size: 18px; font-weight: 800; color: var(--navy);
+  font-family: 'Sora', sans-serif; letter-spacing: -0.02em;
+}
+
+.timeline-patient-id {
+  font-size: 12px; color: var(--slate-500); font-weight: 500;
+}
+
+.timeline-count {
+  font-size: 12px; font-weight: 600; color: var(--blue-500);
+  margin-bottom: 14px;
+  display: flex; align-items: center; gap: 6px;
+}
+
+.timeline-item {
+  display: flex; gap: 14px; width: 100%; font-family: inherit;
+  text-align: left; cursor: pointer; background: none; border: none;
+  padding: 0; margin-bottom: 4px;
+  transition: all 0.2s ease;
+}
+.timeline-item:active { transform: scale(0.98); }
+
+.timeline-line {
+  display: flex; flex-direction: column; align-items: center;
+  width: 24px; flex-shrink: 0;
+}
+
+.timeline-dot {
+  width: 12px; height: 12px; border-radius: 50%;
+  background: var(--blue-500); border: 3px solid var(--blue-100);
+  flex-shrink: 0;
+}
+
+.timeline-connector {
+  width: 2px; flex: 1; min-height: 20px;
+  background: var(--blue-200);
+}
+
+.timeline-content {
+  flex: 1; background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--radius-md); padding: 14px 16px;
+  margin-bottom: 8px;
+  transition: all 0.2s ease;
+}
+.timeline-content:hover { border-color: var(--blue-200); box-shadow: var(--shadow-md); }
+
+.timeline-date {
+  font-size: 12px; font-weight: 700; color: var(--blue-600);
+  margin-bottom: 4px;
+}
+
+.timeline-diagnosis {
+  font-size: 13px; font-weight: 600; color: var(--navy);
+  margin-bottom: 3px;
+}
+
+.timeline-treatment {
+  font-size: 12px; color: var(--slate-500); line-height: 1.5;
+}
+
+.timeline-badges {
+  display: flex; gap: 4px; margin-top: 8px; flex-wrap: wrap;
+}
+
+.timeline-badge {
+  font-size: 9px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.04em; padding: 2px 8px; border-radius: 4px;
+  background: var(--slate-100); color: var(--slate-500);
+}
+.timeline-badge.has-recs { background: #FEF3C7; color: #92400E; }
 
 /* ============================================
    TOAST
@@ -1091,7 +1289,7 @@ body.recording .method-icon.mic-style {
 <!-- ===== MAIN APP ===== -->
 <div class="app-screen" id="appScreen">
   <div class="header">
-    <div class="header-left">
+    <div class="header-left" onclick="goHome()" style="cursor:pointer;">
       <div class="header-logo">
         <svg viewBox="0 0 32 32" fill="none"><path d="M16 5c-2.5 0-4.5.8-5.5 2.5S9 12 9 14.2c0 1.7.3 3.4.8 5 .7 2 1.4 4 2 6.3.4 1.5.8 2.7 1.4 2.7s1.1-1.1 1.4-2.7l.5-2.3h2l.5 2.3c.3 1.6.8 2.7 1.4 2.7s1-.9 1.4-2.7c.6-2.3 1.3-4.3 2-6.3.5-1.6.8-3.3.8-5 0-2.2-.6-4.8-1.7-6.5S18.5 5 16 5z" fill="white" opacity="0.95"/><path d="M6 14.5h2.5M23.5 14.5H26M5 12h2.5M24.5 12H27M5.5 17h2.5M24 17h2.5" stroke="white" stroke-width="1.2" stroke-linecap="round" opacity="0.4"/></svg>
       </div>
@@ -1101,6 +1299,7 @@ body.recording .method-icon.mic-style {
       </div>
     </div>
     <div class="header-actions">
+      <button class="btn-header" id="btnSearch" onclick="toggleSearch()">🔍 Search</button>
       <button class="btn-header" id="btnHistory" onclick="toggleSaved()">📂 History</button>
       <button class="btn-new" id="btnNew" onclick="startNew()">＋ New</button>
       <button class="btn-logout" onclick="handleLogout()">Log out</button>
@@ -1108,9 +1307,40 @@ body.recording .method-icon.mic-style {
   </div>
 
   <div class="container">
+    <!-- SEARCH PANEL -->
+    <div class="card search-panel" id="searchPanel">
+      <div class="search-header">
+        <div class="search-title">🔍 Search Patients</div>
+        <button class="btn-close-panel" onclick="closeSearch()">✕</button>
+      </div>
+      <div class="search-bar">
+        <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input class="search-input" id="searchInput" type="text" placeholder="Search by patient name or ID..." oninput="onSearchInput()">
+        <button class="search-clear" id="searchClear" onclick="clearSearch()">✕</button>
+      </div>
+      <div id="searchResults"><div class="saved-empty">Type a name or ID to search</div></div>
+    </div>
+
+    <!-- HISTORY PANEL -->
     <div class="card saved-panel" id="savedPanel">
-      <div class="saved-title">📂 Saved Notes</div>
+      <div class="saved-panel-header">
+        <div class="saved-title">📂 All Records</div>
+        <button class="btn-close-panel" onclick="closeSaved()">✕</button>
+      </div>
       <div id="savedList"><div class="saved-empty">Loading notes...</div></div>
+    </div>
+
+    <!-- PATIENT TIMELINE PANEL -->
+    <div class="card patient-timeline-panel" id="patientTimelinePanel">
+      <div class="timeline-header">
+        <button class="btn-back-timeline" onclick="closeTimeline()">← Back</button>
+        <div>
+          <div class="timeline-patient-name" id="timelinePatientName"></div>
+          <div class="timeline-patient-id" id="timelinePatientId"></div>
+        </div>
+      </div>
+      <div class="timeline-count" id="timelineCount"></div>
+      <div id="timelineList"></div>
     </div>
 
     <div class="card animate-in">
@@ -1547,7 +1777,6 @@ async function lookupPatientHistory() {
     count.textContent = records.length + " previous visit" + (records.length > 1 ? "s" : "");
 
     list.innerHTML = records.map(n => {
-      // Get a brief preview from structured notes
       let preview = "";
       if (n.structured_notes) {
         const notes = n.structured_notes;
@@ -1559,6 +1788,11 @@ async function lookupPatientHistory() {
         (preview ? '<div class="history-item-preview">' + esc(preview) + '</div>' : '') +
         '</div><div class="history-item-arrow">→</div></button>';
     }).join("");
+
+    // Add "View full timeline" link
+    const viewAllName = document.getElementById("patientName").value.trim();
+    const viewAllId = document.getElementById("patientId").value.trim();
+    list.innerHTML += '<button class="history-item" style="justify-content:center;color:var(--blue-500);font-weight:600;font-size:12px;" onclick="showPatientTimeline(\''+esc(viewAllName)+'\',\''+esc(viewAllId)+'\')">View full patient timeline →</button>';
   } catch (e) {
     console.warn("History lookup failed:", e);
   }
@@ -1680,8 +1914,39 @@ async function loadSavedNotes(){
 function renderSavedList(){
   const list=document.getElementById("savedList");
   document.getElementById("btnHistory").textContent="📂 History"+(savedNotes.length>0?" ("+savedNotes.length+")":"");
-  if(!savedNotes.length){list.innerHTML='<div class="saved-empty">No saved notes yet.</div>';return;}
-  list.innerHTML=savedNotes.map(n=>'<button class="saved-item" onclick="loadNote(\''+n.id+'\')"><div><div class="saved-item-name">'+esc(n.patient_name)+'</div><div class="saved-item-meta">'+n.visit_date+(n.patient_id?" · ID: "+n.patient_id:"")+'</div></div><div class="saved-item-arrow">→</div></button>').join("");
+  if(!savedNotes.length){list.innerHTML='<div class="saved-empty">No saved notes yet. Create your first note above.</div>';return;}
+
+  // Group notes by relative date
+  const groups = {};
+  const now = new Date();
+  const today = now.toISOString().split("T")[0];
+  const yesterday = new Date(now - 86400000).toISOString().split("T")[0];
+  const weekAgo = new Date(now - 7*86400000).toISOString().split("T")[0];
+
+  savedNotes.forEach(n => {
+    let label;
+    if(n.visit_date === today) label = "Today";
+    else if(n.visit_date === yesterday) label = "Yesterday";
+    else if(n.visit_date >= weekAgo) label = "This Week";
+    else label = "Older";
+    if(!groups[label]) groups[label] = [];
+    groups[label].push(n);
+  });
+
+  let html = "";
+  ["Today","Yesterday","This Week","Older"].forEach(label => {
+    if(!groups[label]) return;
+    html += '<div class="saved-group"><div class="saved-group-label">'+label+'</div>';
+    html += groups[label].map(n => {
+      const initials = (n.patient_name||"?").split(" ").map(w=>w[0]).join("").substring(0,2).toUpperCase();
+      return '<button class="saved-item" onclick="loadNote(\''+n.id+'\')">'+
+        '<div class="saved-item-left"><div class="saved-item-avatar">'+initials+'</div><div><div class="saved-item-name">'+esc(n.patient_name)+'</div>'+
+        '<div class="saved-item-meta">'+n.visit_date+(n.patient_id?" · ID: "+n.patient_id:"")+'</div></div></div>'+
+        '<div class="saved-item-arrow">→</div></button>';
+    }).join("");
+    html += '</div>';
+  });
+  list.innerHTML = html;
 }
 
 async function loadNote(id){
@@ -1693,11 +1958,169 @@ async function loadNote(id){
     structuredNotes=data.structured_notes;recommendations=data.recommendations||[];
     await logAudit("view_note","patient_notes",id,{patient_name:data.patient_name});
     if(structuredNotes)showStructuredView();else{showRecordView();updateTranscriptDisplay("");updateProcessBtn();}
-    document.getElementById("savedPanel").classList.remove("visible");
+    closeSaved(); closeSearch(); closeTimeline();
   }catch(e){showError("Failed to load: "+e.message);}
 }
 
-function toggleSaved(){document.getElementById("savedPanel").classList.toggle("visible");}
+function toggleSaved(){
+  closeSearch(); closeTimeline();
+  document.getElementById("savedPanel").classList.toggle("visible");
+}
+function closeSaved(){ document.getElementById("savedPanel").classList.remove("visible"); }
+
+function goHome(){
+  closeSaved(); closeSearch(); closeTimeline();
+  // If viewing a structured note, go back to record view
+  if(document.getElementById("structuredView").classList.contains("visible")){
+    // Keep the note loaded, just scroll up
+  }
+  // Scroll to top
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+// ===== SEARCH =====
+let searchTimer = null;
+
+function toggleSearch(){
+  closeSaved(); closeTimeline();
+  const panel = document.getElementById("searchPanel");
+  panel.classList.toggle("visible");
+  if(panel.classList.contains("visible")){
+    setTimeout(() => document.getElementById("searchInput").focus(), 100);
+  }
+}
+function closeSearch(){
+  document.getElementById("searchPanel").classList.remove("visible");
+  document.getElementById("searchInput").value = "";
+  document.getElementById("searchClear").classList.remove("visible");
+}
+
+function clearSearch(){
+  document.getElementById("searchInput").value = "";
+  document.getElementById("searchClear").classList.remove("visible");
+  document.getElementById("searchResults").innerHTML = '<div class="saved-empty">Type a name or ID to search</div>';
+  document.getElementById("searchInput").focus();
+}
+
+function onSearchInput(){
+  const q = document.getElementById("searchInput").value.trim();
+  document.getElementById("searchClear").classList.toggle("visible", q.length > 0);
+  clearTimeout(searchTimer);
+  if(q.length < 2){
+    document.getElementById("searchResults").innerHTML = '<div class="saved-empty">Type at least 2 characters to search</div>';
+    return;
+  }
+  searchTimer = setTimeout(() => performSearch(q), 300);
+}
+
+async function performSearch(query){
+  if(!currentUser) return;
+  document.getElementById("searchResults").innerHTML = '<div class="saved-empty">Searching...</div>';
+  try{
+    // Search by name OR by patient ID
+    const { data: byName } = await db.from("patient_notes")
+      .select("id, patient_name, patient_id, visit_date, structured_notes")
+      .eq("status","active").ilike("patient_name", "%"+query+"%")
+      .order("visit_date",{ascending:false}).limit(50);
+
+    const { data: byId } = await db.from("patient_notes")
+      .select("id, patient_name, patient_id, visit_date, structured_notes")
+      .eq("status","active").ilike("patient_id", "%"+query+"%")
+      .order("visit_date",{ascending:false}).limit(50);
+
+    // Merge and deduplicate
+    const allResults = [...(byName||[]), ...(byId||[])];
+    const seen = new Set();
+    const unique = allResults.filter(n => {
+      if(seen.has(n.id)) return false;
+      seen.add(n.id); return true;
+    });
+
+    // Group by patient (using patient_id as key, fallback to name)
+    const patients = {};
+    unique.forEach(n => {
+      const key = (n.patient_id || n.patient_name || "unknown").toLowerCase();
+      if(!patients[key]) patients[key] = { name: n.patient_name, id: n.patient_id, visits: [] };
+      patients[key].visits.push(n);
+    });
+
+    renderSearchResults(patients);
+  }catch(e){
+    document.getElementById("searchResults").innerHTML = '<div class="saved-empty">Search failed. Try again.</div>';
+  }
+}
+
+function renderSearchResults(patients){
+  const container = document.getElementById("searchResults");
+  const keys = Object.keys(patients);
+  if(!keys.length){
+    container.innerHTML = '<div class="saved-empty">No patients found</div>';
+    return;
+  }
+  container.innerHTML = keys.map((key,i) => {
+    const p = patients[key];
+    const initials = (p.name || "?").split(" ").map(w=>w[0]).join("").substring(0,2).toUpperCase();
+    const visitText = p.visits.length + " visit" + (p.visits.length > 1 ? "s" : "");
+    const lastDate = p.visits[0]?.visit_date || "";
+    return '<div class="search-result-group" style="animation-delay:'+(i*0.06)+'s">' +
+      '<button class="search-result-patient" onclick="showPatientTimeline(\''+esc(p.name)+'\',\''+esc(p.id||"")+'\')">'+
+      '<div class="search-result-info"><div class="search-result-avatar">'+initials+'</div><div><div class="search-result-name">'+esc(p.name)+'</div><div class="search-result-meta">'+(p.id?"ID: "+esc(p.id)+" · ":"")+'Last visit: '+lastDate+'</div></div></div>'+
+      '<div class="search-result-visits">'+visitText+'</div></button></div>';
+  }).join("");
+}
+
+// ===== PATIENT TIMELINE =====
+async function showPatientTimeline(name, patientId){
+  closeSearch(); closeSaved();
+  const panel = document.getElementById("patientTimelinePanel");
+  document.getElementById("timelinePatientName").textContent = name;
+  document.getElementById("timelinePatientId").textContent = patientId ? "ID: " + patientId : "";
+  document.getElementById("timelineList").innerHTML = '<div class="saved-empty">Loading records...</div>';
+  panel.classList.add("visible");
+
+  try{
+    let query = db.from("patient_notes")
+      .select("id, patient_name, patient_id, visit_date, structured_notes, recommendations, created_at")
+      .eq("status","active")
+      .order("visit_date",{ascending:false});
+
+    if(patientId) query = query.eq("patient_id", patientId);
+    else query = query.ilike("patient_name", "%"+name+"%");
+
+    const { data, error } = await query.limit(50);
+    if(error) throw error;
+
+    const records = data || [];
+    document.getElementById("timelineCount").innerHTML = '📋 ' + records.length + " record" + (records.length !== 1 ? "s" : "") + " found";
+
+    if(!records.length){
+      document.getElementById("timelineList").innerHTML = '<div class="saved-empty">No records found for this patient.</div>';
+      return;
+    }
+
+    document.getElementById("timelineList").innerHTML = records.map((n, i) => {
+      const notes = n.structured_notes || {};
+      const diagnosis = notes.assessment_diagnosis || notes.subjective_chief_complaint || "";
+      const treatment = notes.plan_treatment_performed || "";
+      const hasRecs = n.recommendations && n.recommendations.length > 0;
+      const isLast = i === records.length - 1;
+
+      return '<button class="timeline-item" onclick="loadNote(\''+n.id+'\')" style="animation:fadeInUp 0.4s '+(i*0.08)+'s both cubic-bezier(0.16,1,0.3,1);">'+
+        '<div class="timeline-line"><div class="timeline-dot"></div>'+(isLast?'':'<div class="timeline-connector"></div>')+'</div>'+
+        '<div class="timeline-content"><div class="timeline-date">'+n.visit_date+'</div>'+
+        (diagnosis ? '<div class="timeline-diagnosis">'+esc(diagnosis.substring(0,80))+(diagnosis.length>80?'...':'')+'</div>':'')+
+        (treatment ? '<div class="timeline-treatment">'+esc(treatment.substring(0,100))+(treatment.length>100?'...':'')+'</div>':'')+
+        '<div class="timeline-badges">'+(hasRecs?'<span class="timeline-badge has-recs">💡 '+n.recommendations.length+' recommendations</span>':'')+'</div>'+
+        '</div></button>';
+    }).join("");
+
+    await logAudit("view_patient_history","patient_notes",null,{patient_name:name, patient_id:patientId, record_count:records.length});
+  }catch(e){
+    document.getElementById("timelineList").innerHTML = '<div class="saved-empty">Failed to load records.</div>';
+  }
+}
+
+function closeTimeline(){ document.getElementById("patientTimelinePanel").classList.remove("visible"); }
 
 function startNew(){
   rawTranscript="";structuredNotes=null;recommendations=null;currentNoteId=null;
@@ -1707,12 +2130,13 @@ function startNew(){
   document.getElementById("structuredView").classList.remove("visible");
   document.getElementById("recordView").classList.remove("hidden");
   document.getElementById("recsPanel").classList.remove("visible");
-  document.getElementById("savedPanel").classList.remove("visible");
+  closeSaved(); closeSearch(); closeTimeline();
   document.getElementById("btnNew").classList.remove("visible");
   document.getElementById("patientHistory").classList.remove("visible");
   document.getElementById("validationMsg").classList.remove("visible");
   removeScannedImage();
   updateTranscriptDisplay("");updateProcessBtn();
+  window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
 // ===== EXPORT =====
