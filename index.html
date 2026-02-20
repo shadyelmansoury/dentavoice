@@ -166,6 +166,7 @@ body {
 
 .auth-bg {
   position: absolute; inset: 0; overflow: hidden;
+  pointer-events: none;
 }
 
 .auth-bg::before {
@@ -1237,7 +1238,7 @@ body.recording .method-icon.mic-style {
 
 // ===== SUPABASE CONFIG =====
 const SUPABASE_URL = "https://nzurgcoyjebxswkffduy.supabase.co";
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im56dXJnY295amVieHN3a2ZmZHV5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE1Njc3NDMsImV4cCI6MjA4NzE0Mzc0M30.yFxmvYYw2Uwgvb_TLrlOZn1IunDPZV80ejfY0gVbOAM;
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im56dXJnY295amVieHN3a2ZmZHV5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE1Njc3NDMsImV4cCI6MjA4NzE0Mzc0M30.yFxmvYYw2Uwgvb_TLrlOZn1IunDPZV80ejfY0gVbOAM";
 const API_URL = "/api/claude-proxy";
 const { createClient } = supabase;
 const db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
