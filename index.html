@@ -10,6 +10,10 @@
 <title>DentaVoice — Dr. Amira</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&display=swap" rel="stylesheet">
+<!-- Supabase JS client -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<!-- jsPDF for PDF export -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
   :root {
     --green-dark: #1B4D3E;
@@ -32,391 +36,169 @@
     --blue-pale: #EFF6FF;
     --blue-border: #BFDBFE;
   }
-
-  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
   body {
     font-family: 'DM Sans', 'Segoe UI', system-ui, sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    min-height: 100vh;
-    min-height: 100dvh;
-    overflow-x: hidden;
+    background: var(--bg); color: var(--text);
+    min-height: 100vh; min-height: 100dvh; overflow-x: hidden;
   }
 
+  /* ===== AUTH SCREEN ===== */
+  .auth-screen {
+    min-height: 100vh; display: flex; align-items: center; justify-content: center;
+    background: linear-gradient(135deg, var(--green-dark) 0%, var(--green-mid) 50%, var(--green-light) 100%);
+    padding: 20px;
+  }
+  .auth-card {
+    background: #fff; border-radius: 24px; padding: 36px 28px;
+    max-width: 380px; width: 100%;
+    box-shadow: 0 12px 48px rgba(0,0,0,0.2);
+  }
+  .auth-logo { text-align: center; margin-bottom: 28px; }
+  .auth-logo-icon { font-size: 40px; margin-bottom: 8px; }
+  .auth-logo-title { font-family: 'Fraunces', serif; font-size: 28px; font-weight: 700; color: var(--green-dark); }
+  .auth-logo-sub { font-size: 13px; color: var(--text-light); margin-top: 4px; }
+  .auth-tabs { display: flex; gap: 0; margin-bottom: 24px; border-radius: 10px; overflow: hidden; border: 2px solid var(--border); }
+  .auth-tab {
+    flex: 1; padding: 10px; text-align: center; font-size: 13px; font-weight: 600;
+    cursor: pointer; border: none; background: #fff; color: var(--text-light);
+    font-family: inherit; transition: all 0.2s;
+  }
+  .auth-tab.active { background: var(--green-dark); color: #fff; }
+  .auth-field { margin-bottom: 16px; }
+  .auth-label { font-size: 11px; font-weight: 600; color: var(--text-light); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 6px; display: block; }
+  .auth-input {
+    width: 100%; padding: 12px 14px; border: 2px solid var(--border); border-radius: 10px;
+    font-size: 15px; font-family: inherit; outline: none; transition: border-color 0.2s;
+  }
+  .auth-input:focus { border-color: var(--green-mid); }
+  .auth-btn {
+    width: 100%; padding: 14px; background: linear-gradient(135deg, var(--green-dark), var(--green-mid));
+    color: #fff; border: none; border-radius: 12px; font-size: 15px; font-weight: 600;
+    cursor: pointer; font-family: inherit; margin-top: 8px;
+    box-shadow: 0 4px 16px rgba(27,77,62,0.25); transition: all 0.2s;
+  }
+  .auth-btn:disabled { background: #94A3B8; box-shadow: none; cursor: not-allowed; }
+  .auth-error { background: var(--red-light); border: 1px solid var(--red-border); border-radius: 8px; padding: 10px 12px; font-size: 12px; color: #991B1B; margin-bottom: 12px; display: none; }
+  .auth-error.visible { display: block; }
+  .auth-footer { text-align: center; margin-top: 16px; font-size: 11px; color: var(--text-light); line-height: 1.5; }
+
+  /* ===== HEADER ===== */
   .header {
     background: linear-gradient(135deg, var(--green-dark) 0%, var(--green-mid) 50%, var(--green-light) 100%);
-    padding: 16px 20px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    position: sticky;
-    top: 0;
-    z-index: 100;
-    box-shadow: 0 2px 20px rgba(27,77,62,0.15);
+    padding: 16px 20px; display: flex; align-items: center; justify-content: space-between;
+    position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 20px rgba(27,77,62,0.15);
   }
-
   .header-left { display: flex; align-items: center; gap: 12px; }
-
-  .header-icon {
-    width: 40px; height: 40px;
-    background: rgba(255,255,255,0.15);
-    border-radius: 11px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 20px;
-    backdrop-filter: blur(10px);
-  }
-
-  .header-title {
-    font-family: 'Fraunces', serif;
-    font-size: 20px; font-weight: 700; color: #fff;
-    letter-spacing: -0.02em;
-  }
-
+  .header-icon { width: 40px; height: 40px; background: rgba(255,255,255,0.15); border-radius: 11px; display: flex; align-items: center; justify-content: center; font-size: 20px; backdrop-filter: blur(10px); }
+  .header-title { font-family: 'Fraunces', serif; font-size: 20px; font-weight: 700; color: #fff; letter-spacing: -0.02em; }
   .header-sub { font-size: 11px; color: rgba(255,255,255,0.7); margin-top: 1px; }
   .header-actions { display: flex; gap: 8px; }
-
-  .btn-header {
-    background: rgba(255,255,255,0.15);
-    border: 1px solid rgba(255,255,255,0.2);
-    border-radius: 10px;
-    padding: 8px 14px;
-    color: #fff;
-    font-size: 12px;
-    font-family: inherit;
-    cursor: pointer;
-    backdrop-filter: blur(10px);
-    transition: all 0.2s;
-  }
-
+  .btn-header { background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.2); border-radius: 10px; padding: 8px 14px; color: #fff; font-size: 12px; font-family: inherit; cursor: pointer; backdrop-filter: blur(10px); transition: all 0.2s; }
   .btn-header:active { background: rgba(255,255,255,0.25); }
-
-  .btn-new {
-    background: rgba(255,255,255,0.95);
-    border: none;
-    border-radius: 10px;
-    padding: 8px 14px;
-    color: var(--green-dark);
-    font-size: 12px;
-    font-weight: 600;
-    font-family: inherit;
-    cursor: pointer;
-    display: none;
-  }
-
+  .btn-new { background: rgba(255,255,255,0.95); border: none; border-radius: 10px; padding: 8px 14px; color: var(--green-dark); font-size: 12px; font-weight: 600; font-family: inherit; cursor: pointer; display: none; }
   .btn-new.visible { display: block; }
 
-  .container {
-    max-width: 720px;
-    margin: 0 auto;
-    padding: 16px 14px 120px;
-  }
-
-  .card {
-    background: var(--card);
-    border-radius: 16px;
-    padding: 16px 18px;
-    margin-bottom: 12px;
-    box-shadow: 0 1px 8px rgba(0,0,0,0.04);
-    border: 1px solid var(--border);
-  }
+  /* ===== MAIN ===== */
+  .app-screen { display: none; }
+  .app-screen.visible { display: block; }
+  .container { max-width: 720px; margin: 0 auto; padding: 16px 14px 120px; }
+  .card { background: var(--card); border-radius: 16px; padding: 16px 18px; margin-bottom: 12px; box-shadow: 0 1px 8px rgba(0,0,0,0.04); border: 1px solid var(--border); }
 
   .patient-row { display: flex; gap: 12px; flex-wrap: wrap; }
   .field { flex: 1 1 160px; }
   .field-small { flex: 0 1 110px; }
-
-  .field-label {
-    font-size: 10px; font-weight: 600; color: var(--text-light);
-    text-transform: uppercase; letter-spacing: 0.06em;
-  }
-
-  .field-input {
-    width: 100%; margin-top: 4px; padding: 8px 0;
-    border: none; border-bottom: 2px solid var(--border);
-    font-size: 15px; font-weight: 500;
-    background: transparent; outline: none;
-    font-family: inherit; color: var(--text);
-    transition: border-color 0.2s;
-  }
-
+  .field-label { font-size: 10px; font-weight: 600; color: var(--text-light); text-transform: uppercase; letter-spacing: 0.06em; }
+  .field-input { width: 100%; margin-top: 4px; padding: 8px 0; border: none; border-bottom: 2px solid var(--border); font-size: 15px; font-weight: 500; background: transparent; outline: none; font-family: inherit; color: var(--text); transition: border-color 0.2s; }
   .field-input:focus { border-bottom-color: var(--green-mid); }
 
-  .error-box {
-    background: var(--red-light);
-    border: 1px solid var(--red-border);
-    border-radius: 12px;
-    padding: 12px 16px;
-    margin-bottom: 12px;
-    font-size: 13px;
-    color: #991B1B;
-    display: none;
-    align-items: center;
-    gap: 8px;
-  }
-
+  .error-box { background: var(--red-light); border: 1px solid var(--red-border); border-radius: 12px; padding: 12px 16px; margin-bottom: 12px; font-size: 13px; color: #991B1B; display: none; align-items: center; gap: 8px; }
   .error-box.visible { display: flex; }
 
   .record-card { text-align: center; padding: 28px 20px; border-radius: 20px; }
-
   .mic-wrapper { position: relative; display: inline-block; margin-bottom: 20px; }
-
-  .mic-pulse-1, .mic-pulse-2 {
-    position: absolute; top: 50%; left: 50%;
-    transform: translate(-50%, -50%);
-    border-radius: 50%; opacity: 0; pointer-events: none;
-  }
-
+  .mic-pulse-1, .mic-pulse-2 { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); border-radius: 50%; opacity: 0; pointer-events: none; }
   .mic-pulse-1 { width: 110px; height: 110px; background: rgba(45,106,79,0.1); }
   .mic-pulse-2 { width: 140px; height: 140px; background: rgba(45,106,79,0.06); }
-
   body.recording .mic-pulse-1 { animation: pulse1 2s ease-in-out infinite; }
   body.recording .mic-pulse-2 { animation: pulse2 2s ease-in-out infinite 0.3s; }
+  @keyframes pulse1 { 0%,100%{transform:translate(-50%,-50%) scale(1);opacity:1;} 50%{transform:translate(-50%,-50%) scale(1.2);opacity:0.4;} }
+  @keyframes pulse2 { 0%,100%{transform:translate(-50%,-50%) scale(1);opacity:0.7;} 50%{transform:translate(-50%,-50%) scale(1.25);opacity:0.2;} }
 
-  @keyframes pulse1 {
-    0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
-    50% { transform: translate(-50%, -50%) scale(1.2); opacity: 0.4; }
-  }
-  @keyframes pulse2 {
-    0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.7; }
-    50% { transform: translate(-50%, -50%) scale(1.25); opacity: 0.2; }
-  }
-
-  .mic-btn {
-    width: 84px; height: 84px; border-radius: 50%; border: none;
-    background: linear-gradient(135deg, var(--green-dark), var(--green-mid));
-    color: #fff; font-size: 34px; cursor: pointer;
-    position: relative; z-index: 2;
-    box-shadow: 0 4px 24px rgba(27,77,62,0.3);
-    transition: all 0.3s ease;
-    display: flex; align-items: center; justify-content: center;
-  }
-
-  body.recording .mic-btn {
-    background: linear-gradient(135deg, #DC2626, #EF4444);
-    box-shadow: 0 4px 24px rgba(220,38,38,0.35);
-  }
-
+  .mic-btn { width: 84px; height: 84px; border-radius: 50%; border: none; background: linear-gradient(135deg, var(--green-dark), var(--green-mid)); color: #fff; font-size: 34px; cursor: pointer; position: relative; z-index: 2; box-shadow: 0 4px 24px rgba(27,77,62,0.3); transition: all 0.3s ease; display: flex; align-items: center; justify-content: center; }
+  body.recording .mic-btn { background: linear-gradient(135deg, #DC2626, #EF4444); box-shadow: 0 4px 24px rgba(220,38,38,0.35); }
   .mic-status { font-size: 15px; font-weight: 600; color: var(--green-dark); margin-bottom: 3px; }
   body.recording .mic-status { color: var(--red); }
   .mic-hint { font-size: 12px; color: var(--text-light); margin-bottom: 22px; }
-
-  .transcript-box {
-    background: var(--bg); border-radius: 14px; padding: 16px;
-    min-height: 80px; text-align: left;
-  }
-
-  .transcript-label {
-    font-size: 10px; font-weight: 600; color: var(--text-light);
-    text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 8px;
-  }
-
+  .transcript-box { background: var(--bg); border-radius: 14px; padding: 16px; min-height: 80px; text-align: left; }
+  .transcript-label { font-size: 10px; font-weight: 600; color: var(--text-light); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 8px; }
   .transcript-text { font-size: 14px; line-height: 1.7; color: #333; }
   .transcript-interim { color: #aaa; font-style: italic; }
   .transcript-placeholder { color: #bbb; font-size: 13px; font-style: italic; }
-
-  .manual-input {
-    width: 100%; margin-top: 10px; padding: 12px;
-    border-radius: 12px; border: 2px solid var(--border);
-    font-size: 13px; font-family: inherit; min-height: 56px;
-    resize: vertical; outline: none; transition: border-color 0.2s;
-  }
+  .manual-input { width: 100%; margin-top: 10px; padding: 12px; border-radius: 12px; border: 2px solid var(--border); font-size: 13px; font-family: inherit; min-height: 56px; resize: vertical; outline: none; transition: border-color 0.2s; }
   .manual-input:focus { border-color: var(--green-mid); }
-
-  .btn-process {
-    margin-top: 18px; padding: 14px 28px;
-    background: linear-gradient(135deg, var(--green-dark), var(--green-mid));
-    color: #fff; border: none; border-radius: 14px;
-    font-size: 15px; font-weight: 600; cursor: pointer;
-    box-shadow: 0 4px 16px rgba(27,77,62,0.25);
-    font-family: inherit; display: none;
-    align-items: center; gap: 8px; transition: all 0.2s;
-  }
+  .btn-process { margin-top: 18px; padding: 14px 28px; background: linear-gradient(135deg, var(--green-dark), var(--green-mid)); color: #fff; border: none; border-radius: 14px; font-size: 15px; font-weight: 600; cursor: pointer; box-shadow: 0 4px 16px rgba(27,77,62,0.25); font-family: inherit; display: none; align-items: center; gap: 8px; transition: all 0.2s; }
   .btn-process.visible { display: inline-flex; }
   .btn-process:disabled { background: #94A3B8; box-shadow: none; cursor: not-allowed; }
-
-  .spinner {
-    display: inline-block; width: 16px; height: 16px;
-    border: 2px solid rgba(255,255,255,0.3);
-    border-top-color: #fff; border-radius: 50%;
-    animation: spin 0.8s linear infinite;
-  }
+  .spinner { display: inline-block; width: 16px; height: 16px; border: 2px solid rgba(255,255,255,0.3); border-top-color: #fff; border-radius: 50%; animation: spin 0.8s linear infinite; }
   @keyframes spin { to { transform: rotate(360deg); } }
 
   .structured-view { display: none; }
   .structured-view.visible { display: block; }
   .record-view.hidden { display: none; }
-
   .action-bar { display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; }
-
-  .btn-action {
-    padding: 10px 14px; background: var(--card);
-    border: 1px solid var(--border); border-radius: 10px;
-    font-size: 12px; font-weight: 500; cursor: pointer;
-    font-family: inherit; display: flex; align-items: center;
-    gap: 6px; transition: all 0.2s;
-  }
+  .btn-action { padding: 10px 14px; background: var(--card); border: 1px solid var(--border); border-radius: 10px; font-size: 12px; font-weight: 500; cursor: pointer; font-family: inherit; display: flex; align-items: center; gap: 6px; transition: all 0.2s; }
   .btn-action:active { background: var(--bg); }
-
-  .btn-action.primary {
-    background: linear-gradient(135deg, var(--green-dark), var(--green-mid));
-    color: #fff; border: none; font-weight: 600;
-    box-shadow: 0 2px 10px rgba(27,77,62,0.2);
-  }
-
+  .btn-action.primary { background: linear-gradient(135deg, var(--green-dark), var(--green-mid)); color: #fff; border: none; font-weight: 600; box-shadow: 0 2px 10px rgba(27,77,62,0.2); }
   .btn-action.copied { background: var(--green-mid); color: #fff; border-color: var(--green-mid); }
 
-  .patient-header {
-    background: linear-gradient(135deg, var(--green-dark), var(--green-mid));
-    border-radius: 16px; padding: 16px 20px; margin-bottom: 10px;
-    color: #fff; display: flex; justify-content: space-between; align-items: center;
-  }
-
+  .patient-header { background: linear-gradient(135deg, var(--green-dark), var(--green-mid)); border-radius: 16px; padding: 16px 20px; margin-bottom: 10px; color: #fff; display: flex; justify-content: space-between; align-items: center; }
   .patient-header-name { font-size: 17px; font-weight: 700; font-family: 'Fraunces', serif; }
   .patient-header-meta { font-size: 12px; opacity: 0.8; margin-top: 2px; }
+  .section-count { background: rgba(255,255,255,0.15); border-radius: 10px; padding: 5px 11px; font-size: 11px; font-weight: 500; }
 
-  .section-count {
-    background: rgba(255,255,255,0.15); border-radius: 10px;
-    padding: 5px 11px; font-size: 11px; font-weight: 500;
-  }
-
-  .note-section {
-    background: var(--card); border-radius: 14px; padding: 14px 18px;
-    box-shadow: 0 1px 6px rgba(0,0,0,0.04); border: 1px solid var(--border);
-    margin-bottom: 8px;
-  }
-
-  .section-header {
-    display: flex; justify-content: space-between;
-    align-items: center; margin-bottom: 8px;
-  }
-
-  .section-title {
-    font-size: 11px; font-weight: 700; color: var(--green-dark);
-    text-transform: uppercase; letter-spacing: 0.04em;
-    display: flex; align-items: center; gap: 6px;
-  }
-
-  .btn-edit {
-    background: var(--bg); color: var(--text-light); border: none;
-    border-radius: 6px; padding: 4px 10px; font-size: 10px;
-    font-weight: 500; cursor: pointer; font-family: inherit;
-  }
+  .note-section { background: var(--card); border-radius: 14px; padding: 14px 18px; box-shadow: 0 1px 6px rgba(0,0,0,0.04); border: 1px solid var(--border); margin-bottom: 8px; }
+  .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+  .section-title { font-size: 11px; font-weight: 700; color: var(--green-dark); text-transform: uppercase; letter-spacing: 0.04em; display: flex; align-items: center; gap: 6px; }
+  .btn-edit { background: var(--bg); color: var(--text-light); border: none; border-radius: 6px; padding: 4px 10px; font-size: 10px; font-weight: 500; cursor: pointer; font-family: inherit; }
   .btn-edit.saving { background: var(--green-mid); color: #fff; }
-
   .section-content { font-size: 14px; line-height: 1.7; color: #444; white-space: pre-wrap; }
+  .section-edit { width: 100%; padding: 10px; border-radius: 8px; border: 2px solid var(--green-mid); font-size: 13px; font-family: inherit; min-height: 55px; resize: vertical; outline: none; line-height: 1.6; display: none; }
 
-  .section-edit {
-    width: 100%; padding: 10px; border-radius: 8px;
-    border: 2px solid var(--green-mid); font-size: 13px;
-    font-family: inherit; min-height: 55px; resize: vertical;
-    outline: none; line-height: 1.6; display: none;
-  }
-
-  .recs-panel {
-    background: var(--amber-pale);
-    border: 1px solid var(--amber-border);
-    border-radius: 16px;
-    padding: 18px;
-    margin-bottom: 12px;
-    display: none;
-  }
+  .recs-panel { background: var(--amber-pale); border: 1px solid var(--amber-border); border-radius: 16px; padding: 18px; margin-bottom: 12px; display: none; }
   .recs-panel.visible { display: block; }
-
   .recs-header { display: flex; align-items: center; gap: 8px; margin-bottom: 14px; }
-
-  .recs-icon {
-    width: 32px; height: 32px;
-    background: var(--amber); border-radius: 8px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 16px;
-  }
-
+  .recs-icon { width: 32px; height: 32px; background: var(--amber); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 16px; }
   .recs-title { font-family: 'Fraunces', serif; font-size: 15px; font-weight: 700; color: #92400E; }
   .recs-subtitle { font-size: 11px; color: #B45309; }
-
-  .rec-item {
-    background: #fff; border: 1px solid var(--amber-border);
-    border-radius: 12px; padding: 12px 14px;
-    margin-bottom: 8px; transition: all 0.2s;
-  }
+  .rec-item { background: #fff; border: 1px solid var(--amber-border); border-radius: 12px; padding: 12px 14px; margin-bottom: 8px; transition: all 0.2s; }
   .rec-item.dismissed { opacity: 0.4; text-decoration: line-through; }
-
-  .rec-category {
-    font-size: 9px; font-weight: 700;
-    text-transform: uppercase; letter-spacing: 0.06em;
-    padding: 2px 8px; border-radius: 4px;
-    display: inline-block; margin-bottom: 6px;
-  }
+  .rec-category { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; padding: 2px 8px; border-radius: 4px; display: inline-block; margin-bottom: 6px; }
   .rec-category.clinical { background: #DBEAFE; color: #1E40AF; }
   .rec-category.followup { background: var(--green-pale); color: var(--green-dark); }
   .rec-category.medication { background: #F3E8FF; color: #6B21A8; }
   .rec-category.preventive { background: #FEF3C7; color: #92400E; }
   .rec-category.diagnostic { background: #FCE7F3; color: #9D174D; }
   .rec-category.safety { background: var(--red-light); color: #991B1B; }
-
   .rec-text { font-size: 13px; line-height: 1.6; color: #444; }
   .rec-actions { display: flex; gap: 6px; margin-top: 8px; }
-
-  .btn-rec {
-    padding: 4px 12px; border-radius: 6px;
-    font-size: 10px; font-weight: 600; cursor: pointer;
-    font-family: inherit; border: none; transition: all 0.15s;
-  }
+  .btn-rec { padding: 4px 12px; border-radius: 6px; font-size: 10px; font-weight: 600; cursor: pointer; font-family: inherit; border: none; transition: all 0.15s; }
   .btn-rec.accept { background: var(--green-pale); color: var(--green-dark); }
-  .btn-rec.accept:active { background: var(--green-mid); color: #fff; }
   .btn-rec.dismiss { background: #F3F4F6; color: #6B7280; }
-  .btn-rec.dismiss:active { background: #D1D5DB; }
+  .recs-disclaimer { font-size: 10px; color: #B45309; font-style: italic; margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--amber-border); line-height: 1.5; }
 
-  .recs-disclaimer {
-    font-size: 10px; color: #B45309; font-style: italic;
-    margin-top: 10px; padding-top: 10px;
-    border-top: 1px solid var(--amber-border); line-height: 1.5;
-  }
-
-  .loading-overlay {
-    display: none; position: fixed;
-    top: 0; left: 0; right: 0; bottom: 0;
-    background: rgba(0,0,0,0.5); z-index: 200;
-    align-items: center; justify-content: center;
-    backdrop-filter: blur(4px);
-  }
+  .loading-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 200; align-items: center; justify-content: center; backdrop-filter: blur(4px); }
   .loading-overlay.visible { display: flex; }
-
-  .loading-card {
-    background: #fff; border-radius: 20px;
-    padding: 32px 28px; text-align: center;
-    max-width: 300px; width: 90%;
-    box-shadow: 0 8px 40px rgba(0,0,0,0.2);
-  }
-
-  .loading-spinner {
-    width: 48px; height: 48px;
-    border: 4px solid var(--border);
-    border-top-color: var(--green-mid);
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-    margin: 0 auto 16px;
-  }
-
-  .loading-title {
-    font-family: 'Fraunces', serif;
-    font-size: 16px; font-weight: 700;
-    color: var(--green-dark); margin-bottom: 6px;
-  }
-
-  .loading-step { font-size: 13px; color: var(--text-light); transition: all 0.3s; }
+  .loading-card { background: #fff; border-radius: 20px; padding: 32px 28px; text-align: center; max-width: 300px; width: 90%; box-shadow: 0 8px 40px rgba(0,0,0,0.2); }
+  .loading-spinner { width: 48px; height: 48px; border: 4px solid var(--border); border-top-color: var(--green-mid); border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 16px; }
+  .loading-title { font-family: 'Fraunces', serif; font-size: 16px; font-weight: 700; color: var(--green-dark); margin-bottom: 6px; }
+  .loading-step { font-size: 13px; color: var(--text-light); }
 
   .saved-panel { display: none; }
   .saved-panel.visible { display: block; }
   .saved-title { font-size: 15px; font-weight: 600; font-family: 'Fraunces', serif; margin-bottom: 12px; }
   .saved-empty { color: var(--text-light); font-size: 13px; padding: 16px 0; text-align: center; }
-
-  .saved-item {
-    background: var(--bg); border: 1px solid var(--border); border-radius: 10px;
-    padding: 12px 14px; text-align: left; cursor: pointer;
-    display: flex; justify-content: space-between; align-items: center;
-    margin-bottom: 6px; width: 100%; font-family: inherit;
-  }
+  .saved-item { background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; text-align: left; cursor: pointer; display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; width: 100%; font-family: inherit; }
   .saved-item:active { background: #eee; }
   .saved-item-name { font-weight: 600; font-size: 13px; color: var(--text); }
   .saved-item-meta { font-size: 11px; color: var(--text-light); margin-top: 2px; }
@@ -430,139 +212,172 @@
   .tip-row { display: flex; align-items: flex-start; gap: 10px; font-size: 12px; color: #666; line-height: 1.5; margin-bottom: 8px; }
   .tip-num { background: var(--green-pale); color: var(--green-mid); border-radius: 6px; width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; flex-shrink: 0; }
 
-  .template-badge {
-    display: inline-flex; align-items: center; gap: 6px;
-    background: var(--blue-pale); border: 1px solid var(--blue-border);
-    border-radius: 8px; padding: 6px 12px;
-    font-size: 11px; font-weight: 600; color: #1E40AF;
-    margin-bottom: 10px;
-  }
+  .template-badge { display: inline-flex; align-items: center; gap: 6px; background: var(--blue-pale); border: 1px solid var(--blue-border); border-radius: 8px; padding: 6px 12px; font-size: 11px; font-weight: 600; color: #1E40AF; margin-bottom: 10px; }
 
-  .toast {
-    position: fixed; bottom: 30px; left: 50%;
-    transform: translateX(-50%) translateY(80px);
-    background: var(--green-dark); color: #fff;
-    padding: 12px 24px; border-radius: 12px;
-    font-size: 14px; font-weight: 500;
-    box-shadow: 0 6px 24px rgba(0,0,0,0.2);
-    z-index: 999; transition: transform 0.3s ease; pointer-events: none;
-  }
+  .toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(80px); background: var(--green-dark); color: #fff; padding: 12px 24px; border-radius: 12px; font-size: 14px; font-weight: 500; box-shadow: 0 6px 24px rgba(0,0,0,0.2); z-index: 999; transition: transform 0.3s ease; pointer-events: none; }
   .toast.show { transform: translateX(-50%) translateY(0); }
+
+  /* User bar */
+  .user-bar { display: flex; align-items: center; gap: 8px; font-size: 11px; color: rgba(255,255,255,0.8); }
+  .btn-logout { background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; padding: 6px 12px; color: #fff; font-size: 11px; font-family: inherit; cursor: pointer; }
 </style>
 </head>
 <body>
 
-<div class="header">
-  <div class="header-left">
-    <div class="header-icon">🦷</div>
-    <div>
-      <div class="header-title">DentaVoice</div>
-      <div class="header-sub">Clinical Notes — Dr. Amira</div>
+<!-- ===== AUTH SCREEN ===== -->
+<div class="auth-screen" id="authScreen">
+  <div class="auth-card">
+    <div class="auth-logo">
+      <div class="auth-logo-icon">🦷</div>
+      <div class="auth-logo-title">DentaVoice</div>
+      <div class="auth-logo-sub">Clinical Notes — Secure Login</div>
     </div>
-  </div>
-  <div class="header-actions">
-    <button class="btn-header" id="btnHistory" onclick="toggleSaved()">📂 History</button>
-    <button class="btn-new" id="btnNew" onclick="startNew()">+ New</button>
+
+    <div class="auth-tabs">
+      <button class="auth-tab active" id="tabLogin" onclick="switchAuthTab('login')">Log In</button>
+      <button class="auth-tab" id="tabSignup" onclick="switchAuthTab('signup')">Sign Up</button>
+    </div>
+
+    <div class="auth-error" id="authError"></div>
+
+    <div id="loginForm">
+      <div class="auth-field">
+        <label class="auth-label">Email</label>
+        <input class="auth-input" id="loginEmail" type="email" placeholder="amira@clinic.com">
+      </div>
+      <div class="auth-field">
+        <label class="auth-label">Password</label>
+        <input class="auth-input" id="loginPassword" type="password" placeholder="Enter password">
+      </div>
+      <button class="auth-btn" id="loginBtn" onclick="handleLogin()">Log In</button>
+    </div>
+
+    <div id="signupForm" style="display:none;">
+      <div class="auth-field">
+        <label class="auth-label">Full Name</label>
+        <input class="auth-input" id="signupName" type="text" placeholder="Dr. Amira Mahmoud">
+      </div>
+      <div class="auth-field">
+        <label class="auth-label">Email</label>
+        <input class="auth-input" id="signupEmail" type="email" placeholder="amira@clinic.com">
+      </div>
+      <div class="auth-field">
+        <label class="auth-label">Password</label>
+        <input class="auth-input" id="signupPassword" type="password" placeholder="Min 8 characters">
+      </div>
+      <button class="auth-btn" id="signupBtn" onclick="handleSignup()">Create Account</button>
+    </div>
+
+    <div class="auth-footer">
+      🔒 Patient data stored on encrypted Canadian servers<br>PHIPA/PIPEDA compliant
+    </div>
   </div>
 </div>
 
-<div class="container">
-  <div class="card saved-panel" id="savedPanel">
-    <div class="saved-title">📂 Saved Notes</div>
-    <div id="savedList"><div class="saved-empty">No saved notes yet.</div></div>
-  </div>
-
-  <div class="card">
-    <div class="patient-row">
-      <div class="field">
-        <label class="field-label">Patient Name</label>
-        <input class="field-input" id="patientName" placeholder="Enter patient name">
-      </div>
-      <div class="field-small">
-        <label class="field-label">Patient ID</label>
-        <input class="field-input" id="patientId" placeholder="ID #">
-      </div>
-      <div class="field-small">
-        <label class="field-label">Visit Date</label>
-        <input class="field-input" id="visitDate" type="date">
-      </div>
-    </div>
-  </div>
-
-  <div class="error-box" id="errorBox">
-    <span>⚠️</span><span id="errorText"></span>
-  </div>
-
-  <div class="record-view" id="recordView">
-    <div class="card record-card">
-      <div class="mic-wrapper">
-        <div class="mic-pulse-1"></div>
-        <div class="mic-pulse-2"></div>
-        <button class="mic-btn" id="micBtn" onclick="toggleRecording()">🎙</button>
-      </div>
-      <div class="mic-status" id="micStatus">Tap to start dictating</div>
-      <div class="mic-hint" id="micHint">Dictate chief complaint, findings, treatment, and plan</div>
-
-      <div class="transcript-box">
-        <div class="transcript-label">Raw Transcript</div>
-        <div id="transcriptArea">
-          <div class="transcript-placeholder">Your dictation will appear here in real-time...</div>
-        </div>
-      </div>
-
-      <textarea class="manual-input" id="manualInput" placeholder="Or type / paste notes manually here..." oninput="onManualInput()"></textarea>
-      <button class="btn-process" id="btnProcess" onclick="processNotes()">✨ Structure with AI</button>
-    </div>
-
-    <div class="card" id="tipsCard">
-      <div class="tips-title">💡 Tips for best results</div>
-      <div class="tip-row"><span class="tip-num">1</span> Start with the chief complaint — why the patient came in</div>
-      <div class="tip-row"><span class="tip-num">2</span> Mention relevant medical history or allergies</div>
-      <div class="tip-row"><span class="tip-num">3</span> Describe your clinical findings with tooth numbers (FDI or universal)</div>
-      <div class="tip-row"><span class="tip-num">4</span> State your diagnosis and any differential diagnoses</div>
-      <div class="tip-row"><span class="tip-num">5</span> Detail the treatment, materials, and anesthesia used</div>
-      <div class="tip-row"><span class="tip-num">6</span> End with post-op instructions and follow-up plan</div>
-    </div>
-  </div>
-
-  <div class="structured-view" id="structuredView">
-    <div class="action-bar">
-      <button class="btn-action" onclick="showRecordView()">🎙 Edit Recording</button>
-      <button class="btn-action" id="btnCopy" onclick="copyAll()">📋 Copy All</button>
-      <button class="btn-action primary" onclick="saveNote()">💾 Save Note</button>
-    </div>
-
-    <div class="patient-header">
+<!-- ===== MAIN APP ===== -->
+<div class="app-screen" id="appScreen">
+  <div class="header">
+    <div class="header-left">
+      <div class="header-icon">🦷</div>
       <div>
-        <div class="patient-header-name" id="structPatientName">Patient Notes</div>
-        <div class="patient-header-meta" id="structPatientMeta"></div>
+        <div class="header-title">DentaVoice</div>
+        <div class="header-sub" id="headerUser">Clinical Notes</div>
       </div>
-      <div class="section-count" id="sectionCount"></div>
+    </div>
+    <div class="header-actions">
+      <button class="btn-header" id="btnHistory" onclick="toggleSaved()">📂 History</button>
+      <button class="btn-new" id="btnNew" onclick="startNew()">+ New</button>
+      <button class="btn-logout" onclick="handleLogout()">Logout</button>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="card saved-panel" id="savedPanel">
+      <div class="saved-title">📂 Saved Notes</div>
+      <div id="savedList"><div class="saved-empty">Loading notes...</div></div>
     </div>
 
-    <div class="template-badge">📄 Standard Dental Clinical Note (SOAP Format)</div>
-
-    <div id="sectionsContainer"></div>
-
-    <div class="recs-panel" id="recsPanel">
-      <div class="recs-header">
-        <div class="recs-icon">💡</div>
-        <div>
-          <div class="recs-title">Clinical Considerations</div>
-          <div class="recs-subtitle">AI-generated suggestions for your review</div>
+    <div class="card">
+      <div class="patient-row">
+        <div class="field">
+          <label class="field-label">Patient Name</label>
+          <input class="field-input" id="patientName" placeholder="Enter patient name">
+        </div>
+        <div class="field-small">
+          <label class="field-label">Patient ID</label>
+          <input class="field-input" id="patientId" placeholder="ID #">
+        </div>
+        <div class="field-small">
+          <label class="field-label">Visit Date</label>
+          <input class="field-input" id="visitDate" type="date">
         </div>
       </div>
-      <div id="recsContainer"></div>
-      <div class="recs-disclaimer">
-        ⚕️ These are AI-generated suggestions only — not clinical directives. Always apply your professional judgment. AI may miss context or make errors.
+    </div>
+
+    <div class="error-box" id="errorBox"><span>⚠️</span><span id="errorText"></span></div>
+
+    <div class="record-view" id="recordView">
+      <div class="card record-card">
+        <div class="mic-wrapper">
+          <div class="mic-pulse-1"></div>
+          <div class="mic-pulse-2"></div>
+          <button class="mic-btn" id="micBtn" onclick="toggleRecording()">🎙</button>
+        </div>
+        <div class="mic-status" id="micStatus">Tap to start dictating</div>
+        <div class="mic-hint" id="micHint">Dictate chief complaint, findings, treatment, and plan</div>
+        <div class="transcript-box">
+          <div class="transcript-label">Raw Transcript</div>
+          <div id="transcriptArea"><div class="transcript-placeholder">Your dictation will appear here in real-time...</div></div>
+        </div>
+        <textarea class="manual-input" id="manualInput" placeholder="Or type / paste notes manually here..." oninput="onManualInput()"></textarea>
+        <button class="btn-process" id="btnProcess" onclick="processNotes()">✨ Structure with AI</button>
+      </div>
+      <div class="card" id="tipsCard">
+        <div class="tips-title">💡 Tips for best results</div>
+        <div class="tip-row"><span class="tip-num">1</span> Start with the chief complaint — why the patient came in</div>
+        <div class="tip-row"><span class="tip-num">2</span> Mention relevant medical history or allergies</div>
+        <div class="tip-row"><span class="tip-num">3</span> Describe your clinical findings with tooth numbers</div>
+        <div class="tip-row"><span class="tip-num">4</span> State your diagnosis and any differential diagnoses</div>
+        <div class="tip-row"><span class="tip-num">5</span> Detail the treatment, materials, and anesthesia used</div>
+        <div class="tip-row"><span class="tip-num">6</span> End with post-op instructions and follow-up plan</div>
       </div>
     </div>
 
-    <div class="card raw-details">
-      <details>
-        <summary>View Raw Transcript</summary>
-        <div class="raw-details-text" id="rawTranscriptText"></div>
-      </details>
+    <div class="structured-view" id="structuredView">
+      <div class="action-bar">
+        <button class="btn-action" onclick="showRecordView()">🎙 Edit</button>
+        <button class="btn-action" id="btnCopy" onclick="copyAll()">📋 Copy</button>
+        <button class="btn-action" onclick="exportPDF()">📄 PDF</button>
+        <button class="btn-action" onclick="exportCSV()">📊 CSV</button>
+        <button class="btn-action primary" onclick="saveNote()">💾 Save</button>
+      </div>
+
+      <div class="patient-header">
+        <div>
+          <div class="patient-header-name" id="structPatientName">Patient Notes</div>
+          <div class="patient-header-meta" id="structPatientMeta"></div>
+        </div>
+        <div class="section-count" id="sectionCount"></div>
+      </div>
+
+      <div class="template-badge">📄 Standard Dental Clinical Note (SOAP Format)</div>
+      <div id="sectionsContainer"></div>
+
+      <div class="recs-panel" id="recsPanel">
+        <div class="recs-header">
+          <div class="recs-icon">💡</div>
+          <div><div class="recs-title">Clinical Considerations</div><div class="recs-subtitle">AI-generated suggestions for your review</div></div>
+        </div>
+        <div id="recsContainer"></div>
+        <div class="recs-disclaimer">⚕️ AI-generated suggestions only — not clinical directives. Always apply professional judgment.</div>
+      </div>
+
+      <div class="card raw-details">
+        <details>
+          <summary>View Raw Transcript</summary>
+          <div class="raw-details-text" id="rawTranscriptText"></div>
+        </details>
+      </div>
     </div>
   </div>
 </div>
@@ -578,63 +393,145 @@
 <div class="toast" id="toast"></div>
 
 <script>
-// ===== CONFIG =====
-// API calls go through our secure Netlify function (API key stays on server)
+// ===== SUPABASE CONFIG =====
+// These are safe to be public — Row Level Security protects the data
+const SUPABASE_URL = "https://nzurgcoyjebxswkffduy.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im56dXJnY295amVieFN3a2ZmZHV5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDAwMTYwMDAsImV4cCI6MjA1NTU5MjAwMH0";
 const API_URL = "/api/claude-proxy";
 
+// Initialize Supabase
+const { createClient } = supabase;
+const db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
 // ===== STATE =====
+let currentUser = null;
 let isRecording = false;
 let recognition = null;
 let rawTranscript = "";
 let structuredNotes = null;
 let recommendations = null;
 let savedNotes = [];
+let currentNoteId = null;
 
 // ===== SECTION CONFIG =====
 const LABELS = {
-  subjective_chief_complaint: "S — Chief Complaint",
-  subjective_hpi: "S — History of Present Illness",
-  subjective_medical_history: "S — Relevant Medical / Dental History",
-  subjective_allergies: "S — Allergies & Medications",
-  objective_extraoral: "O — Extraoral Examination",
-  objective_intraoral: "O — Intraoral Examination",
-  objective_teeth_findings: "O — Teeth & Periodontal Findings",
-  objective_radiographic: "O — Radiographic Findings",
-  assessment_diagnosis: "A — Diagnosis",
-  assessment_differential: "A — Differential Diagnosis",
-  assessment_cdt_codes: "A — CDT / Procedure Codes",
-  plan_treatment_performed: "P — Treatment Performed",
-  plan_materials_used: "P — Materials & Medications Used",
-  plan_anesthesia: "P — Anesthesia Details",
-  plan_post_op: "P — Post-Operative Instructions",
-  plan_follow_up: "P — Follow-Up Plan",
-  plan_referrals: "P — Referrals",
-  additional_notes: "Additional Notes"
+  subjective_chief_complaint:"S — Chief Complaint", subjective_hpi:"S — History of Present Illness",
+  subjective_medical_history:"S — Medical / Dental History", subjective_allergies:"S — Allergies & Medications",
+  objective_extraoral:"O — Extraoral Examination", objective_intraoral:"O — Intraoral Examination",
+  objective_teeth_findings:"O — Teeth & Periodontal Findings", objective_radiographic:"O — Radiographic Findings",
+  assessment_diagnosis:"A — Diagnosis", assessment_differential:"A — Differential Diagnosis",
+  assessment_cdt_codes:"A — CDT / Procedure Codes", plan_treatment_performed:"P — Treatment Performed",
+  plan_materials_used:"P — Materials & Medications", plan_anesthesia:"P — Anesthesia Details",
+  plan_post_op:"P — Post-Op Instructions", plan_follow_up:"P — Follow-Up Plan",
+  plan_referrals:"P — Referrals", additional_notes:"Additional Notes"
 };
-
 const ICONS = {
-  subjective_chief_complaint: "💬", subjective_hpi: "📋",
-  subjective_medical_history: "🏥", subjective_allergies: "⚠️",
-  objective_extraoral: "👤", objective_intraoral: "👄",
-  objective_teeth_findings: "🦷", objective_radiographic: "📷",
-  assessment_diagnosis: "🩺", assessment_differential: "🔬",
-  assessment_cdt_codes: "🏷️", plan_treatment_performed: "⚕️",
-  plan_materials_used: "💊", plan_anesthesia: "💉",
-  plan_post_op: "📝", plan_follow_up: "📅",
-  plan_referrals: "🔗", additional_notes: "📌"
+  subjective_chief_complaint:"💬",subjective_hpi:"📋",subjective_medical_history:"🏥",subjective_allergies:"⚠️",
+  objective_extraoral:"👤",objective_intraoral:"👄",objective_teeth_findings:"🦷",objective_radiographic:"📷",
+  assessment_diagnosis:"🩺",assessment_differential:"🔬",assessment_cdt_codes:"🏷️",plan_treatment_performed:"⚕️",
+  plan_materials_used:"💊",plan_anesthesia:"💉",plan_post_op:"📝",plan_follow_up:"📅",
+  plan_referrals:"🔗",additional_notes:"📌"
+};
+const SECTION_GROUPS = {
+  "Subjective":["subjective_chief_complaint","subjective_hpi","subjective_medical_history","subjective_allergies"],
+  "Objective":["objective_extraoral","objective_intraoral","objective_teeth_findings","objective_radiographic"],
+  "Assessment":["assessment_diagnosis","assessment_differential","assessment_cdt_codes"],
+  "Plan":["plan_treatment_performed","plan_materials_used","plan_anesthesia","plan_post_op","plan_follow_up","plan_referrals"],
+  "Other":["additional_notes"]
 };
 
-const SECTION_GROUPS = {
-  "Subjective": ["subjective_chief_complaint", "subjective_hpi", "subjective_medical_history", "subjective_allergies"],
-  "Objective": ["objective_extraoral", "objective_intraoral", "objective_teeth_findings", "objective_radiographic"],
-  "Assessment": ["assessment_diagnosis", "assessment_differential", "assessment_cdt_codes"],
-  "Plan": ["plan_treatment_performed", "plan_materials_used", "plan_anesthesia", "plan_post_op", "plan_follow_up", "plan_referrals"],
-  "Other": ["additional_notes"]
-};
+// ===== AUTH =====
+function switchAuthTab(tab) {
+  document.getElementById("tabLogin").classList.toggle("active", tab === "login");
+  document.getElementById("tabSignup").classList.toggle("active", tab === "signup");
+  document.getElementById("loginForm").style.display = tab === "login" ? "block" : "none";
+  document.getElementById("signupForm").style.display = tab === "signup" ? "block" : "none";
+  document.getElementById("authError").classList.remove("visible");
+}
+
+async function handleLogin() {
+  const email = document.getElementById("loginEmail").value.trim();
+  const password = document.getElementById("loginPassword").value;
+  if (!email || !password) { showAuthError("Please enter email and password."); return; }
+  document.getElementById("loginBtn").disabled = true;
+  document.getElementById("loginBtn").textContent = "Logging in...";
+  const { data, error } = await db.auth.signInWithPassword({ email, password });
+  if (error) { showAuthError(error.message); document.getElementById("loginBtn").disabled = false; document.getElementById("loginBtn").textContent = "Log In"; return; }
+  currentUser = data.user;
+  await logAudit("login", "session", null, { method: "email" });
+  showApp();
+}
+
+async function handleSignup() {
+  const name = document.getElementById("signupName").value.trim();
+  const email = document.getElementById("signupEmail").value.trim();
+  const password = document.getElementById("signupPassword").value;
+  if (!name || !email || !password) { showAuthError("Please fill in all fields."); return; }
+  if (password.length < 8) { showAuthError("Password must be at least 8 characters."); return; }
+  document.getElementById("signupBtn").disabled = true;
+  document.getElementById("signupBtn").textContent = "Creating account...";
+  const { data, error } = await db.auth.signUp({ email, password, options: { data: { full_name: name } } });
+  if (error) { showAuthError(error.message); document.getElementById("signupBtn").disabled = false; document.getElementById("signupBtn").textContent = "Create Account"; return; }
+  if (data.user && !data.user.confirmed_at) {
+    showAuthError("Check your email to confirm your account, then log in.");
+    switchAuthTab("login");
+    document.getElementById("signupBtn").disabled = false;
+    document.getElementById("signupBtn").textContent = "Create Account";
+    return;
+  }
+  currentUser = data.user;
+  showApp();
+}
+
+async function handleLogout() {
+  await logAudit("logout", "session", null, {});
+  await db.auth.signOut();
+  currentUser = null;
+  document.getElementById("appScreen").classList.remove("visible");
+  document.getElementById("authScreen").style.display = "flex";
+  document.getElementById("loginBtn").disabled = false;
+  document.getElementById("loginBtn").textContent = "Log In";
+}
+
+function showAuthError(msg) {
+  const el = document.getElementById("authError");
+  el.textContent = msg;
+  el.classList.add("visible");
+}
 
 // ===== INIT =====
-document.getElementById("visitDate").value = new Date().toISOString().split("T")[0];
-loadSavedNotes();
+async function initApp() {
+  const { data: { session } } = await db.auth.getSession();
+  if (session) {
+    currentUser = session.user;
+    showApp();
+  }
+}
+
+function showApp() {
+  document.getElementById("authScreen").style.display = "none";
+  document.getElementById("appScreen").classList.add("visible");
+  const name = currentUser.user_metadata?.full_name || currentUser.email;
+  document.getElementById("headerUser").textContent = name;
+  document.getElementById("visitDate").value = new Date().toISOString().split("T")[0];
+  loadSavedNotes();
+}
+
+initApp();
+
+// ===== AUDIT LOGGING (PHIPA) =====
+async function logAudit(action, resourceType, resourceId, details) {
+  if (!currentUser) return;
+  try {
+    await db.from("audit_log").insert({
+      user_id: currentUser.id,
+      action: action,
+      resource_type: resourceType,
+      resource_id: resourceId,
+      details: details
+    });
+  } catch(e) { console.warn("Audit log failed:", e); }
+}
 
 // ===== RECORDING =====
 function toggleRecording() { isRecording ? stopRecording() : startRecording(); }
@@ -643,57 +540,36 @@ function startRecording() {
   hideError();
   const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
   if (!SR) { showError("Speech recognition not supported. Please use Chrome."); return; }
-
   recognition = new SR();
-  recognition.continuous = true;
-  recognition.interimResults = true;
-  recognition.lang = "en-US";
-
-  recognition.onresult = function(event) {
+  recognition.continuous = true; recognition.interimResults = true; recognition.lang = "en-US";
+  recognition.onresult = function(e) {
     let interim = "", final = "";
-    for (let i = event.resultIndex; i < event.results.length; i++) {
-      const t = event.results[i][0].transcript;
-      if (event.results[i].isFinal) final += t + " ";
-      else interim += t;
+    for (let i = e.resultIndex; i < e.results.length; i++) {
+      const t = e.results[i][0].transcript;
+      if (e.results[i].isFinal) final += t + " "; else interim += t;
     }
-    if (final) {
-      rawTranscript += final;
-      document.getElementById("manualInput").value = rawTranscript;
-    }
+    if (final) { rawTranscript += final; document.getElementById("manualInput").value = rawTranscript; }
     updateTranscriptDisplay(interim);
   };
-
-  recognition.onerror = function(event) {
-    if (event.error === "not-allowed") {
-      showError("Microphone access denied. Please allow microphone in browser settings.");
-      stopRecording();
-    } else if (event.error !== "no-speech" && event.error !== "aborted") {
-      showError("Speech error: " + event.error);
-    }
+  recognition.onerror = function(e) {
+    if (e.error === "not-allowed") { showError("Microphone access denied."); stopRecording(); }
+    else if (e.error !== "no-speech" && e.error !== "aborted") showError("Speech error: " + e.error);
   };
-
-  recognition.onend = function() {
-    if (isRecording) { try { recognition.start(); } catch(e) {} }
-  };
-
+  recognition.onend = function() { if (isRecording) try { recognition.start(); } catch(e) {} };
   try {
-    recognition.start();
-    isRecording = true;
+    recognition.start(); isRecording = true;
     document.body.classList.add("recording");
     document.getElementById("micBtn").textContent = "⏹";
     document.getElementById("micStatus").textContent = "Recording... Tap to stop";
     document.getElementById("micHint").textContent = "Speak naturally — describe the patient visit";
     document.getElementById("manualInput").style.display = "none";
     updateProcessBtn();
-  } catch(e) {
-    showError("Could not start recording. Check microphone permissions.");
-  }
+  } catch(e) { showError("Could not start recording."); }
 }
 
 function stopRecording() {
   if (recognition) { recognition.onend = null; recognition.stop(); recognition = null; }
-  isRecording = false;
-  document.body.classList.remove("recording");
+  isRecording = false; document.body.classList.remove("recording");
   document.getElementById("micBtn").textContent = "🎙";
   document.getElementById("micStatus").textContent = "Tap to start dictating";
   document.getElementById("micHint").textContent = "Dictate chief complaint, findings, treatment, and plan";
@@ -706,16 +582,10 @@ function updateTranscriptDisplay(interim) {
   if (rawTranscript || interim) {
     area.innerHTML = '<span class="transcript-text">' + esc(rawTranscript) + '</span>' +
       (interim ? '<span class="transcript-interim">' + esc(interim) + '</span>' : '');
-  } else {
-    area.innerHTML = '<div class="transcript-placeholder">Your dictation will appear here in real-time...</div>';
-  }
+  } else area.innerHTML = '<div class="transcript-placeholder">Your dictation will appear here...</div>';
 }
 
-function onManualInput() {
-  rawTranscript = document.getElementById("manualInput").value;
-  updateTranscriptDisplay("");
-  updateProcessBtn();
-}
+function onManualInput() { rawTranscript = document.getElementById("manualInput").value; updateTranscriptDisplay(""); updateProcessBtn(); }
 
 function updateProcessBtn() {
   const has = rawTranscript.trim().length > 0;
@@ -724,250 +594,154 @@ function updateProcessBtn() {
   document.getElementById("btnNew").classList.toggle("visible", has || !!structuredNotes);
 }
 
-// ===== AI PROCESSING (single optimized call) =====
+// ===== AI PROCESSING =====
 async function processNotes() {
   rawTranscript = document.getElementById("manualInput").value || rawTranscript;
   if (!rawTranscript.trim()) { showError("No notes to process."); return; }
-
   showLoading("Analyzing dictation...");
   hideError();
-
   try {
     updateLoadingStep("Structuring notes & generating insights...");
-
-    // ONE call to our secure backend — it handles everything
     const response = await fetch(API_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ transcript: rawTranscript.trim() })
     });
-
     const data = await response.json();
-
-    if (data.error) {
-      throw new Error(data.error);
-    }
-
+    if (data.error) throw new Error(data.error);
     structuredNotes = data.notes || {};
     recommendations = data.recommendations || [];
-
-    // Show token usage in console for cost monitoring
-    if (data.usage) {
-      console.log("DentaVoice usage:", data.usage.input_tokens, "in /",
-        data.usage.output_tokens, "out /",
-        data.usage.cache_read, "cached");
-    }
-
+    if (data.usage) console.log("Usage:", data.usage.input_tokens, "in /", data.usage.output_tokens, "out /", data.usage.cache_read, "cached");
+    await logAudit("process_notes", "patient_notes", null, { patient_name: document.getElementById("patientName").value });
     hideLoading();
     showStructuredView();
-
-  } catch(err) {
-    hideLoading();
-    showError("Failed to process notes: " + err.message);
-  }
+  } catch(err) { hideLoading(); showError("Failed: " + err.message); }
 }
 
 // ===== STRUCTURED VIEW =====
 function showStructuredView() {
   document.getElementById("recordView").classList.add("hidden");
   document.getElementById("structuredView").classList.add("visible");
-
   const name = document.getElementById("patientName").value || "Patient Notes";
   const id = document.getElementById("patientId").value;
   const date = document.getElementById("visitDate").value;
-
   document.getElementById("structPatientName").textContent = name;
   document.getElementById("structPatientMeta").textContent = date + (id ? " · ID: " + id : "");
-
-  const entries = Object.entries(structuredNotes).filter(([k, v]) => v && LABELS[k]);
+  const entries = Object.entries(structuredNotes).filter(([k,v]) => v && LABELS[k]);
   document.getElementById("sectionCount").textContent = entries.length + " sections";
-
   const container = document.getElementById("sectionsContainer");
   container.innerHTML = "";
-
   Object.entries(SECTION_GROUPS).forEach(([group, keys]) => {
-    const groupEntries = keys.filter(k => structuredNotes[k] && String(structuredNotes[k]).trim());
-    if (groupEntries.length === 0) return;
-
-    groupEntries.forEach(key => {
-      const value = structuredNotes[key];
-      const section = document.createElement("div");
-      section.className = "note-section";
-      section.id = "section-" + key;
-      section.innerHTML =
-        '<div class="section-header">' +
-          '<div class="section-title">' + (ICONS[key] || "📝") + " " + LABELS[key] + '</div>' +
-          '<button class="btn-edit" onclick="toggleEdit(\'' + key + '\')">Edit</button>' +
-        '</div>' +
-        '<div class="section-content" id="content-' + key + '">' + esc(String(value)) + '</div>' +
-        '<textarea class="section-edit" id="edit-' + key + '">' + esc(String(value)) + '</textarea>';
-      container.appendChild(section);
+    keys.filter(k => structuredNotes[k] && String(structuredNotes[k]).trim()).forEach(key => {
+      const s = document.createElement("div"); s.className = "note-section"; s.id = "section-" + key;
+      s.innerHTML = '<div class="section-header"><div class="section-title">' + (ICONS[key]||"📝") + " " + LABELS[key] + '</div><button class="btn-edit" onclick="toggleEdit(\'' + key + '\')">Edit</button></div><div class="section-content" id="content-' + key + '">' + esc(String(structuredNotes[key])) + '</div><textarea class="section-edit" id="edit-' + key + '">' + esc(String(structuredNotes[key])) + '</textarea>';
+      container.appendChild(s);
     });
   });
-
   renderRecommendations();
   document.getElementById("rawTranscriptText").textContent = rawTranscript;
   document.getElementById("btnNew").classList.add("visible");
 }
 
 function renderRecommendations() {
-  const panel = document.getElementById("recsPanel");
-  const container = document.getElementById("recsContainer");
-  if (!recommendations || recommendations.length === 0) { panel.classList.remove("visible"); return; }
-
-  panel.classList.add("visible");
-  container.innerHTML = "";
-
-  const order = { high: 0, medium: 1, low: 2 };
-  const sorted = [...recommendations].sort((a, b) => (order[a.priority] || 2) - (order[b.priority] || 2));
-
-  sorted.forEach((rec, i) => {
-    const item = document.createElement("div");
-    item.className = "rec-item";
-    item.id = "rec-" + i;
-    item.innerHTML =
-      '<span class="rec-category ' + (rec.category || "clinical") + '">' +
-        (rec.category || "clinical").toUpperCase() + (rec.priority === "high" ? " ●" : "") +
-      '</span>' +
-      '<div style="font-size:13px;font-weight:600;color:#333;margin-bottom:3px;">' + esc(rec.title) + '</div>' +
-      '<div class="rec-text">' + esc(rec.detail) + '</div>' +
-      '<div class="rec-actions">' +
-        '<button class="btn-rec accept" onclick="acceptRec(' + i + ')">✓ Note taken</button>' +
-        '<button class="btn-rec dismiss" onclick="dismissRec(' + i + ')">✕ Dismiss</button>' +
-      '</div>';
+  const panel = document.getElementById("recsPanel"); const container = document.getElementById("recsContainer");
+  if (!recommendations || !recommendations.length) { panel.classList.remove("visible"); return; }
+  panel.classList.add("visible"); container.innerHTML = "";
+  const order = {high:0,medium:1,low:2};
+  [...recommendations].sort((a,b) => (order[a.priority]||2) - (order[b.priority]||2)).forEach((rec, i) => {
+    const item = document.createElement("div"); item.className = "rec-item"; item.id = "rec-" + i;
+    item.innerHTML = '<span class="rec-category ' + (rec.category||"clinical") + '">' + (rec.category||"").toUpperCase() + (rec.priority==="high"?" ●":"") + '</span><div style="font-size:13px;font-weight:600;color:#333;margin-bottom:3px;">' + esc(rec.title) + '</div><div class="rec-text">' + esc(rec.detail) + '</div><div class="rec-actions"><button class="btn-rec accept" onclick="acceptRec(' + i + ')">✓ Noted</button><button class="btn-rec dismiss" onclick="dismissRec(' + i + ')">✕ Dismiss</button></div>';
     container.appendChild(item);
   });
 }
 
-function acceptRec(i) {
-  const el = document.getElementById("rec-" + i);
-  if (el) {
-    el.style.borderColor = "#86EFAC"; el.style.background = "#F0FDF4";
-    el.querySelector(".rec-actions").innerHTML = '<span style="font-size:11px;color:#16A34A;font-weight:600;">✓ Noted</span>';
-  }
-}
-
-function dismissRec(i) {
-  const el = document.getElementById("rec-" + i);
-  if (el) { el.classList.add("dismissed"); el.querySelector(".rec-actions").innerHTML = '<span style="font-size:11px;color:#999;">Dismissed</span>'; }
-}
-
-function showRecordView() {
-  document.getElementById("structuredView").classList.remove("visible");
-  document.getElementById("recordView").classList.remove("hidden");
-}
+function acceptRec(i) { const el = document.getElementById("rec-"+i); if(el){el.style.borderColor="#86EFAC";el.style.background="#F0FDF4";el.querySelector(".rec-actions").innerHTML='<span style="font-size:11px;color:#16A34A;font-weight:600;">✓ Noted</span>';} }
+function dismissRec(i) { const el = document.getElementById("rec-"+i); if(el){el.classList.add("dismissed");el.querySelector(".rec-actions").innerHTML='<span style="font-size:11px;color:#999;">Dismissed</span>';} }
+function showRecordView() { document.getElementById("structuredView").classList.remove("visible"); document.getElementById("recordView").classList.remove("hidden"); }
 
 function toggleEdit(key) {
-  const content = document.getElementById("content-" + key);
-  const edit = document.getElementById("edit-" + key);
-  const btn = document.querySelector("#section-" + key + " .btn-edit");
-  if (edit.style.display === "block") {
-    structuredNotes[key] = edit.value;
-    content.textContent = edit.value;
-    content.style.display = "block"; edit.style.display = "none";
-    btn.textContent = "Edit"; btn.classList.remove("saving");
-  } else {
-    content.style.display = "none"; edit.style.display = "block"; edit.focus();
-    btn.textContent = "✓ Save"; btn.classList.add("saving");
-  }
+  const c = document.getElementById("content-"+key), e = document.getElementById("edit-"+key), b = document.querySelector("#section-"+key+" .btn-edit");
+  if (e.style.display==="block") { structuredNotes[key]=e.value; c.textContent=e.value; c.style.display="block"; e.style.display="none"; b.textContent="Edit"; b.classList.remove("saving"); }
+  else { c.style.display="none"; e.style.display="block"; e.focus(); b.textContent="✓ Save"; b.classList.add("saving"); }
 }
 
-// ===== COPY =====
-function copyAll() {
-  if (!structuredNotes) return;
-  const name = document.getElementById("patientName").value;
-  const id = document.getElementById("patientId").value;
-  const date = document.getElementById("visitDate").value;
-
-  let text = "DENTAL CLINICAL NOTES (SOAP FORMAT)\n";
-  text += "═══════════════════════════════════════\n";
-  if (name) text += "Patient: " + name + "\n";
-  if (id) text += "ID: " + id + "\n";
-  text += "Date: " + date + "\n";
-  text += "Provider: Dr. Amira Mahmoud\n";
-  text += "═══════════════════════════════════════\n\n";
-
-  Object.entries(SECTION_GROUPS).forEach(([group, keys]) => {
-    const filled = keys.filter(k => structuredNotes[k] && String(structuredNotes[k]).trim());
-    if (filled.length === 0) return;
-    filled.forEach(key => {
-      text += LABELS[key].toUpperCase() + "\n";
-      text += structuredNotes[key] + "\n\n";
-    });
-  });
-
-  if (recommendations && recommendations.length > 0) {
-    text += "═══════════════════════════════════════\n";
-    text += "AI CLINICAL CONSIDERATIONS (Advisory Only)\n";
-    text += "───────────────────────────────────────\n";
-    recommendations.forEach(r => {
-      text += "• [" + r.category.toUpperCase() + "] " + r.title + "\n  " + r.detail + "\n";
-    });
-    text += "\n";
-  }
-
-  text += "═══════════════════════════════════════\n";
-  text += "Documented via DentaVoice\n";
-
-  navigator.clipboard.writeText(text).then(() => {
-    const btn = document.getElementById("btnCopy");
-    btn.classList.add("copied"); btn.innerHTML = "✓ Copied!";
-    setTimeout(() => { btn.classList.remove("copied"); btn.innerHTML = "📋 Copy All"; }, 2000);
-  });
-}
-
-// ===== SAVE & LOAD =====
-function saveNote() {
-  const note = {
-    id: Date.now(),
-    patientName: document.getElementById("patientName").value,
-    patientId: document.getElementById("patientId").value,
-    visitDate: document.getElementById("visitDate").value,
-    rawTranscript, structuredNotes, recommendations,
-    savedAt: new Date().toISOString()
+// ===== SAVE TO DATABASE =====
+async function saveNote() {
+  const noteData = {
+    user_id: currentUser.id,
+    patient_name: document.getElementById("patientName").value || "Unnamed",
+    patient_id: document.getElementById("patientId").value || null,
+    visit_date: document.getElementById("visitDate").value,
+    raw_transcript: rawTranscript,
+    structured_notes: structuredNotes,
+    recommendations: recommendations
   };
-  savedNotes.unshift(note);
-  if (savedNotes.length > 50) savedNotes = savedNotes.slice(0, 50);
-  try { localStorage.setItem("dentavoice-notes", JSON.stringify(savedNotes)); } catch(e) {}
-  renderSavedList();
-  showToast("✓ Note saved!");
+
+  try {
+    let result;
+    if (currentNoteId) {
+      result = await db.from("patient_notes").update(noteData).eq("id", currentNoteId).select();
+      await logAudit("update_note", "patient_notes", currentNoteId, { patient_name: noteData.patient_name });
+    } else {
+      result = await db.from("patient_notes").insert(noteData).select();
+      if (result.data && result.data[0]) currentNoteId = result.data[0].id;
+      await logAudit("create_note", "patient_notes", currentNoteId, { patient_name: noteData.patient_name });
+    }
+    if (result.error) throw result.error;
+    showToast("✓ Saved to secure database");
+    loadSavedNotes();
+  } catch(e) { showError("Failed to save: " + e.message); }
 }
 
-function loadSavedNotes() {
-  try { const d = localStorage.getItem("dentavoice-notes"); if (d) savedNotes = JSON.parse(d); } catch(e) {}
-  renderSavedList();
+// ===== LOAD FROM DATABASE =====
+async function loadSavedNotes() {
+  try {
+    const { data, error } = await db.from("patient_notes")
+      .select("id, patient_name, patient_id, visit_date, created_at")
+      .eq("status", "active")
+      .order("visit_date", { ascending: false })
+      .limit(50);
+    if (error) throw error;
+    savedNotes = data || [];
+    renderSavedList();
+  } catch(e) { console.warn("Load failed:", e); }
 }
 
 function renderSavedList() {
   const list = document.getElementById("savedList");
   document.getElementById("btnHistory").textContent = "📂 History" + (savedNotes.length > 0 ? " (" + savedNotes.length + ")" : "");
-  if (savedNotes.length === 0) { list.innerHTML = '<div class="saved-empty">No saved notes yet.</div>'; return; }
+  if (!savedNotes.length) { list.innerHTML = '<div class="saved-empty">No saved notes yet.</div>'; return; }
   list.innerHTML = savedNotes.map((n, i) =>
-    '<button class="saved-item" onclick="loadNote(' + i + ')">' +
-      '<div><div class="saved-item-name">' + esc(n.patientName || "Unnamed Patient") + '</div>' +
-      '<div class="saved-item-meta">' + n.visitDate + (n.patientId ? " · ID: " + n.patientId : "") + '</div></div>' +
-      '<div class="saved-item-arrow">→</div></button>'
+    '<button class="saved-item" onclick="loadNote(\'' + n.id + '\')">' +
+    '<div><div class="saved-item-name">' + esc(n.patient_name) + '</div>' +
+    '<div class="saved-item-meta">' + n.visit_date + (n.patient_id ? " · ID: " + n.patient_id : "") + '</div></div>' +
+    '<div class="saved-item-arrow">→</div></button>'
   ).join("");
 }
 
-function loadNote(i) {
-  const n = savedNotes[i];
-  document.getElementById("patientName").value = n.patientName || "";
-  document.getElementById("patientId").value = n.patientId || "";
-  document.getElementById("visitDate").value = n.visitDate || "";
-  rawTranscript = n.rawTranscript || "";
-  document.getElementById("manualInput").value = rawTranscript;
-  structuredNotes = n.structuredNotes;
-  recommendations = n.recommendations || [];
-  if (structuredNotes) showStructuredView();
-  else { showRecordView(); updateTranscriptDisplay(""); updateProcessBtn(); }
-  document.getElementById("savedPanel").classList.remove("visible");
+async function loadNote(id) {
+  try {
+    const { data, error } = await db.from("patient_notes").select("*").eq("id", id).single();
+    if (error) throw error;
+    currentNoteId = data.id;
+    document.getElementById("patientName").value = data.patient_name || "";
+    document.getElementById("patientId").value = data.patient_id || "";
+    document.getElementById("visitDate").value = data.visit_date || "";
+    rawTranscript = data.raw_transcript || "";
+    document.getElementById("manualInput").value = rawTranscript;
+    structuredNotes = data.structured_notes;
+    recommendations = data.recommendations || [];
+    await logAudit("view_note", "patient_notes", id, { patient_name: data.patient_name });
+    if (structuredNotes) showStructuredView();
+    else { showRecordView(); updateTranscriptDisplay(""); updateProcessBtn(); }
+    document.getElementById("savedPanel").classList.remove("visible");
+  } catch(e) { showError("Failed to load note: " + e.message); }
 }
 
 function toggleSaved() { document.getElementById("savedPanel").classList.toggle("visible"); }
 
 function startNew() {
-  rawTranscript = ""; structuredNotes = null; recommendations = null;
+  rawTranscript = ""; structuredNotes = null; recommendations = null; currentNoteId = null;
   document.getElementById("patientName").value = "";
   document.getElementById("patientId").value = "";
   document.getElementById("visitDate").value = new Date().toISOString().split("T")[0];
@@ -980,14 +754,132 @@ function startNew() {
   updateTranscriptDisplay(""); updateProcessBtn();
 }
 
+// ===== COPY =====
+function buildPlainText() {
+  const name = document.getElementById("patientName").value;
+  const id = document.getElementById("patientId").value;
+  const date = document.getElementById("visitDate").value;
+  let t = "DENTAL CLINICAL NOTES (SOAP FORMAT)\n═══════════════════════════════════════\n";
+  if (name) t += "Patient: " + name + "\n";
+  if (id) t += "ID: " + id + "\n";
+  t += "Date: " + date + "\nProvider: Dr. Amira Mahmoud\n═══════════════════════════════════════\n\n";
+  Object.entries(SECTION_GROUPS).forEach(([g, keys]) => {
+    keys.filter(k => structuredNotes[k] && String(structuredNotes[k]).trim()).forEach(k => {
+      t += LABELS[k].toUpperCase() + "\n" + structuredNotes[k] + "\n\n";
+    });
+  });
+  if (recommendations && recommendations.length) {
+    t += "═══════════════════════════════════════\nAI CLINICAL CONSIDERATIONS (Advisory)\n───────────────────────────────────────\n";
+    recommendations.forEach(r => t += "• [" + r.category.toUpperCase() + "] " + r.title + "\n  " + r.detail + "\n");
+    t += "\n";
+  }
+  t += "═══════════════════════════════════════\nDocumented via DentaVoice\n";
+  return t;
+}
+
+function copyAll() {
+  if (!structuredNotes) return;
+  navigator.clipboard.writeText(buildPlainText()).then(() => {
+    const b = document.getElementById("btnCopy"); b.classList.add("copied"); b.innerHTML = "✓ Copied!";
+    setTimeout(() => { b.classList.remove("copied"); b.innerHTML = "📋 Copy"; }, 2000);
+  });
+  logAudit("copy_note", "patient_notes", currentNoteId, {});
+}
+
+// ===== PDF EXPORT =====
+function exportPDF() {
+  if (!structuredNotes) return;
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+  const name = document.getElementById("patientName").value;
+  const id = document.getElementById("patientId").value;
+  const date = document.getElementById("visitDate").value;
+  const pageW = doc.internal.pageSize.getWidth();
+  let y = 20;
+
+  // Header
+  doc.setFillColor(27, 77, 62);
+  doc.rect(0, 0, pageW, 35, "F");
+  doc.setTextColor(255, 255, 255);
+  doc.setFontSize(18); doc.setFont(undefined, "bold");
+  doc.text("DentaVoice — Clinical Notes", 14, 15);
+  doc.setFontSize(10); doc.setFont(undefined, "normal");
+  doc.text("SOAP Format · Dr. Amira Mahmoud", 14, 23);
+  doc.text("Generated: " + new Date().toLocaleString(), 14, 30);
+
+  y = 45;
+  doc.setTextColor(0, 0, 0);
+
+  // Patient info
+  doc.setFontSize(11); doc.setFont(undefined, "bold");
+  if (name) { doc.text("Patient: " + name, 14, y); y += 6; }
+  if (id) { doc.text("ID: " + id, 14, y); y += 6; }
+  doc.text("Visit Date: " + date, 14, y); y += 10;
+
+  doc.setDrawColor(200); doc.line(14, y, pageW - 14, y); y += 8;
+
+  // Sections
+  Object.entries(SECTION_GROUPS).forEach(([group, keys]) => {
+    keys.filter(k => structuredNotes[k] && String(structuredNotes[k]).trim()).forEach(key => {
+      if (y > 265) { doc.addPage(); y = 20; }
+      doc.setFontSize(9); doc.setFont(undefined, "bold"); doc.setTextColor(27, 77, 62);
+      doc.text(LABELS[key].toUpperCase(), 14, y); y += 5;
+      doc.setFontSize(10); doc.setFont(undefined, "normal"); doc.setTextColor(60, 60, 60);
+      const lines = doc.splitTextToSize(String(structuredNotes[key]), pageW - 28);
+      lines.forEach(line => {
+        if (y > 275) { doc.addPage(); y = 20; }
+        doc.text(line, 14, y); y += 5;
+      });
+      y += 4;
+    });
+  });
+
+  // Footer
+  doc.setFontSize(8); doc.setTextColor(150);
+  doc.text("Confidential — PHIPA/PIPEDA Protected · DentaVoice", 14, 290);
+
+  const filename = "DentaVoice_" + (name || "Note").replace(/\s+/g, "_") + "_" + date + ".pdf";
+  doc.save(filename);
+  logAudit("export_pdf", "patient_notes", currentNoteId, { patient_name: name });
+  showToast("✓ PDF downloaded");
+}
+
+// ===== CSV EXPORT =====
+function exportCSV() {
+  if (!structuredNotes) return;
+  const name = document.getElementById("patientName").value;
+  const id = document.getElementById("patientId").value;
+  const date = document.getElementById("visitDate").value;
+
+  let csv = "Section,Content\n";
+  csv += '"Patient Name","' + (name||"").replace(/"/g,'""') + '"\n';
+  csv += '"Patient ID","' + (id||"").replace(/"/g,'""') + '"\n';
+  csv += '"Visit Date","' + date + '"\n';
+  csv += '"Provider","Dr. Amira Mahmoud"\n';
+
+  Object.entries(SECTION_GROUPS).forEach(([g, keys]) => {
+    keys.filter(k => structuredNotes[k] && String(structuredNotes[k]).trim()).forEach(k => {
+      csv += '"' + LABELS[k].replace(/"/g,'""') + '","' + String(structuredNotes[k]).replace(/"/g,'""') + '"\n';
+    });
+  });
+
+  const blob = new Blob([csv], { type: "text/csv" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a"); a.href = url;
+  a.download = "DentaVoice_" + (name||"Note").replace(/\s+/g,"_") + "_" + date + ".csv";
+  a.click(); URL.revokeObjectURL(url);
+  logAudit("export_csv", "patient_notes", currentNoteId, { patient_name: name });
+  showToast("✓ CSV downloaded");
+}
+
 // ===== HELPERS =====
 function showError(msg) { document.getElementById("errorText").textContent = msg; document.getElementById("errorBox").classList.add("visible"); }
 function hideError() { document.getElementById("errorBox").classList.remove("visible"); }
 function showToast(msg) { const t = document.getElementById("toast"); t.textContent = msg; t.classList.add("show"); setTimeout(() => t.classList.remove("show"), 2000); }
-function showLoading(step) { document.getElementById("loadingStep").textContent = step; document.getElementById("loadingOverlay").classList.add("visible"); }
-function updateLoadingStep(step) { document.getElementById("loadingStep").textContent = step; }
+function showLoading(s) { document.getElementById("loadingStep").textContent = s; document.getElementById("loadingOverlay").classList.add("visible"); }
+function updateLoadingStep(s) { document.getElementById("loadingStep").textContent = s; }
 function hideLoading() { document.getElementById("loadingOverlay").classList.remove("visible"); }
-function esc(str) { const d = document.createElement("div"); d.textContent = str || ""; return d.innerHTML; }
+function esc(str) { const d = document.createElement("div"); d.textContent = str||""; return d.innerHTML; }
 </script>
 </body>
 </html>
