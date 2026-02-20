@@ -1,0 +1,993 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="DentaVoice">
+<meta name="theme-color" content="#1B4D3E">
+<title>DentaVoice — Dr. Amira</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --green-dark: #1B4D3E;
+    --green-mid: #2D6A4F;
+    --green-light: #40916C;
+    --green-pale: #E8F5E9;
+    --bg: #F7F6F3;
+    --card: #ffffff;
+    --border: #e8e5e0;
+    --text: #1a1a1a;
+    --text-mid: #555;
+    --text-light: #888;
+    --red: #DC2626;
+    --red-light: #FEF2F2;
+    --red-border: #FECACA;
+    --amber: #D97706;
+    --amber-pale: #FFFBEB;
+    --amber-border: #FDE68A;
+    --blue: #2563EB;
+    --blue-pale: #EFF6FF;
+    --blue-border: #BFDBFE;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+  body {
+    font-family: 'DM Sans', 'Segoe UI', system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    min-height: 100dvh;
+    overflow-x: hidden;
+  }
+
+  .header {
+    background: linear-gradient(135deg, var(--green-dark) 0%, var(--green-mid) 50%, var(--green-light) 100%);
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 20px rgba(27,77,62,0.15);
+  }
+
+  .header-left { display: flex; align-items: center; gap: 12px; }
+
+  .header-icon {
+    width: 40px; height: 40px;
+    background: rgba(255,255,255,0.15);
+    border-radius: 11px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px;
+    backdrop-filter: blur(10px);
+  }
+
+  .header-title {
+    font-family: 'Fraunces', serif;
+    font-size: 20px; font-weight: 700; color: #fff;
+    letter-spacing: -0.02em;
+  }
+
+  .header-sub { font-size: 11px; color: rgba(255,255,255,0.7); margin-top: 1px; }
+  .header-actions { display: flex; gap: 8px; }
+
+  .btn-header {
+    background: rgba(255,255,255,0.15);
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 10px;
+    padding: 8px 14px;
+    color: #fff;
+    font-size: 12px;
+    font-family: inherit;
+    cursor: pointer;
+    backdrop-filter: blur(10px);
+    transition: all 0.2s;
+  }
+
+  .btn-header:active { background: rgba(255,255,255,0.25); }
+
+  .btn-new {
+    background: rgba(255,255,255,0.95);
+    border: none;
+    border-radius: 10px;
+    padding: 8px 14px;
+    color: var(--green-dark);
+    font-size: 12px;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+    display: none;
+  }
+
+  .btn-new.visible { display: block; }
+
+  .container {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 16px 14px 120px;
+  }
+
+  .card {
+    background: var(--card);
+    border-radius: 16px;
+    padding: 16px 18px;
+    margin-bottom: 12px;
+    box-shadow: 0 1px 8px rgba(0,0,0,0.04);
+    border: 1px solid var(--border);
+  }
+
+  .patient-row { display: flex; gap: 12px; flex-wrap: wrap; }
+  .field { flex: 1 1 160px; }
+  .field-small { flex: 0 1 110px; }
+
+  .field-label {
+    font-size: 10px; font-weight: 600; color: var(--text-light);
+    text-transform: uppercase; letter-spacing: 0.06em;
+  }
+
+  .field-input {
+    width: 100%; margin-top: 4px; padding: 8px 0;
+    border: none; border-bottom: 2px solid var(--border);
+    font-size: 15px; font-weight: 500;
+    background: transparent; outline: none;
+    font-family: inherit; color: var(--text);
+    transition: border-color 0.2s;
+  }
+
+  .field-input:focus { border-bottom-color: var(--green-mid); }
+
+  .error-box {
+    background: var(--red-light);
+    border: 1px solid var(--red-border);
+    border-radius: 12px;
+    padding: 12px 16px;
+    margin-bottom: 12px;
+    font-size: 13px;
+    color: #991B1B;
+    display: none;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .error-box.visible { display: flex; }
+
+  .record-card { text-align: center; padding: 28px 20px; border-radius: 20px; }
+
+  .mic-wrapper { position: relative; display: inline-block; margin-bottom: 20px; }
+
+  .mic-pulse-1, .mic-pulse-2 {
+    position: absolute; top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    border-radius: 50%; opacity: 0; pointer-events: none;
+  }
+
+  .mic-pulse-1 { width: 110px; height: 110px; background: rgba(45,106,79,0.1); }
+  .mic-pulse-2 { width: 140px; height: 140px; background: rgba(45,106,79,0.06); }
+
+  body.recording .mic-pulse-1 { animation: pulse1 2s ease-in-out infinite; }
+  body.recording .mic-pulse-2 { animation: pulse2 2s ease-in-out infinite 0.3s; }
+
+  @keyframes pulse1 {
+    0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+    50% { transform: translate(-50%, -50%) scale(1.2); opacity: 0.4; }
+  }
+  @keyframes pulse2 {
+    0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.7; }
+    50% { transform: translate(-50%, -50%) scale(1.25); opacity: 0.2; }
+  }
+
+  .mic-btn {
+    width: 84px; height: 84px; border-radius: 50%; border: none;
+    background: linear-gradient(135deg, var(--green-dark), var(--green-mid));
+    color: #fff; font-size: 34px; cursor: pointer;
+    position: relative; z-index: 2;
+    box-shadow: 0 4px 24px rgba(27,77,62,0.3);
+    transition: all 0.3s ease;
+    display: flex; align-items: center; justify-content: center;
+  }
+
+  body.recording .mic-btn {
+    background: linear-gradient(135deg, #DC2626, #EF4444);
+    box-shadow: 0 4px 24px rgba(220,38,38,0.35);
+  }
+
+  .mic-status { font-size: 15px; font-weight: 600; color: var(--green-dark); margin-bottom: 3px; }
+  body.recording .mic-status { color: var(--red); }
+  .mic-hint { font-size: 12px; color: var(--text-light); margin-bottom: 22px; }
+
+  .transcript-box {
+    background: var(--bg); border-radius: 14px; padding: 16px;
+    min-height: 80px; text-align: left;
+  }
+
+  .transcript-label {
+    font-size: 10px; font-weight: 600; color: var(--text-light);
+    text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 8px;
+  }
+
+  .transcript-text { font-size: 14px; line-height: 1.7; color: #333; }
+  .transcript-interim { color: #aaa; font-style: italic; }
+  .transcript-placeholder { color: #bbb; font-size: 13px; font-style: italic; }
+
+  .manual-input {
+    width: 100%; margin-top: 10px; padding: 12px;
+    border-radius: 12px; border: 2px solid var(--border);
+    font-size: 13px; font-family: inherit; min-height: 56px;
+    resize: vertical; outline: none; transition: border-color 0.2s;
+  }
+  .manual-input:focus { border-color: var(--green-mid); }
+
+  .btn-process {
+    margin-top: 18px; padding: 14px 28px;
+    background: linear-gradient(135deg, var(--green-dark), var(--green-mid));
+    color: #fff; border: none; border-radius: 14px;
+    font-size: 15px; font-weight: 600; cursor: pointer;
+    box-shadow: 0 4px 16px rgba(27,77,62,0.25);
+    font-family: inherit; display: none;
+    align-items: center; gap: 8px; transition: all 0.2s;
+  }
+  .btn-process.visible { display: inline-flex; }
+  .btn-process:disabled { background: #94A3B8; box-shadow: none; cursor: not-allowed; }
+
+  .spinner {
+    display: inline-block; width: 16px; height: 16px;
+    border: 2px solid rgba(255,255,255,0.3);
+    border-top-color: #fff; border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .structured-view { display: none; }
+  .structured-view.visible { display: block; }
+  .record-view.hidden { display: none; }
+
+  .action-bar { display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; }
+
+  .btn-action {
+    padding: 10px 14px; background: var(--card);
+    border: 1px solid var(--border); border-radius: 10px;
+    font-size: 12px; font-weight: 500; cursor: pointer;
+    font-family: inherit; display: flex; align-items: center;
+    gap: 6px; transition: all 0.2s;
+  }
+  .btn-action:active { background: var(--bg); }
+
+  .btn-action.primary {
+    background: linear-gradient(135deg, var(--green-dark), var(--green-mid));
+    color: #fff; border: none; font-weight: 600;
+    box-shadow: 0 2px 10px rgba(27,77,62,0.2);
+  }
+
+  .btn-action.copied { background: var(--green-mid); color: #fff; border-color: var(--green-mid); }
+
+  .patient-header {
+    background: linear-gradient(135deg, var(--green-dark), var(--green-mid));
+    border-radius: 16px; padding: 16px 20px; margin-bottom: 10px;
+    color: #fff; display: flex; justify-content: space-between; align-items: center;
+  }
+
+  .patient-header-name { font-size: 17px; font-weight: 700; font-family: 'Fraunces', serif; }
+  .patient-header-meta { font-size: 12px; opacity: 0.8; margin-top: 2px; }
+
+  .section-count {
+    background: rgba(255,255,255,0.15); border-radius: 10px;
+    padding: 5px 11px; font-size: 11px; font-weight: 500;
+  }
+
+  .note-section {
+    background: var(--card); border-radius: 14px; padding: 14px 18px;
+    box-shadow: 0 1px 6px rgba(0,0,0,0.04); border: 1px solid var(--border);
+    margin-bottom: 8px;
+  }
+
+  .section-header {
+    display: flex; justify-content: space-between;
+    align-items: center; margin-bottom: 8px;
+  }
+
+  .section-title {
+    font-size: 11px; font-weight: 700; color: var(--green-dark);
+    text-transform: uppercase; letter-spacing: 0.04em;
+    display: flex; align-items: center; gap: 6px;
+  }
+
+  .btn-edit {
+    background: var(--bg); color: var(--text-light); border: none;
+    border-radius: 6px; padding: 4px 10px; font-size: 10px;
+    font-weight: 500; cursor: pointer; font-family: inherit;
+  }
+  .btn-edit.saving { background: var(--green-mid); color: #fff; }
+
+  .section-content { font-size: 14px; line-height: 1.7; color: #444; white-space: pre-wrap; }
+
+  .section-edit {
+    width: 100%; padding: 10px; border-radius: 8px;
+    border: 2px solid var(--green-mid); font-size: 13px;
+    font-family: inherit; min-height: 55px; resize: vertical;
+    outline: none; line-height: 1.6; display: none;
+  }
+
+  .recs-panel {
+    background: var(--amber-pale);
+    border: 1px solid var(--amber-border);
+    border-radius: 16px;
+    padding: 18px;
+    margin-bottom: 12px;
+    display: none;
+  }
+  .recs-panel.visible { display: block; }
+
+  .recs-header { display: flex; align-items: center; gap: 8px; margin-bottom: 14px; }
+
+  .recs-icon {
+    width: 32px; height: 32px;
+    background: var(--amber); border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px;
+  }
+
+  .recs-title { font-family: 'Fraunces', serif; font-size: 15px; font-weight: 700; color: #92400E; }
+  .recs-subtitle { font-size: 11px; color: #B45309; }
+
+  .rec-item {
+    background: #fff; border: 1px solid var(--amber-border);
+    border-radius: 12px; padding: 12px 14px;
+    margin-bottom: 8px; transition: all 0.2s;
+  }
+  .rec-item.dismissed { opacity: 0.4; text-decoration: line-through; }
+
+  .rec-category {
+    font-size: 9px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.06em;
+    padding: 2px 8px; border-radius: 4px;
+    display: inline-block; margin-bottom: 6px;
+  }
+  .rec-category.clinical { background: #DBEAFE; color: #1E40AF; }
+  .rec-category.followup { background: var(--green-pale); color: var(--green-dark); }
+  .rec-category.medication { background: #F3E8FF; color: #6B21A8; }
+  .rec-category.preventive { background: #FEF3C7; color: #92400E; }
+  .rec-category.diagnostic { background: #FCE7F3; color: #9D174D; }
+  .rec-category.safety { background: var(--red-light); color: #991B1B; }
+
+  .rec-text { font-size: 13px; line-height: 1.6; color: #444; }
+  .rec-actions { display: flex; gap: 6px; margin-top: 8px; }
+
+  .btn-rec {
+    padding: 4px 12px; border-radius: 6px;
+    font-size: 10px; font-weight: 600; cursor: pointer;
+    font-family: inherit; border: none; transition: all 0.15s;
+  }
+  .btn-rec.accept { background: var(--green-pale); color: var(--green-dark); }
+  .btn-rec.accept:active { background: var(--green-mid); color: #fff; }
+  .btn-rec.dismiss { background: #F3F4F6; color: #6B7280; }
+  .btn-rec.dismiss:active { background: #D1D5DB; }
+
+  .recs-disclaimer {
+    font-size: 10px; color: #B45309; font-style: italic;
+    margin-top: 10px; padding-top: 10px;
+    border-top: 1px solid var(--amber-border); line-height: 1.5;
+  }
+
+  .loading-overlay {
+    display: none; position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.5); z-index: 200;
+    align-items: center; justify-content: center;
+    backdrop-filter: blur(4px);
+  }
+  .loading-overlay.visible { display: flex; }
+
+  .loading-card {
+    background: #fff; border-radius: 20px;
+    padding: 32px 28px; text-align: center;
+    max-width: 300px; width: 90%;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.2);
+  }
+
+  .loading-spinner {
+    width: 48px; height: 48px;
+    border: 4px solid var(--border);
+    border-top-color: var(--green-mid);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 16px;
+  }
+
+  .loading-title {
+    font-family: 'Fraunces', serif;
+    font-size: 16px; font-weight: 700;
+    color: var(--green-dark); margin-bottom: 6px;
+  }
+
+  .loading-step { font-size: 13px; color: var(--text-light); transition: all 0.3s; }
+
+  .saved-panel { display: none; }
+  .saved-panel.visible { display: block; }
+  .saved-title { font-size: 15px; font-weight: 600; font-family: 'Fraunces', serif; margin-bottom: 12px; }
+  .saved-empty { color: var(--text-light); font-size: 13px; padding: 16px 0; text-align: center; }
+
+  .saved-item {
+    background: var(--bg); border: 1px solid var(--border); border-radius: 10px;
+    padding: 12px 14px; text-align: left; cursor: pointer;
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 6px; width: 100%; font-family: inherit;
+  }
+  .saved-item:active { background: #eee; }
+  .saved-item-name { font-weight: 600; font-size: 13px; color: var(--text); }
+  .saved-item-meta { font-size: 11px; color: var(--text-light); margin-top: 2px; }
+  .saved-item-arrow { font-size: 11px; color: #ccc; }
+
+  .raw-details { margin-top: 10px; }
+  .raw-details summary { font-size: 12px; font-weight: 600; color: var(--text-light); cursor: pointer; outline: none; padding: 12px 0; }
+  .raw-details-text { font-size: 12px; line-height: 1.7; color: #666; font-style: italic; padding-bottom: 8px; white-space: pre-wrap; }
+
+  .tips-title { font-size: 14px; font-weight: 600; color: var(--green-dark); font-family: 'Fraunces', serif; margin-bottom: 12px; }
+  .tip-row { display: flex; align-items: flex-start; gap: 10px; font-size: 12px; color: #666; line-height: 1.5; margin-bottom: 8px; }
+  .tip-num { background: var(--green-pale); color: var(--green-mid); border-radius: 6px; width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; flex-shrink: 0; }
+
+  .template-badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: var(--blue-pale); border: 1px solid var(--blue-border);
+    border-radius: 8px; padding: 6px 12px;
+    font-size: 11px; font-weight: 600; color: #1E40AF;
+    margin-bottom: 10px;
+  }
+
+  .toast {
+    position: fixed; bottom: 30px; left: 50%;
+    transform: translateX(-50%) translateY(80px);
+    background: var(--green-dark); color: #fff;
+    padding: 12px 24px; border-radius: 12px;
+    font-size: 14px; font-weight: 500;
+    box-shadow: 0 6px 24px rgba(0,0,0,0.2);
+    z-index: 999; transition: transform 0.3s ease; pointer-events: none;
+  }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-left">
+    <div class="header-icon">🦷</div>
+    <div>
+      <div class="header-title">DentaVoice</div>
+      <div class="header-sub">Clinical Notes — Dr. Amira</div>
+    </div>
+  </div>
+  <div class="header-actions">
+    <button class="btn-header" id="btnHistory" onclick="toggleSaved()">📂 History</button>
+    <button class="btn-new" id="btnNew" onclick="startNew()">+ New</button>
+  </div>
+</div>
+
+<div class="container">
+  <div class="card saved-panel" id="savedPanel">
+    <div class="saved-title">📂 Saved Notes</div>
+    <div id="savedList"><div class="saved-empty">No saved notes yet.</div></div>
+  </div>
+
+  <div class="card">
+    <div class="patient-row">
+      <div class="field">
+        <label class="field-label">Patient Name</label>
+        <input class="field-input" id="patientName" placeholder="Enter patient name">
+      </div>
+      <div class="field-small">
+        <label class="field-label">Patient ID</label>
+        <input class="field-input" id="patientId" placeholder="ID #">
+      </div>
+      <div class="field-small">
+        <label class="field-label">Visit Date</label>
+        <input class="field-input" id="visitDate" type="date">
+      </div>
+    </div>
+  </div>
+
+  <div class="error-box" id="errorBox">
+    <span>⚠️</span><span id="errorText"></span>
+  </div>
+
+  <div class="record-view" id="recordView">
+    <div class="card record-card">
+      <div class="mic-wrapper">
+        <div class="mic-pulse-1"></div>
+        <div class="mic-pulse-2"></div>
+        <button class="mic-btn" id="micBtn" onclick="toggleRecording()">🎙</button>
+      </div>
+      <div class="mic-status" id="micStatus">Tap to start dictating</div>
+      <div class="mic-hint" id="micHint">Dictate chief complaint, findings, treatment, and plan</div>
+
+      <div class="transcript-box">
+        <div class="transcript-label">Raw Transcript</div>
+        <div id="transcriptArea">
+          <div class="transcript-placeholder">Your dictation will appear here in real-time...</div>
+        </div>
+      </div>
+
+      <textarea class="manual-input" id="manualInput" placeholder="Or type / paste notes manually here..." oninput="onManualInput()"></textarea>
+      <button class="btn-process" id="btnProcess" onclick="processNotes()">✨ Structure with AI</button>
+    </div>
+
+    <div class="card" id="tipsCard">
+      <div class="tips-title">💡 Tips for best results</div>
+      <div class="tip-row"><span class="tip-num">1</span> Start with the chief complaint — why the patient came in</div>
+      <div class="tip-row"><span class="tip-num">2</span> Mention relevant medical history or allergies</div>
+      <div class="tip-row"><span class="tip-num">3</span> Describe your clinical findings with tooth numbers (FDI or universal)</div>
+      <div class="tip-row"><span class="tip-num">4</span> State your diagnosis and any differential diagnoses</div>
+      <div class="tip-row"><span class="tip-num">5</span> Detail the treatment, materials, and anesthesia used</div>
+      <div class="tip-row"><span class="tip-num">6</span> End with post-op instructions and follow-up plan</div>
+    </div>
+  </div>
+
+  <div class="structured-view" id="structuredView">
+    <div class="action-bar">
+      <button class="btn-action" onclick="showRecordView()">🎙 Edit Recording</button>
+      <button class="btn-action" id="btnCopy" onclick="copyAll()">📋 Copy All</button>
+      <button class="btn-action primary" onclick="saveNote()">💾 Save Note</button>
+    </div>
+
+    <div class="patient-header">
+      <div>
+        <div class="patient-header-name" id="structPatientName">Patient Notes</div>
+        <div class="patient-header-meta" id="structPatientMeta"></div>
+      </div>
+      <div class="section-count" id="sectionCount"></div>
+    </div>
+
+    <div class="template-badge">📄 Standard Dental Clinical Note (SOAP Format)</div>
+
+    <div id="sectionsContainer"></div>
+
+    <div class="recs-panel" id="recsPanel">
+      <div class="recs-header">
+        <div class="recs-icon">💡</div>
+        <div>
+          <div class="recs-title">Clinical Considerations</div>
+          <div class="recs-subtitle">AI-generated suggestions for your review</div>
+        </div>
+      </div>
+      <div id="recsContainer"></div>
+      <div class="recs-disclaimer">
+        ⚕️ These are AI-generated suggestions only — not clinical directives. Always apply your professional judgment. AI may miss context or make errors.
+      </div>
+    </div>
+
+    <div class="card raw-details">
+      <details>
+        <summary>View Raw Transcript</summary>
+        <div class="raw-details-text" id="rawTranscriptText"></div>
+      </details>
+    </div>
+  </div>
+</div>
+
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="loading-card">
+    <div class="loading-spinner"></div>
+    <div class="loading-title">Processing Notes</div>
+    <div class="loading-step" id="loadingStep">Analyzing dictation...</div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ===== CONFIG =====
+// API calls go through our secure Netlify function (API key stays on server)
+const API_URL = "/api/claude-proxy";
+
+// ===== STATE =====
+let isRecording = false;
+let recognition = null;
+let rawTranscript = "";
+let structuredNotes = null;
+let recommendations = null;
+let savedNotes = [];
+
+// ===== SECTION CONFIG =====
+const LABELS = {
+  subjective_chief_complaint: "S — Chief Complaint",
+  subjective_hpi: "S — History of Present Illness",
+  subjective_medical_history: "S — Relevant Medical / Dental History",
+  subjective_allergies: "S — Allergies & Medications",
+  objective_extraoral: "O — Extraoral Examination",
+  objective_intraoral: "O — Intraoral Examination",
+  objective_teeth_findings: "O — Teeth & Periodontal Findings",
+  objective_radiographic: "O — Radiographic Findings",
+  assessment_diagnosis: "A — Diagnosis",
+  assessment_differential: "A — Differential Diagnosis",
+  assessment_cdt_codes: "A — CDT / Procedure Codes",
+  plan_treatment_performed: "P — Treatment Performed",
+  plan_materials_used: "P — Materials & Medications Used",
+  plan_anesthesia: "P — Anesthesia Details",
+  plan_post_op: "P — Post-Operative Instructions",
+  plan_follow_up: "P — Follow-Up Plan",
+  plan_referrals: "P — Referrals",
+  additional_notes: "Additional Notes"
+};
+
+const ICONS = {
+  subjective_chief_complaint: "💬", subjective_hpi: "📋",
+  subjective_medical_history: "🏥", subjective_allergies: "⚠️",
+  objective_extraoral: "👤", objective_intraoral: "👄",
+  objective_teeth_findings: "🦷", objective_radiographic: "📷",
+  assessment_diagnosis: "🩺", assessment_differential: "🔬",
+  assessment_cdt_codes: "🏷️", plan_treatment_performed: "⚕️",
+  plan_materials_used: "💊", plan_anesthesia: "💉",
+  plan_post_op: "📝", plan_follow_up: "📅",
+  plan_referrals: "🔗", additional_notes: "📌"
+};
+
+const SECTION_GROUPS = {
+  "Subjective": ["subjective_chief_complaint", "subjective_hpi", "subjective_medical_history", "subjective_allergies"],
+  "Objective": ["objective_extraoral", "objective_intraoral", "objective_teeth_findings", "objective_radiographic"],
+  "Assessment": ["assessment_diagnosis", "assessment_differential", "assessment_cdt_codes"],
+  "Plan": ["plan_treatment_performed", "plan_materials_used", "plan_anesthesia", "plan_post_op", "plan_follow_up", "plan_referrals"],
+  "Other": ["additional_notes"]
+};
+
+// ===== INIT =====
+document.getElementById("visitDate").value = new Date().toISOString().split("T")[0];
+loadSavedNotes();
+
+// ===== RECORDING =====
+function toggleRecording() { isRecording ? stopRecording() : startRecording(); }
+
+function startRecording() {
+  hideError();
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SR) { showError("Speech recognition not supported. Please use Chrome."); return; }
+
+  recognition = new SR();
+  recognition.continuous = true;
+  recognition.interimResults = true;
+  recognition.lang = "en-US";
+
+  recognition.onresult = function(event) {
+    let interim = "", final = "";
+    for (let i = event.resultIndex; i < event.results.length; i++) {
+      const t = event.results[i][0].transcript;
+      if (event.results[i].isFinal) final += t + " ";
+      else interim += t;
+    }
+    if (final) {
+      rawTranscript += final;
+      document.getElementById("manualInput").value = rawTranscript;
+    }
+    updateTranscriptDisplay(interim);
+  };
+
+  recognition.onerror = function(event) {
+    if (event.error === "not-allowed") {
+      showError("Microphone access denied. Please allow microphone in browser settings.");
+      stopRecording();
+    } else if (event.error !== "no-speech" && event.error !== "aborted") {
+      showError("Speech error: " + event.error);
+    }
+  };
+
+  recognition.onend = function() {
+    if (isRecording) { try { recognition.start(); } catch(e) {} }
+  };
+
+  try {
+    recognition.start();
+    isRecording = true;
+    document.body.classList.add("recording");
+    document.getElementById("micBtn").textContent = "⏹";
+    document.getElementById("micStatus").textContent = "Recording... Tap to stop";
+    document.getElementById("micHint").textContent = "Speak naturally — describe the patient visit";
+    document.getElementById("manualInput").style.display = "none";
+    updateProcessBtn();
+  } catch(e) {
+    showError("Could not start recording. Check microphone permissions.");
+  }
+}
+
+function stopRecording() {
+  if (recognition) { recognition.onend = null; recognition.stop(); recognition = null; }
+  isRecording = false;
+  document.body.classList.remove("recording");
+  document.getElementById("micBtn").textContent = "🎙";
+  document.getElementById("micStatus").textContent = "Tap to start dictating";
+  document.getElementById("micHint").textContent = "Dictate chief complaint, findings, treatment, and plan";
+  document.getElementById("manualInput").style.display = "block";
+  updateProcessBtn();
+}
+
+function updateTranscriptDisplay(interim) {
+  const area = document.getElementById("transcriptArea");
+  if (rawTranscript || interim) {
+    area.innerHTML = '<span class="transcript-text">' + esc(rawTranscript) + '</span>' +
+      (interim ? '<span class="transcript-interim">' + esc(interim) + '</span>' : '');
+  } else {
+    area.innerHTML = '<div class="transcript-placeholder">Your dictation will appear here in real-time...</div>';
+  }
+}
+
+function onManualInput() {
+  rawTranscript = document.getElementById("manualInput").value;
+  updateTranscriptDisplay("");
+  updateProcessBtn();
+}
+
+function updateProcessBtn() {
+  const has = rawTranscript.trim().length > 0;
+  document.getElementById("btnProcess").classList.toggle("visible", has && !isRecording);
+  document.getElementById("tipsCard").style.display = (has || isRecording) ? "none" : "block";
+  document.getElementById("btnNew").classList.toggle("visible", has || !!structuredNotes);
+}
+
+// ===== AI PROCESSING (single optimized call) =====
+async function processNotes() {
+  rawTranscript = document.getElementById("manualInput").value || rawTranscript;
+  if (!rawTranscript.trim()) { showError("No notes to process."); return; }
+
+  showLoading("Analyzing dictation...");
+  hideError();
+
+  try {
+    updateLoadingStep("Structuring notes & generating insights...");
+
+    // ONE call to our secure backend — it handles everything
+    const response = await fetch(API_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ transcript: rawTranscript.trim() })
+    });
+
+    const data = await response.json();
+
+    if (data.error) {
+      throw new Error(data.error);
+    }
+
+    structuredNotes = data.notes || {};
+    recommendations = data.recommendations || [];
+
+    // Show token usage in console for cost monitoring
+    if (data.usage) {
+      console.log("DentaVoice usage:", data.usage.input_tokens, "in /",
+        data.usage.output_tokens, "out /",
+        data.usage.cache_read, "cached");
+    }
+
+    hideLoading();
+    showStructuredView();
+
+  } catch(err) {
+    hideLoading();
+    showError("Failed to process notes: " + err.message);
+  }
+}
+
+// ===== STRUCTURED VIEW =====
+function showStructuredView() {
+  document.getElementById("recordView").classList.add("hidden");
+  document.getElementById("structuredView").classList.add("visible");
+
+  const name = document.getElementById("patientName").value || "Patient Notes";
+  const id = document.getElementById("patientId").value;
+  const date = document.getElementById("visitDate").value;
+
+  document.getElementById("structPatientName").textContent = name;
+  document.getElementById("structPatientMeta").textContent = date + (id ? " · ID: " + id : "");
+
+  const entries = Object.entries(structuredNotes).filter(([k, v]) => v && LABELS[k]);
+  document.getElementById("sectionCount").textContent = entries.length + " sections";
+
+  const container = document.getElementById("sectionsContainer");
+  container.innerHTML = "";
+
+  Object.entries(SECTION_GROUPS).forEach(([group, keys]) => {
+    const groupEntries = keys.filter(k => structuredNotes[k] && String(structuredNotes[k]).trim());
+    if (groupEntries.length === 0) return;
+
+    groupEntries.forEach(key => {
+      const value = structuredNotes[key];
+      const section = document.createElement("div");
+      section.className = "note-section";
+      section.id = "section-" + key;
+      section.innerHTML =
+        '<div class="section-header">' +
+          '<div class="section-title">' + (ICONS[key] || "📝") + " " + LABELS[key] + '</div>' +
+          '<button class="btn-edit" onclick="toggleEdit(\'' + key + '\')">Edit</button>' +
+        '</div>' +
+        '<div class="section-content" id="content-' + key + '">' + esc(String(value)) + '</div>' +
+        '<textarea class="section-edit" id="edit-' + key + '">' + esc(String(value)) + '</textarea>';
+      container.appendChild(section);
+    });
+  });
+
+  renderRecommendations();
+  document.getElementById("rawTranscriptText").textContent = rawTranscript;
+  document.getElementById("btnNew").classList.add("visible");
+}
+
+function renderRecommendations() {
+  const panel = document.getElementById("recsPanel");
+  const container = document.getElementById("recsContainer");
+  if (!recommendations || recommendations.length === 0) { panel.classList.remove("visible"); return; }
+
+  panel.classList.add("visible");
+  container.innerHTML = "";
+
+  const order = { high: 0, medium: 1, low: 2 };
+  const sorted = [...recommendations].sort((a, b) => (order[a.priority] || 2) - (order[b.priority] || 2));
+
+  sorted.forEach((rec, i) => {
+    const item = document.createElement("div");
+    item.className = "rec-item";
+    item.id = "rec-" + i;
+    item.innerHTML =
+      '<span class="rec-category ' + (rec.category || "clinical") + '">' +
+        (rec.category || "clinical").toUpperCase() + (rec.priority === "high" ? " ●" : "") +
+      '</span>' +
+      '<div style="font-size:13px;font-weight:600;color:#333;margin-bottom:3px;">' + esc(rec.title) + '</div>' +
+      '<div class="rec-text">' + esc(rec.detail) + '</div>' +
+      '<div class="rec-actions">' +
+        '<button class="btn-rec accept" onclick="acceptRec(' + i + ')">✓ Note taken</button>' +
+        '<button class="btn-rec dismiss" onclick="dismissRec(' + i + ')">✕ Dismiss</button>' +
+      '</div>';
+    container.appendChild(item);
+  });
+}
+
+function acceptRec(i) {
+  const el = document.getElementById("rec-" + i);
+  if (el) {
+    el.style.borderColor = "#86EFAC"; el.style.background = "#F0FDF4";
+    el.querySelector(".rec-actions").innerHTML = '<span style="font-size:11px;color:#16A34A;font-weight:600;">✓ Noted</span>';
+  }
+}
+
+function dismissRec(i) {
+  const el = document.getElementById("rec-" + i);
+  if (el) { el.classList.add("dismissed"); el.querySelector(".rec-actions").innerHTML = '<span style="font-size:11px;color:#999;">Dismissed</span>'; }
+}
+
+function showRecordView() {
+  document.getElementById("structuredView").classList.remove("visible");
+  document.getElementById("recordView").classList.remove("hidden");
+}
+
+function toggleEdit(key) {
+  const content = document.getElementById("content-" + key);
+  const edit = document.getElementById("edit-" + key);
+  const btn = document.querySelector("#section-" + key + " .btn-edit");
+  if (edit.style.display === "block") {
+    structuredNotes[key] = edit.value;
+    content.textContent = edit.value;
+    content.style.display = "block"; edit.style.display = "none";
+    btn.textContent = "Edit"; btn.classList.remove("saving");
+  } else {
+    content.style.display = "none"; edit.style.display = "block"; edit.focus();
+    btn.textContent = "✓ Save"; btn.classList.add("saving");
+  }
+}
+
+// ===== COPY =====
+function copyAll() {
+  if (!structuredNotes) return;
+  const name = document.getElementById("patientName").value;
+  const id = document.getElementById("patientId").value;
+  const date = document.getElementById("visitDate").value;
+
+  let text = "DENTAL CLINICAL NOTES (SOAP FORMAT)\n";
+  text += "═══════════════════════════════════════\n";
+  if (name) text += "Patient: " + name + "\n";
+  if (id) text += "ID: " + id + "\n";
+  text += "Date: " + date + "\n";
+  text += "Provider: Dr. Amira Mahmoud\n";
+  text += "═══════════════════════════════════════\n\n";
+
+  Object.entries(SECTION_GROUPS).forEach(([group, keys]) => {
+    const filled = keys.filter(k => structuredNotes[k] && String(structuredNotes[k]).trim());
+    if (filled.length === 0) return;
+    filled.forEach(key => {
+      text += LABELS[key].toUpperCase() + "\n";
+      text += structuredNotes[key] + "\n\n";
+    });
+  });
+
+  if (recommendations && recommendations.length > 0) {
+    text += "═══════════════════════════════════════\n";
+    text += "AI CLINICAL CONSIDERATIONS (Advisory Only)\n";
+    text += "───────────────────────────────────────\n";
+    recommendations.forEach(r => {
+      text += "• [" + r.category.toUpperCase() + "] " + r.title + "\n  " + r.detail + "\n";
+    });
+    text += "\n";
+  }
+
+  text += "═══════════════════════════════════════\n";
+  text += "Documented via DentaVoice\n";
+
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = document.getElementById("btnCopy");
+    btn.classList.add("copied"); btn.innerHTML = "✓ Copied!";
+    setTimeout(() => { btn.classList.remove("copied"); btn.innerHTML = "📋 Copy All"; }, 2000);
+  });
+}
+
+// ===== SAVE & LOAD =====
+function saveNote() {
+  const note = {
+    id: Date.now(),
+    patientName: document.getElementById("patientName").value,
+    patientId: document.getElementById("patientId").value,
+    visitDate: document.getElementById("visitDate").value,
+    rawTranscript, structuredNotes, recommendations,
+    savedAt: new Date().toISOString()
+  };
+  savedNotes.unshift(note);
+  if (savedNotes.length > 50) savedNotes = savedNotes.slice(0, 50);
+  try { localStorage.setItem("dentavoice-notes", JSON.stringify(savedNotes)); } catch(e) {}
+  renderSavedList();
+  showToast("✓ Note saved!");
+}
+
+function loadSavedNotes() {
+  try { const d = localStorage.getItem("dentavoice-notes"); if (d) savedNotes = JSON.parse(d); } catch(e) {}
+  renderSavedList();
+}
+
+function renderSavedList() {
+  const list = document.getElementById("savedList");
+  document.getElementById("btnHistory").textContent = "📂 History" + (savedNotes.length > 0 ? " (" + savedNotes.length + ")" : "");
+  if (savedNotes.length === 0) { list.innerHTML = '<div class="saved-empty">No saved notes yet.</div>'; return; }
+  list.innerHTML = savedNotes.map((n, i) =>
+    '<button class="saved-item" onclick="loadNote(' + i + ')">' +
+      '<div><div class="saved-item-name">' + esc(n.patientName || "Unnamed Patient") + '</div>' +
+      '<div class="saved-item-meta">' + n.visitDate + (n.patientId ? " · ID: " + n.patientId : "") + '</div></div>' +
+      '<div class="saved-item-arrow">→</div></button>'
+  ).join("");
+}
+
+function loadNote(i) {
+  const n = savedNotes[i];
+  document.getElementById("patientName").value = n.patientName || "";
+  document.getElementById("patientId").value = n.patientId || "";
+  document.getElementById("visitDate").value = n.visitDate || "";
+  rawTranscript = n.rawTranscript || "";
+  document.getElementById("manualInput").value = rawTranscript;
+  structuredNotes = n.structuredNotes;
+  recommendations = n.recommendations || [];
+  if (structuredNotes) showStructuredView();
+  else { showRecordView(); updateTranscriptDisplay(""); updateProcessBtn(); }
+  document.getElementById("savedPanel").classList.remove("visible");
+}
+
+function toggleSaved() { document.getElementById("savedPanel").classList.toggle("visible"); }
+
+function startNew() {
+  rawTranscript = ""; structuredNotes = null; recommendations = null;
+  document.getElementById("patientName").value = "";
+  document.getElementById("patientId").value = "";
+  document.getElementById("visitDate").value = new Date().toISOString().split("T")[0];
+  document.getElementById("manualInput").value = "";
+  document.getElementById("structuredView").classList.remove("visible");
+  document.getElementById("recordView").classList.remove("hidden");
+  document.getElementById("recsPanel").classList.remove("visible");
+  document.getElementById("savedPanel").classList.remove("visible");
+  document.getElementById("btnNew").classList.remove("visible");
+  updateTranscriptDisplay(""); updateProcessBtn();
+}
+
+// ===== HELPERS =====
+function showError(msg) { document.getElementById("errorText").textContent = msg; document.getElementById("errorBox").classList.add("visible"); }
+function hideError() { document.getElementById("errorBox").classList.remove("visible"); }
+function showToast(msg) { const t = document.getElementById("toast"); t.textContent = msg; t.classList.add("show"); setTimeout(() => t.classList.remove("show"), 2000); }
+function showLoading(step) { document.getElementById("loadingStep").textContent = step; document.getElementById("loadingOverlay").classList.add("visible"); }
+function updateLoadingStep(step) { document.getElementById("loadingStep").textContent = step; }
+function hideLoading() { document.getElementById("loadingOverlay").classList.remove("visible"); }
+function esc(str) { const d = document.createElement("div"); d.textContent = str || ""; return d.innerHTML; }
+</script>
+</body>
+</html>
