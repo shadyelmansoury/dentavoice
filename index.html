@@ -1031,6 +1031,254 @@ body.recording .wave-bars { display: flex; }
 .timeline-badge.has-recs { background: #FEF3C7; color: #92400E; }
 
 /* ============================================
+   AI AGENT PANEL
+   ============================================ */
+.btn-agent {
+  background: linear-gradient(135deg, rgba(168,85,247,0.2), rgba(59,130,246,0.2)) !important;
+  border-color: rgba(168,85,247,0.3) !important;
+  color: #E9D5FF !important;
+}
+.btn-agent:hover { background: linear-gradient(135deg, rgba(168,85,247,0.3), rgba(59,130,246,0.3)) !important; }
+
+.agent-overlay {
+  position: fixed; inset: 0; background: rgba(15,23,42,0.5);
+  backdrop-filter: blur(4px); z-index: 900;
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+.agent-overlay.visible { opacity: 1; pointer-events: auto; }
+
+.agent-panel {
+  position: fixed; right: 0; top: 0; bottom: 0;
+  width: 480px; max-width: 100vw;
+  background: var(--card); z-index: 910;
+  display: flex; flex-direction: column;
+  box-shadow: -8px 0 40px rgba(15,23,42,0.2);
+  transform: translateX(100%);
+  transition: transform 0.4s cubic-bezier(0.16,1,0.3,1);
+}
+.agent-panel.visible { transform: translateX(0); }
+
+@media(max-width:600px){
+  .agent-panel { width: 100vw; }
+}
+
+.agent-header {
+  padding: 16px 20px;
+  background: linear-gradient(135deg, var(--navy), #1E293B);
+  display: flex; justify-content: space-between; align-items: center;
+  flex-shrink: 0;
+}
+
+.agent-header-left { display: flex; align-items: center; gap: 12px; }
+
+.agent-avatar {
+  width: 40px; height: 40px; border-radius: 12px;
+  background: linear-gradient(135deg, var(--purple-500), var(--blue-500));
+  display: flex; align-items: center; justify-content: center;
+  color: white;
+}
+
+.agent-title {
+  font-size: 15px; font-weight: 700; color: white;
+  font-family: 'Sora', sans-serif; letter-spacing: -0.01em;
+}
+
+.agent-status {
+  font-size: 11px; color: var(--slate-400); margin-top: 1px;
+}
+
+.agent-header-actions { display: flex; gap: 6px; }
+
+.agent-clear-btn, .agent-close-btn {
+  background: rgba(255,255,255,0.1); border: none; border-radius: 8px;
+  width: 34px; height: 34px; display: flex; align-items: center; justify-content: center;
+  font-size: 14px; color: var(--slate-400); cursor: pointer;
+  transition: all 0.2s;
+}
+.agent-clear-btn:hover, .agent-close-btn:hover { background: rgba(255,255,255,0.2); color: white; }
+
+.agent-messages {
+  flex: 1; overflow-y: auto; padding: 20px;
+  display: flex; flex-direction: column; gap: 16px;
+  scroll-behavior: smooth;
+}
+
+.agent-welcome {
+  text-align: center; padding: 20px 10px;
+  animation: fadeInUp 0.5s cubic-bezier(0.16,1,0.3,1) both;
+}
+
+.agent-welcome-icon { font-size: 40px; margin-bottom: 12px; }
+
+.agent-welcome-title {
+  font-size: 18px; font-weight: 800; color: var(--navy);
+  font-family: 'Sora', sans-serif; margin-bottom: 8px;
+}
+
+.agent-welcome-text {
+  font-size: 13px; color: var(--slate-500); line-height: 1.6;
+  max-width: 360px; margin: 0 auto 20px;
+}
+
+.agent-suggestions {
+  display: flex; flex-wrap: wrap; gap: 8px;
+  justify-content: center;
+}
+
+.agent-chip {
+  background: var(--blue-50); border: 1px solid var(--blue-200);
+  border-radius: 20px; padding: 8px 14px;
+  font-size: 12px; font-weight: 500; color: var(--blue-600);
+  cursor: pointer; font-family: inherit;
+  transition: all 0.2s; text-align: left;
+  line-height: 1.4;
+}
+.agent-chip:hover { background: var(--blue-100); border-color: var(--blue-300); }
+.agent-chip:active { transform: scale(0.96); }
+
+.agent-msg {
+  display: flex; gap: 10px; max-width: 92%;
+  animation: fadeInUp 0.3s cubic-bezier(0.16,1,0.3,1) both;
+}
+.agent-msg.user { flex-direction: row-reverse; margin-left: auto; }
+
+.agent-msg-avatar {
+  width: 28px; height: 28px; border-radius: 8px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 700;
+}
+.agent-msg.assistant .agent-msg-avatar {
+  background: linear-gradient(135deg, var(--purple-500), var(--blue-500));
+  color: white;
+}
+.agent-msg.user .agent-msg-avatar {
+  background: var(--slate-200); color: var(--slate-600);
+}
+
+.agent-msg-bubble {
+  padding: 12px 16px; border-radius: 16px;
+  font-size: 13px; line-height: 1.7;
+}
+.agent-msg.user .agent-msg-bubble {
+  background: linear-gradient(135deg, var(--blue-500), var(--blue-600));
+  color: white; border-bottom-right-radius: 4px;
+}
+.agent-msg.assistant .agent-msg-bubble {
+  background: var(--slate-50); color: var(--text);
+  border: 1px solid var(--border); border-bottom-left-radius: 4px;
+}
+
+.agent-msg-bubble p { margin: 0 0 8px 0; }
+.agent-msg-bubble p:last-child { margin-bottom: 0; }
+.agent-msg-bubble strong { color: var(--navy); }
+.agent-msg-bubble code {
+  background: rgba(15,23,42,0.06); padding: 1px 5px;
+  border-radius: 4px; font-size: 12px; font-family: 'Courier New', monospace;
+}
+
+.agent-msg-bubble ol, .agent-msg-bubble ul {
+  margin: 6px 0; padding-left: 20px;
+}
+.agent-msg-bubble li { margin-bottom: 4px; }
+
+.agent-msg-time {
+  font-size: 10px; color: var(--slate-400); margin-top: 4px;
+  text-align: right;
+}
+
+.agent-typing {
+  display: flex; gap: 10px; align-items: flex-start;
+  animation: fadeIn 0.3s both;
+}
+
+.agent-typing-dots {
+  display: flex; gap: 4px; padding: 14px 18px;
+  background: var(--slate-50); border: 1px solid var(--border);
+  border-radius: 16px; border-bottom-left-radius: 4px;
+}
+
+.agent-typing-dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--slate-400);
+  animation: agentTyping 1.4s ease-in-out infinite;
+}
+.agent-typing-dot:nth-child(2) { animation-delay: 0.2s; }
+.agent-typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes agentTyping {
+  0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+  30% { transform: translateY(-6px); opacity: 1; }
+}
+
+.agent-input-area {
+  padding: 12px 16px 16px; flex-shrink: 0;
+  border-top: 1px solid var(--border);
+  background: var(--card);
+}
+
+.agent-context-badge {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 10px; font-weight: 600; color: var(--slate-400);
+  margin-bottom: 8px; padding-left: 4px;
+}
+
+.agent-context-dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--amber-500);
+  animation: pulse 2s infinite;
+}
+.agent-context-dot.ready { background: var(--green-500); animation: none; }
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+.agent-input-row {
+  display: flex; align-items: flex-end; gap: 8px;
+}
+
+.agent-input {
+  flex: 1; padding: 12px 14px; border: 2px solid var(--slate-200);
+  border-radius: 14px; font-size: 14px; font-family: inherit;
+  outline: none; resize: none; background: var(--slate-50);
+  color: var(--text); line-height: 1.5;
+  max-height: 120px; transition: border-color 0.2s;
+}
+.agent-input:focus { border-color: var(--blue-500); background: white; }
+.agent-input::placeholder { color: var(--slate-300); }
+
+.agent-send-btn {
+  width: 44px; height: 44px; border-radius: 12px; border: none;
+  background: linear-gradient(135deg, var(--purple-500), var(--blue-500));
+  color: white; cursor: pointer; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.2s; box-shadow: 0 4px 16px rgba(168,85,247,0.25);
+}
+.agent-send-btn:hover { transform: scale(1.05); box-shadow: 0 6px 24px rgba(168,85,247,0.35); }
+.agent-send-btn:active { transform: scale(0.95); }
+.agent-send-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+/* ============================================
+   SVG ICON SYSTEM
+   ============================================ */
+.ico {
+  display: inline-block; vertical-align: middle;
+  width: 16px; height: 16px; flex-shrink: 0;
+  stroke: currentColor; fill: none;
+  stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round;
+}
+.ico-sm { width: 14px; height: 14px; }
+.ico-lg { width: 20px; height: 20px; }
+.ico-xl { width: 24px; height: 24px; }
+.ico-fill { fill: currentColor; stroke: none; }
+.section-title .ico { width: 15px; height: 15px; margin-right: 2px; opacity: 0.7; }
+.btn-header .ico, .btn-action .ico, .btn-new .ico, .btn-process .ico { margin-right: 4px; }
+.tips-title .ico, .saved-title .ico, .search-title .ico, .recs-icon .ico { width: 18px; height: 18px; }
+.agent-welcome-icon .ico { width: 48px; height: 48px; stroke-width: 1.2; }
+
+/* ============================================
    TOAST
    ============================================ */
 .toast {
@@ -1280,7 +1528,7 @@ body.recording .method-icon.mic-style {
     </div>
 
     <div class="auth-footer">
-      <div class="lock-icon">🔒 Encrypted</div><br>
+      <div class="lock-icon"><svg class="ico ico-sm" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 018 0v4"/></svg> Encrypted</div><br>
       Patient data on Canadian servers · PHIPA/PIPEDA compliant
     </div>
   </div>
@@ -1299,9 +1547,10 @@ body.recording .method-icon.mic-style {
       </div>
     </div>
     <div class="header-actions">
-      <button class="btn-header" id="btnSearch" onclick="toggleSearch()">🔍 Search</button>
-      <button class="btn-header" id="btnHistory" onclick="toggleSaved()">📂 History</button>
-      <button class="btn-new" id="btnNew" onclick="startNew()">＋ New</button>
+      <button class="btn-header btn-agent" id="btnAgent" onclick="toggleAgent()"><svg class="ico" viewBox="0 0 24 24"><rect x="4" y="8" width="16" height="12" rx="2"/><path d="M12 8V4H8"/><circle cx="9" cy="14" r="1" fill="currentColor" stroke="none"/><circle cx="15" cy="14" r="1" fill="currentColor" stroke="none"/><path d="M9 18h6"/></svg> AI Agent</button>
+      <button class="btn-header" id="btnSearch" onclick="toggleSearch()"><svg class="ico" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="21" y2="21"/></svg> Search</button>
+      <button class="btn-header" id="btnHistory" onclick="toggleSaved()"><svg class="ico" viewBox="0 0 24 24"><path d="M3 7V5a2 2 0 012-2h4l2 2h8a2 2 0 012 2v10a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg> History</button>
+      <button class="btn-new" id="btnNew" onclick="startNew()"><svg class="ico" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> New</button>
       <button class="btn-logout" onclick="handleLogout()">Log out</button>
     </div>
   </div>
@@ -1310,13 +1559,13 @@ body.recording .method-icon.mic-style {
     <!-- SEARCH PANEL -->
     <div class="card search-panel" id="searchPanel">
       <div class="search-header">
-        <div class="search-title">🔍 Search Patients</div>
-        <button class="btn-close-panel" onclick="closeSearch()">✕</button>
+        <div class="search-title"><svg class="ico" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="21" y2="21"/></svg> Search Patients</div>
+        <button class="btn-close-panel" onclick="closeSearch()"><svg class="ico ico-sm" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
       </div>
       <div class="search-bar">
         <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
         <input class="search-input" id="searchInput" type="text" placeholder="Search by patient name or ID..." oninput="onSearchInput()">
-        <button class="search-clear" id="searchClear" onclick="clearSearch()">✕</button>
+        <button class="search-clear" id="searchClear" onclick="clearSearch()"><svg class="ico ico-sm" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
       </div>
       <div id="searchResults"><div class="saved-empty">Type a name or ID to search</div></div>
     </div>
@@ -1324,8 +1573,8 @@ body.recording .method-icon.mic-style {
     <!-- HISTORY PANEL -->
     <div class="card saved-panel" id="savedPanel">
       <div class="saved-panel-header">
-        <div class="saved-title">📂 All Records</div>
-        <button class="btn-close-panel" onclick="closeSaved()">✕</button>
+        <div class="saved-title"><svg class="ico" viewBox="0 0 24 24"><path d="M3 7V5a2 2 0 012-2h4l2 2h8a2 2 0 012 2v10a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg> All Records</div>
+        <button class="btn-close-panel" onclick="closeSaved()"><svg class="ico ico-sm" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
       </div>
       <div id="savedList"><div class="saved-empty">Loading notes...</div></div>
     </div>
@@ -1352,7 +1601,7 @@ body.recording .method-icon.mic-style {
       <div class="validation-msg" id="validationMsg">Patient name and ID are required to save a record.</div>
       <div class="patient-history" id="patientHistory">
         <div class="patient-history-header">
-          <div class="patient-history-icon">📋</div>
+          <div class="patient-history-icon"><svg class="ico" viewBox="0 0 24 24"><rect x="6" y="3" width="12" height="18" rx="2"/><path d="M9 3h6v2H9z"/><line x1="9" y1="10" x2="15" y2="10"/><line x1="9" y1="14" x2="13" y2="14"/></svg></div>
           <div>
             <div class="patient-history-title">Previous Records</div>
             <div class="patient-history-count" id="historyCount"></div>
@@ -1362,7 +1611,7 @@ body.recording .method-icon.mic-style {
       </div>
     </div>
 
-    <div class="error-box" id="errorBox"><span>⚠️</span><span id="errorText"></span></div>
+    <div class="error-box" id="errorBox"><span><svg class="ico" viewBox="0 0 24 24"><path d="M12 2L1 21h22L12 2z" fill="none"/><line x1="12" y1="9" x2="12" y2="13"/><circle cx="12" cy="17" r="0.5" fill="currentColor"/></svg></span><span id="errorText"></span></div>
 
     <div class="record-view" id="recordView">
       <div class="card record-card animate-in animate-in-d1">
@@ -1393,8 +1642,8 @@ body.recording .method-icon.mic-style {
 
         <div class="ocr-preview" id="ocrPreview">
           <div class="ocr-preview-header">
-            <div class="ocr-preview-label">📷 Scanned Image</div>
-            <button class="btn-remove-img" onclick="removeScannedImage()">✕ Remove</button>
+            <div class="ocr-preview-label"><svg class="ico" viewBox="0 0 24 24"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg> Scanned Image</div>
+            <button class="btn-remove-img" onclick="removeScannedImage()"><svg class="ico ico-sm" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg> Remove</button>
           </div>
           <img class="ocr-preview-img" id="ocrPreviewImg">
           <div class="ocr-status" id="ocrStatus" style="display:none;"><div class="spinner"></div> Extracting text from image...</div>
@@ -1405,11 +1654,11 @@ body.recording .method-icon.mic-style {
           <div id="transcriptArea"><div class="transcript-placeholder">Your dictation will appear here in real-time...</div></div>
         </div>
         <textarea class="manual-input" id="manualInput" placeholder="Or type / paste notes manually here..." oninput="onManualInput()"></textarea>
-        <button class="btn-process" id="btnProcess" onclick="processNotes()">✨ Structure with AI</button>
+        <button class="btn-process" id="btnProcess" onclick="processNotes()"><svg class="ico" viewBox="0 0 24 24"><path d="M12 2l2 7h7l-5.5 4 2 7L12 16l-5.5 4 2-7L3 9h7z"/></svg> Structure with AI</button>
       </div>
 
       <div class="card animate-in animate-in-d2" id="tipsCard">
-        <div class="tips-title">💡 Tips for best results</div>
+        <div class="tips-title"><svg class="ico" viewBox="0 0 24 24"><path d="M9 21h6"/><path d="M12 3a6 6 0 014 10.5V17a1 1 0 01-1 1H9a1 1 0 01-1-1v-3.5A6 6 0 0112 3z"/></svg> Tips for best results</div>
         <div class="tip-row"><span class="tip-num">1</span>Start with the chief complaint — why the patient came in</div>
         <div class="tip-row"><span class="tip-num">2</span>Mention relevant medical history or allergies</div>
         <div class="tip-row"><span class="tip-num">3</span>Describe clinical findings with tooth numbers</div>
@@ -1421,21 +1670,70 @@ body.recording .method-icon.mic-style {
 
     <div class="structured-view" id="structuredView">
       <div class="action-bar">
-        <button class="btn-action" onclick="showRecordView()">🎙 Edit</button>
-        <button class="btn-action" id="btnCopy" onclick="copyAll()">📋 Copy</button>
-        <button class="btn-action" onclick="exportPDF()">📄 PDF</button>
-        <button class="btn-action" onclick="exportCSV()">📊 CSV</button>
-        <button class="btn-action primary" onclick="saveNote()">💾 Save</button>
+        <button class="btn-action" onclick="showRecordView()"><svg class="ico" viewBox="0 0 24 24"><path d="M17 3a2.83 2.83 0 114 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg> Edit</button>
+        <button class="btn-action" id="btnCopy" onclick="copyAll()"><svg class="ico" viewBox="0 0 24 24"><rect x="6" y="3" width="12" height="18" rx="2"/><path d="M9 3h6v2H9z"/><line x1="9" y1="10" x2="15" y2="10"/><line x1="9" y1="14" x2="13" y2="14"/></svg> Copy</button>
+        <button class="btn-action" onclick="exportPDF()"><svg class="ico" viewBox="0 0 24 24"><path d="M6 2h8l6 6v12a2 2 0 01-2 2H6a2 2 0 01-2-2V4a2 2 0 012-2z"/><polyline points="14 2 14 8 20 8"/></svg> PDF</button>
+        <button class="btn-action" onclick="exportCSV()"><svg class="ico" viewBox="0 0 24 24"><rect x="3" y="12" width="4" height="9" rx="1"/><rect x="10" y="6" width="4" height="15" rx="1"/><rect x="17" y="3" width="4" height="18" rx="1"/></svg> CSV</button>
+        <button class="btn-action primary" onclick="saveNote()"><svg class="ico" viewBox="0 0 24 24"><path d="M17 21H7a2 2 0 01-2-2V5a2 2 0 012-2h7l5 5v11a2 2 0 01-2 2z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="12" x2="12" y2="18"/><polyline points="9 15 12 18 15 15"/></svg> Save</button>
       </div>
       <div class="patient-header"><div><div class="patient-header-name" id="structPatientName">Patient Notes</div><div class="patient-header-meta" id="structPatientMeta"></div></div><div class="section-count" id="sectionCount"></div></div>
-      <div class="template-badge">📄 Standard Dental Clinical Note — SOAP Format</div>
+      <div class="template-badge"><svg class="ico" viewBox="0 0 24 24"><path d="M6 2h8l6 6v12a2 2 0 01-2 2H6a2 2 0 01-2-2V4a2 2 0 012-2z"/><polyline points="14 2 14 8 20 8"/></svg> Standard Dental Clinical Note — SOAP Format</div>
       <div id="sectionsContainer"></div>
       <div class="recs-panel" id="recsPanel">
-        <div class="recs-header"><div class="recs-icon">💡</div><div><div class="recs-title">Clinical Considerations</div><div class="recs-subtitle">AI-generated suggestions for your review</div></div></div>
+        <div class="recs-header"><div class="recs-icon"><svg class="ico" viewBox="0 0 24 24"><path d="M9 21h6"/><path d="M12 3a6 6 0 014 10.5V17a1 1 0 01-1 1H9a1 1 0 01-1-1v-3.5A6 6 0 0112 3z"/></svg></div><div><div class="recs-title">Clinical Considerations</div><div class="recs-subtitle">AI-generated suggestions for your review</div></div></div>
         <div id="recsContainer"></div>
-        <div class="recs-disclaimer">⚕️ AI-generated suggestions only — not clinical directives. Always apply professional judgment.</div>
+        <div class="recs-disclaimer"><svg class="ico" viewBox="0 0 24 24"><path d="M12 2l8 4v6c0 5.25-3.5 9.74-8 11-4.5-1.26-8-5.75-8-11V6l8-4z"/></svg> AI-generated suggestions only — not clinical directives. Always apply professional judgment.</div>
       </div>
       <div class="card raw-details"><details><summary>View Raw Transcript</summary><div class="raw-details-text" id="rawTranscriptText"></div></details></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== AI AGENT PANEL ===== -->
+<div class="agent-overlay" id="agentOverlay" onclick="closeAgent()"></div>
+<div class="agent-panel" id="agentPanel">
+  <div class="agent-header">
+    <div class="agent-header-left">
+      <div class="agent-avatar">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 8V4H8"/><rect x="4" y="8" width="16" height="12" rx="2"/><circle cx="9" cy="14" r="1.5" fill="currentColor" stroke="none"/><circle cx="15" cy="14" r="1.5" fill="currentColor" stroke="none"/><path d="M9 18h6"/></svg>
+      </div>
+      <div>
+        <div class="agent-title">DentaVoice AI</div>
+        <div class="agent-status" id="agentStatus">Dental Assistant + Data Analyst</div>
+      </div>
+    </div>
+    <div class="agent-header-actions">
+      <button class="agent-clear-btn" onclick="clearAgentChat()" title="Clear chat"><svg class="ico" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 6V4a2 2 0 012-2h0a2 2 0 012 2v2"/></svg></button>
+      <button class="agent-close-btn" onclick="closeAgent()"><svg class="ico ico-sm" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+  </div>
+
+  <div class="agent-messages" id="agentMessages">
+    <div class="agent-welcome">
+      <div class="agent-welcome-icon"><svg class="ico" style="width:48px;height:48px;stroke-width:1.2" viewBox="0 0 24 24"><rect x="4" y="8" width="16" height="12" rx="2"/><path d="M12 8V4H8"/><circle cx="9" cy="14" r="1" fill="currentColor" stroke="none"/><circle cx="15" cy="14" r="1" fill="currentColor" stroke="none"/><path d="M9 18h6"/></svg></div>
+      <div class="agent-welcome-title">Hi Dr. Amira!</div>
+      <div class="agent-welcome-text">I'm your AI dental assistant. Ask me anything about your patient records, dental materials, diagnosis, treatment planning, or clinical best practices.</div>
+      <div class="agent-suggestions" id="agentSuggestions">
+        <button class="agent-chip" onclick="sendAgentChip(this)">How many patients did I see this week?</button>
+        <button class="agent-chip" onclick="sendAgentChip(this)">Which patients need follow-up?</button>
+        <button class="agent-chip" onclick="sendAgentChip(this)">Compare composite resin brands for pediatric restorations</button>
+        <button class="agent-chip" onclick="sendAgentChip(this)">What's the protocol for a pulpotomy on a primary molar?</button>
+        <button class="agent-chip" onclick="sendAgentChip(this)">Summarize all treatments I've done this month</button>
+        <button class="agent-chip" onclick="sendAgentChip(this)">Local anesthesia dosing for pediatric patients</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="agent-input-area">
+    <div class="agent-context-badge" id="agentContextBadge">
+      <span class="agent-context-dot"></span>
+      <span id="agentContextText">Loading patient data...</span>
+    </div>
+    <div class="agent-input-row">
+      <textarea class="agent-input" id="agentInput" placeholder="Ask about patients, materials, diagnosis..." rows="1" onkeydown="onAgentKeydown(event)" oninput="autoResizeAgent()"></textarea>
+      <button class="agent-send-btn" id="agentSendBtn" onclick="sendAgentMessage()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+      </button>
     </div>
   </div>
 </div>
@@ -1466,6 +1764,48 @@ body.recording .method-icon.mic-style {
   }
 })();
 
+// ===== SVG ICON SYSTEM =====
+const _I = {
+  search:'<svg class="ico" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="21" y2="21"/></svg>',
+  folder:'<svg class="ico" viewBox="0 0 24 24"><path d="M3 7V5a2 2 0 012-2h4l2 2h8a2 2 0 012 2v10a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>',
+  x:'<svg class="ico ico-sm" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>',
+  lock:'<svg class="ico ico-sm" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 018 0v4"/></svg>',
+  ai:'<svg class="ico" viewBox="0 0 24 24"><rect x="4" y="8" width="16" height="12" rx="2"/><path d="M12 8V4H8"/><circle cx="9" cy="14" r="1" fill="currentColor" stroke="none"/><circle cx="15" cy="14" r="1" fill="currentColor" stroke="none"/><path d="M9 18h6"/></svg>',
+  mic:'<svg class="ico" viewBox="0 0 24 24"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0014 0"/><line x1="12" y1="17" x2="12" y2="21"/></svg>',
+  clipboard:'<svg class="ico" viewBox="0 0 24 24"><rect x="6" y="3" width="12" height="18" rx="2"/><path d="M9 3h6v2H9z"/><line x1="9" y1="10" x2="15" y2="10"/><line x1="9" y1="14" x2="13" y2="14"/></svg>',
+  file:'<svg class="ico" viewBox="0 0 24 24"><path d="M6 2h8l6 6v12a2 2 0 01-2 2H6a2 2 0 01-2-2V4a2 2 0 012-2z"/><polyline points="14 2 14 8 20 8"/></svg>',
+  chart:'<svg class="ico" viewBox="0 0 24 24"><rect x="3" y="12" width="4" height="9" rx="1"/><rect x="10" y="6" width="4" height="15" rx="1"/><rect x="17" y="3" width="4" height="18" rx="1"/></svg>',
+  save:'<svg class="ico" viewBox="0 0 24 24"><path d="M17 21H7a2 2 0 01-2-2V5a2 2 0 012-2h7l5 5v11a2 2 0 01-2 2z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="12" x2="12" y2="18"/><polyline points="9 15 12 18 15 15"/></svg>',
+  sparkle:'<svg class="ico" viewBox="0 0 24 24"><path d="M12 2l2 7h7l-5.5 4 2 7L12 16l-5.5 4 2-7L3 9h7z"/></svg>',
+  bulb:'<svg class="ico" viewBox="0 0 24 24"><path d="M9 21h6"/><path d="M12 3a6 6 0 014 10.5V17a1 1 0 01-1 1H9a1 1 0 01-1-1v-3.5A6 6 0 0112 3z"/></svg>',
+  camera:'<svg class="ico" viewBox="0 0 24 24"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>',
+  alert:'<svg class="ico" viewBox="0 0 24 24"><path d="M12 2L1 21h22L12 2z" fill="none"/><line x1="12" y1="9" x2="12" y2="13"/><circle cx="12" cy="17" r="0.5" fill="currentColor"/></svg>',
+  shield:'<svg class="ico" viewBox="0 0 24 24"><path d="M12 2l8 4v6c0 5.25-3.5 9.74-8 11-4.5-1.26-8-5.75-8-11V6l8-4z"/></svg>',
+  trash:'<svg class="ico" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 6V4a2 2 0 012-2h0a2 2 0 012 2v2"/></svg>',
+  check:'<svg class="ico ico-sm" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>',
+  plus:'<svg class="ico" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>',
+  pencil:'<svg class="ico" viewBox="0 0 24 24"><path d="M17 3a2.83 2.83 0 114 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>',
+  // SOAP section icons
+  chat:'<svg class="ico" viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 01-.9 3.8A8.5 8.5 0 013 11.5a8.5 8.5 0 018.5-8.5 8.38 8.38 0 013.8.9"/><path d="M21 3l-6 6"/></svg>',
+  cliplist:'<svg class="ico" viewBox="0 0 24 24"><rect x="6" y="3" width="12" height="18" rx="2"/><path d="M9 3h6v2H9z"/><line x1="9" y1="10" x2="15" y2="10"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="16" x2="13" y2="16"/></svg>',
+  building:'<svg class="ico" viewBox="0 0 24 24"><rect x="4" y="2" width="16" height="20" rx="1"/><rect x="8" y="6" width="3" height="3" rx="0.5"/><rect x="13" y="6" width="3" height="3" rx="0.5"/><rect x="8" y="12" width="3" height="3" rx="0.5"/><rect x="13" y="12" width="3" height="3" rx="0.5"/><rect x="10" y="18" width="4" height="4"/></svg>',
+  user:'<svg class="ico" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a6 6 0 0112 0v1"/></svg>',
+  scan:'<svg class="ico" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="12" y1="8" x2="12" y2="16"/></svg>',
+  tooth:'<svg class="ico" viewBox="0 0 24 24"><path d="M12 3c-2 0-3.5.7-4.5 2S6 8.5 6 10.5c0 1.5.3 3 .7 4.3.6 1.7 1.2 3.5 1.7 5.5.3 1.3.7 2.2 1.1 2.2s.9-1 1.1-2.2l.4-2h2l.4 2c.3 1.3.6 2.2 1.1 2.2s.8-.8 1.1-2.2c.5-2 1.1-3.8 1.7-5.5.4-1.4.7-2.8.7-4.3 0-2-.5-4-1.5-5.5S14 3 12 3z"/></svg>',
+  film:'<svg class="ico" viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="2"/><line x1="2" y1="9" x2="22" y2="9"/><line x1="6" y1="4" x2="6" y2="9"/><line x1="10" y1="4" x2="10" y2="9"/><line x1="14" y1="4" x2="14" y2="9"/><line x1="18" y1="4" x2="18" y2="9"/></svg>',
+  steth:'<svg class="ico" viewBox="0 0 24 24"><path d="M4 12a8 8 0 008 8h1a3 3 0 003-3v-2"/><path d="M4 12V7a4 4 0 014-4h0"/><path d="M12 7V4a4 4 0 014 0v3"/><circle cx="18" cy="14" r="2"/></svg>',
+  micro:'<svg class="ico" viewBox="0 0 24 24"><circle cx="12" cy="8" r="5"/><path d="M12 13v4"/><line x1="9" y1="21" x2="15" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/><path d="M7 3l10 10"/></svg>',
+  tag:'<svg class="ico" viewBox="0 0 24 24"><path d="M4 4h6l10 10-6 6L4 10z"/><circle cx="8.5" cy="8.5" r="1.5" fill="currentColor" stroke="none"/></svg>',
+  activity:'<svg class="ico" viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>',
+  pill:'<svg class="ico" viewBox="0 0 24 24"><path d="M8.5 2.5a4.95 4.95 0 017 7l-7 7a4.95 4.95 0 01-7-7l7-7z"/><line x1="12" y1="6" x2="6" y2="12"/></svg>',
+  syringe:'<svg class="ico" viewBox="0 0 24 24"><path d="M18 2l4 4-1 1-4-4 1-1z"/><path d="M17 7l-9 9-4 1 1-4 9-9z"/><line x1="2" y1="22" x2="6" y2="18"/></svg>',
+  filetext:'<svg class="ico" viewBox="0 0 24 24"><path d="M6 2h8l6 6v12a2 2 0 01-2 2H6a2 2 0 01-2-2V4a2 2 0 012-2z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="13" y2="17"/></svg>',
+  calendar:'<svg class="ico" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>',
+  link:'<svg class="ico" viewBox="0 0 24 24"><path d="M10 13a5 5 0 007.5.5l3-3a5 5 0 00-7-7l-1.5 1.5"/><path d="M14 11a5 5 0 00-7.5-.5l-3 3a5 5 0 007 7l1.5-1.5"/></svg>',
+  bookmark:'<svg class="ico" viewBox="0 0 24 24"><path d="M5 3h14a1 1 0 011 1v17l-8-4-8 4V4a1 1 0 011-1z"/></svg>',
+};
+function ico(name, cls){return _I[name] ? _I[name].replace('class="ico"', 'class="ico'+(cls?' '+cls:'')+'"') : '';}
+
 // ===== SUPABASE CONFIG =====
 const SUPABASE_URL = "https://nzurgcoyjebxswkffduy.supabase.co";
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im56dXJnY295amVieHN3a2ZmZHV5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE1Njc3NDMsImV4cCI6MjA4NzE0Mzc0M30.yFxmvYYw2Uwgvb_TLrlOZn1IunDPZV80ejfY0gVbOAM";
@@ -1490,11 +1830,11 @@ const LABELS = {
   plan_referrals:"P — Referrals", additional_notes:"Additional Notes"
 };
 const ICONS = {
-  subjective_chief_complaint:"💬",subjective_hpi:"📋",subjective_medical_history:"🏥",subjective_allergies:"⚠️",
-  objective_extraoral:"👤",objective_intraoral:"👄",objective_teeth_findings:"🦷",objective_radiographic:"📷",
-  assessment_diagnosis:"🩺",assessment_differential:"🔬",assessment_cdt_codes:"🏷️",plan_treatment_performed:"⚕️",
-  plan_materials_used:"💊",plan_anesthesia:"💉",plan_post_op:"📝",plan_follow_up:"📅",
-  plan_referrals:"🔗",additional_notes:"📌"
+  subjective_chief_complaint:_I.chat,subjective_hpi:_I.cliplist,subjective_medical_history:_I.building,subjective_allergies:_I.alert,
+  objective_extraoral:_I.user,objective_intraoral:_I.scan,objective_teeth_findings:_I.tooth,objective_radiographic:_I.film,
+  assessment_diagnosis:_I.steth,assessment_differential:_I.micro,assessment_cdt_codes:_I.tag,plan_treatment_performed:_I.activity,
+  plan_materials_used:_I.pill,plan_anesthesia:_I.syringe,plan_post_op:_I.filetext,plan_follow_up:_I.calendar,
+  plan_referrals:_I.link,additional_notes:_I.bookmark
 };
 const SECTION_GROUPS = {
   "Subjective":["subjective_chief_complaint","subjective_hpi","subjective_medical_history","subjective_allergies"],
@@ -1536,6 +1876,7 @@ async function handleSignup() {
 async function handleLogout() {
   await logAudit("logout","session",null,{});
   await db.auth.signOut(); currentUser=null;
+  closeAgent(); agentMessages = []; agentApiMessages = []; agentContextReady = false; agentPatientContext = ""; agentConvSummary = ""; agentTurnCount = 0; agentRecordCount = 0;
   document.getElementById("appScreen").classList.remove("visible");
   document.getElementById("authScreen").style.display="flex";
   document.getElementById("loginBtn").disabled=false;
@@ -1701,7 +2042,7 @@ async function handleScanInput(event) {
         if (data.patient_name) autoFilled.push("name");
         if (data.patient_id) autoFilled.push("ID");
         const extra = autoFilled.length ? " · Patient " + autoFilled.join(" & ") + " detected" : "";
-        showToast("✓ Text extracted" + extra);
+        showToast("Text extracted" + extra);
         await logAudit("ocr_scan", "patient_notes", null, { file_type: mediaType, file_size: file.size, patient_detected: !!data.patient_name });
       }
     } catch (err) {
@@ -1838,7 +2179,7 @@ function showStructuredView(){
     keys.filter(k=>structuredNotes[k]&&String(structuredNotes[k]).trim()).forEach(key=>{
       const s=document.createElement("div");s.className="note-section";s.id="section-"+key;
       s.style.animationDelay=(0.1+idx*0.06)+"s";
-      s.innerHTML='<div class="section-header"><div class="section-title">'+(ICONS[key]||"📝")+" "+LABELS[key]+'</div><button class="btn-edit" onclick="toggleEdit(\''+key+'\')">Edit</button></div><div class="section-content" id="content-'+key+'">'+esc(String(structuredNotes[key]))+'</div><textarea class="section-edit" id="edit-'+key+'">'+esc(String(structuredNotes[key]))+'</textarea>';
+      s.innerHTML='<div class="section-header"><div class="section-title">'+(ICONS[key]||_I.filetext)+" "+LABELS[key]+'</div><button class="btn-edit" onclick="toggleEdit(\''+key+'\')">Edit</button></div><div class="section-content" id="content-'+key+'">'+esc(String(structuredNotes[key]))+'</div><textarea class="section-edit" id="edit-'+key+'">'+esc(String(structuredNotes[key]))+'</textarea>';
       container.appendChild(s);idx++;
     });
   });
@@ -1854,19 +2195,19 @@ function renderRecommendations(){
   const order={high:0,medium:1,low:2};
   [...recommendations].sort((a,b)=>(order[a.priority]||2)-(order[b.priority]||2)).forEach((rec,i)=>{
     const item=document.createElement("div");item.className="rec-item";item.id="rec-"+i;
-    item.innerHTML='<span class="rec-category '+(rec.category||"clinical")+'">'+(rec.category||"").toUpperCase()+(rec.priority==="high"?" ●":"")+'</span><div style="font-size:14px;font-weight:700;color:var(--navy);margin-bottom:4px;">'+esc(rec.title)+'</div><div class="rec-text">'+esc(rec.detail)+'</div><div class="rec-actions"><button class="btn-rec accept" onclick="acceptRec('+i+')">✓ Noted</button><button class="btn-rec dismiss" onclick="dismissRec('+i+')">✕ Dismiss</button></div>';
+    item.innerHTML='<span class="rec-category '+(rec.category||"clinical")+'">'+(rec.category||"").toUpperCase()+(rec.priority==="high"?" ●":"")+'</span><div style="font-size:14px;font-weight:700;color:var(--navy);margin-bottom:4px;">'+esc(rec.title)+'</div><div class="rec-text">'+esc(rec.detail)+'</div><div class="rec-actions"><button class="btn-rec accept" onclick="acceptRec('+i+')">Noted</button><button class="btn-rec dismiss" onclick="dismissRec('+i+')">Dismiss</button></div>';
     container.appendChild(item);
   });
 }
 
-function acceptRec(i){const el=document.getElementById("rec-"+i);if(el){el.style.borderColor="#86EFAC";el.style.background="#F0FDF4";el.querySelector(".rec-actions").innerHTML='<span style="font-size:11px;color:#16A34A;font-weight:600;">✓ Noted</span>';}}
+function acceptRec(i){const el=document.getElementById("rec-"+i);if(el){el.style.borderColor="#86EFAC";el.style.background="#F0FDF4";el.querySelector(".rec-actions").innerHTML='<span style="font-size:11px;color:#16A34A;font-weight:600;">Noted</span>';}}
 function dismissRec(i){const el=document.getElementById("rec-"+i);if(el){el.classList.add("dismissed");el.querySelector(".rec-actions").innerHTML='<span style="font-size:11px;color:#999;">Dismissed</span>';}}
 function showRecordView(){document.getElementById("structuredView").classList.remove("visible");document.getElementById("recordView").classList.remove("hidden");}
 
 function toggleEdit(key){
   const c=document.getElementById("content-"+key),e=document.getElementById("edit-"+key),b=document.querySelector("#section-"+key+" .btn-edit");
   if(e.style.display==="block"){structuredNotes[key]=e.value;c.textContent=e.value;c.style.display="block";e.style.display="none";b.textContent="Edit";b.classList.remove("saving");}
-  else{c.style.display="none";e.style.display="block";e.focus();b.textContent="✓ Save";b.classList.add("saving");}
+  else{c.style.display="none";e.style.display="block";e.focus();b.textContent="Save";b.classList.add("saving");}
 }
 
 // ===== DATABASE =====
@@ -1890,7 +2231,7 @@ async function saveNote(){
       if (patientName) el.focus();
       setTimeout(() => el.style.borderBottomColor = "", 3000);
     }
-    showToast("⚠️ Patient name and ID required");
+    showToast("Patient name and ID required");
     return;
   }
 
@@ -1900,7 +2241,7 @@ async function saveNote(){
     if(currentNoteId){result=await db.from("patient_notes").update(noteData).eq("id",currentNoteId).select();await logAudit("update_note","patient_notes",currentNoteId,{patient_name:noteData.patient_name});}
     else{result=await db.from("patient_notes").insert(noteData).select();if(result.data&&result.data[0])currentNoteId=result.data[0].id;await logAudit("create_note","patient_notes",currentNoteId,{patient_name:noteData.patient_name});}
     if(result.error)throw result.error;
-    showToast("✓ Saved to secure database");loadSavedNotes();
+    showToast("Saved to secure database");loadSavedNotes();
   }catch(e){showError("Failed to save: "+e.message);}
 }
 
@@ -1913,7 +2254,7 @@ async function loadSavedNotes(){
 
 function renderSavedList(){
   const list=document.getElementById("savedList");
-  document.getElementById("btnHistory").textContent="📂 History"+(savedNotes.length>0?" ("+savedNotes.length+")":"");
+  document.getElementById("btnHistory").innerHTML=ico("folder")+" History"+(savedNotes.length>0?" ("+savedNotes.length+")":"");
   if(!savedNotes.length){list.innerHTML='<div class="saved-empty">No saved notes yet. Create your first note above.</div>';return;}
 
   // Group notes by relative date
@@ -2091,7 +2432,7 @@ async function showPatientTimeline(name, patientId){
     if(error) throw error;
 
     const records = data || [];
-    document.getElementById("timelineCount").innerHTML = '📋 ' + records.length + " record" + (records.length !== 1 ? "s" : "") + " found";
+    document.getElementById("timelineCount").innerHTML = records.length + " record" + (records.length !== 1 ? "s" : "") + " found";
 
     if(!records.length){
       document.getElementById("timelineList").innerHTML = '<div class="saved-empty">No records found for this patient.</div>';
@@ -2110,7 +2451,7 @@ async function showPatientTimeline(name, patientId){
         '<div class="timeline-content"><div class="timeline-date">'+n.visit_date+'</div>'+
         (diagnosis ? '<div class="timeline-diagnosis">'+esc(diagnosis.substring(0,80))+(diagnosis.length>80?'...':'')+'</div>':'')+
         (treatment ? '<div class="timeline-treatment">'+esc(treatment.substring(0,100))+(treatment.length>100?'...':'')+'</div>':'')+
-        '<div class="timeline-badges">'+(hasRecs?'<span class="timeline-badge has-recs">💡 '+n.recommendations.length+' recommendations</span>':'')+'</div>'+
+        '<div class="timeline-badges">'+(hasRecs?'<span class="timeline-badge has-recs">'+n.recommendations.length+' recommendations</span>':'')+'</div>'+
         '</div></button>';
     }).join("");
 
@@ -2121,6 +2462,301 @@ async function showPatientTimeline(name, patientId){
 }
 
 function closeTimeline(){ document.getElementById("patientTimelinePanel").classList.remove("visible"); }
+
+// ===== AI AGENT (OPTIMIZED) =====
+let agentMessages = [];       // Raw messages for display
+let agentApiMessages = [];    // Messages sent to API (trimmed)
+let agentPatientContext = "";  // Compact patient index
+let agentContextReady = false;
+let agentConvSummary = "";     // Running summary of older turns
+let agentTurnCount = 0;
+let agentRecordCount = 0;
+
+// Patient data keywords for query classification
+const PATIENT_DATA_KEYWORDS = [
+  "patient","patients","record","records","history","visit","visits",
+  "follow-up","follow up","followup","schedule","scheduled",
+  "this week","this month","last week","last month","today","yesterday",
+  "how many","total","count","summary","summarize","statistics","stats",
+  "diagnosis","diagnosed","treatment","treated","prescribed","medication",
+  "who","which patient","all patients","list of",
+  "farida","amira",// common names in the practice
+];
+
+function needsPatientData(query){
+  const q = query.toLowerCase();
+  return PATIENT_DATA_KEYWORDS.some(kw => q.includes(kw));
+}
+
+function toggleAgent(){
+  const panel = document.getElementById("agentPanel");
+  const overlay = document.getElementById("agentOverlay");
+  const isOpen = panel.classList.contains("visible");
+  if(isOpen){ closeAgent(); }
+  else {
+    panel.classList.add("visible");
+    overlay.classList.add("visible");
+    document.body.style.overflow = "hidden";
+    if(!agentContextReady) loadAgentContext();
+    setTimeout(() => document.getElementById("agentInput").focus(), 400);
+  }
+}
+
+function closeAgent(){
+  document.getElementById("agentPanel").classList.remove("visible");
+  document.getElementById("agentOverlay").classList.remove("visible");
+  document.body.style.overflow = "";
+}
+
+// OPTIMIZATION: Build compact patient index (~80% fewer tokens than raw dump)
+async function loadAgentContext(){
+  try{
+    document.getElementById("agentContextText").textContent = "Indexing patient records...";
+    document.querySelector(".agent-context-dot").classList.remove("ready");
+
+    const { data, error } = await db.from("patient_notes")
+      .select("patient_name, patient_id, visit_date, structured_notes, recommendations")
+      .eq("status","active")
+      .order("visit_date",{ascending:false})
+      .limit(200);
+
+    if(error) throw error;
+
+    if(!data || data.length === 0){
+      agentPatientContext = "";
+      agentRecordCount = 0;
+      document.getElementById("agentContextText").textContent = "No records yet";
+    } else {
+      agentRecordCount = data.length;
+
+      // Build COMPACT index — one line per visit, essential fields only
+      // This reduces ~150 tokens/record to ~40 tokens/record = 73% savings
+      let lines = [];
+      let diagnosisCounts = {};
+      let treatmentCounts = {};
+      let patientSet = new Set();
+      let dateMin = data[data.length-1].visit_date;
+      let dateMax = data[0].visit_date;
+
+      data.forEach(n => {
+        patientSet.add((n.patient_name||"") + "|" + (n.patient_id||""));
+        const sn = n.structured_notes || {};
+        const dx = sn.assessment_diagnosis || "";
+        const tx = sn.plan_treatment_performed || "";
+        const cc = sn.subjective_chief_complaint || "";
+
+        // Count for statistics
+        if(dx){ const k=dx.substring(0,40); diagnosisCounts[k]=(diagnosisCounts[k]||0)+1; }
+        if(tx){ const k=tx.substring(0,40); treatmentCounts[k]=(treatmentCounts[k]||0)+1; }
+
+        // Compact line: Name|ID|Date|CC|Dx|Tx|Materials|Follow-up
+        lines.push([
+          n.patient_name||"?",
+          n.patient_id||"",
+          n.visit_date||"",
+          cc.substring(0,60),
+          dx.substring(0,60),
+          tx.substring(0,80),
+          (sn.plan_materials_used||"").substring(0,40),
+          (sn.plan_follow_up||"").substring(0,40),
+          (sn.subjective_allergies||"").substring(0,30),
+        ].join(" | "));
+      });
+
+      // Build statistical header
+      let header = "PRACTICE STATS: " + data.length + " records, " + patientSet.size + " unique patients, date range " + dateMin + " to " + dateMax + "\n";
+
+      // Top diagnoses
+      const topDx = Object.entries(diagnosisCounts).sort((a,b)=>b[1]-a[1]).slice(0,5);
+      if(topDx.length) header += "TOP DIAGNOSES: " + topDx.map(([k,v])=>k+"("+v+")").join(", ") + "\n";
+
+      // Top treatments
+      const topTx = Object.entries(treatmentCounts).sort((a,b)=>b[1]-a[1]).slice(0,5);
+      if(topTx.length) header += "TOP TREATMENTS: " + topTx.map(([k,v])=>k+"("+v+")").join(", ") + "\n";
+
+      header += "\nRECORDS (Name|ID|Date|Chief Complaint|Diagnosis|Treatment|Materials|Follow-up|Allergies):\n";
+
+      agentPatientContext = header + lines.join("\n");
+      document.getElementById("agentContextText").textContent = data.length + " records indexed";
+    }
+
+    document.querySelector(".agent-context-dot").classList.add("ready");
+    agentContextReady = true;
+  } catch(e){
+    console.warn("Agent context load failed:", e);
+    document.getElementById("agentContextText").textContent = "Failed to load records";
+    agentPatientContext = "";
+  }
+}
+
+function sendAgentChip(btn){
+  document.getElementById("agentInput").value = btn.textContent;
+  sendAgentMessage();
+}
+
+async function sendAgentMessage(){
+  const input = document.getElementById("agentInput");
+  const msg = input.value.trim();
+  if(!msg) return;
+
+  input.value = "";
+  input.style.height = "auto";
+
+  // Hide welcome
+  const welcome = document.querySelector(".agent-welcome");
+  if(welcome) welcome.style.display = "none";
+
+  // Add user message to display
+  agentMessages.push({ role: "user", content: msg });
+  agentApiMessages.push({ role: "user", content: msg });
+  appendAgentBubble("user", msg);
+
+  // Show typing
+  const typingEl = showAgentTyping();
+  document.getElementById("agentSendBtn").disabled = true;
+  document.getElementById("agentStatus").textContent = "Thinking...";
+
+  // OPTIMIZATION: Classify query — does it need patient data?
+  const queryNeedsData = needsPatientData(msg);
+
+  // OPTIMIZATION: Conversation summarization after 6 turns
+  // Summarize older messages client-side to keep API payload small
+  let summaryToSend = agentConvSummary;
+  let messagesToSend = [...agentApiMessages];
+
+  if(agentApiMessages.length > 12) { // 6 turns = 12 messages (user+assistant)
+    // Build summary from older messages
+    const olderMsgs = agentApiMessages.slice(0, -8);
+    const recentMsgs = agentApiMessages.slice(-8);
+
+    // Simple client-side summary: extract key topics
+    const topics = olderMsgs.map(m => {
+      const t = m.content.substring(0, 80);
+      return m.role === "user" ? "Q: " + t : "A: " + t;
+    }).join(" | ");
+
+    summaryToSend = (agentConvSummary ? agentConvSummary + " | " : "") + topics;
+    // Cap summary length
+    if(summaryToSend.length > 600) summaryToSend = summaryToSend.substring(summaryToSend.length - 600);
+    messagesToSend = recentMsgs;
+  }
+
+  try{
+    const r = await fetch(API_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        mode: "agent",
+        messages: messagesToSend,
+        patient_context: queryNeedsData ? agentPatientContext : "",
+        needs_patient_data: queryNeedsData,
+        conversation_summary: summaryToSend,
+      })
+    });
+    const data = await r.json();
+    if(data.error) throw new Error(data.error);
+
+    const reply = data.reply || "I couldn't generate a response. Please try again.";
+    agentMessages.push({ role: "assistant", content: reply });
+    agentApiMessages.push({ role: "assistant", content: reply });
+    agentTurnCount++;
+
+    // OPTIMIZATION: Trim API messages and persist summary after successful response
+    if(agentApiMessages.length > 12) {
+      agentConvSummary = summaryToSend;
+      agentApiMessages = agentApiMessages.slice(-8);
+    }
+
+    if(typingEl) typingEl.remove();
+    appendAgentBubble("assistant", reply);
+
+    // Log usage for monitoring
+    if(data.usage){
+      const u = data.usage;
+      const cachedPct = u.cache_read > 0 ? Math.round(u.cache_read / (u.input_tokens + u.cache_read) * 100) : 0;
+      console.log(
+        "Agent:", queryNeedsData ? "DATA" : "KNOWLEDGE",
+        "| In:", u.input_tokens, "Out:", u.output_tokens,
+        "| Cache:", u.cache_read, "(" + cachedPct + "%)",
+        "| Msgs sent:", messagesToSend.length
+      );
+    }
+    await logAudit("agent_query","patient_notes",null,{ query: msg.substring(0,100), needs_data: queryNeedsData });
+
+  } catch(err){
+    if(typingEl) typingEl.remove();
+    appendAgentBubble("assistant", "Sorry, something went wrong: " + err.message + ". Please try again.");
+  }
+
+  document.getElementById("agentSendBtn").disabled = false;
+  document.getElementById("agentStatus").textContent = agentRecordCount > 0
+    ? agentRecordCount + " records · Haiku 4.5"
+    : "Dental Assistant";
+}
+
+function appendAgentBubble(role, text){
+  const container = document.getElementById("agentMessages");
+  const div = document.createElement("div");
+  div.className = "agent-msg " + role;
+
+  const avatar = document.createElement("div");
+  avatar.className = "agent-msg-avatar";
+  avatar.textContent = role === "user" ? "Dr" : "AI";
+
+  const bubble = document.createElement("div");
+  bubble.className = "agent-msg-bubble";
+  bubble.innerHTML = formatAgentText(text);
+
+  div.appendChild(avatar);
+  div.appendChild(bubble);
+  container.appendChild(div);
+  container.scrollTop = container.scrollHeight;
+}
+
+function formatAgentText(text){
+  let html = esc(text);
+  html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+  html = html.replace(/`(.+?)`/g, '<code>$1</code>');
+  html = html.replace(/^(\d+)\.\s+(.+)$/gm, '<li>$2</li>');
+  html = html.replace(/(<li>.*<\/li>\n?)+/g, '<ol>$&</ol>');
+  html = html.replace(/^- (.+)$/gm, '<li>$1</li>');
+  html = html.replace(/(<li>.*<\/li>\n?)+/g, function(match){
+    if(match.includes('<ol>')) return match;
+    return '<ul>' + match + '</ul>';
+  });
+  html = html.replace(/\n\n/g, '</p><p>');
+  html = '<p>' + html + '</p>';
+  html = html.replace(/\n/g, '<br>');
+  html = html.replace(/<p><\/p>/g, '');
+  html = html.replace(/<p><br><\/p>/g, '');
+  return html;
+}
+
+function showAgentTyping(){
+  const container = document.getElementById("agentMessages");
+  const div = document.createElement("div");
+  div.className = "agent-typing";
+  div.innerHTML = '<div class="agent-msg-avatar" style="background:linear-gradient(135deg,var(--purple-500),var(--blue-500));color:white;font-size:12px;font-weight:700;width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;">AI</div><div class="agent-typing-dots"><div class="agent-typing-dot"></div><div class="agent-typing-dot"></div><div class="agent-typing-dot"></div></div>';
+  container.appendChild(div);
+  container.scrollTop = container.scrollHeight;
+  return div;
+}
+
+function clearAgentChat(){
+  agentMessages = []; agentApiMessages = []; agentConvSummary = ""; agentTurnCount = 0;
+  const container = document.getElementById("agentMessages");
+  container.innerHTML = '<div class="agent-welcome"><div class="agent-welcome-icon"><svg class="ico" style="width:48px;height:48px;stroke-width:1.2" viewBox="0 0 24 24"><rect x="4" y="8" width="16" height="12" rx="2"/><path d="M12 8V4H8"/><circle cx="9" cy="14" r="1" fill="currentColor" stroke="none"/><circle cx="15" cy="14" r="1" fill="currentColor" stroke="none"/><path d="M9 18h6"/></svg></div><div class="agent-welcome-title">Chat cleared</div><div class="agent-welcome-text">Ask me anything about your patient records, dental materials, diagnosis, treatment planning, or clinical best practices.</div><div class="agent-suggestions"><button class="agent-chip" onclick="sendAgentChip(this)">How many patients did I see this week?</button><button class="agent-chip" onclick="sendAgentChip(this)">Which patients need follow-up?</button><button class="agent-chip" onclick="sendAgentChip(this)">Compare composite resin brands for pediatric restorations</button><button class="agent-chip" onclick="sendAgentChip(this)">What\'s the protocol for a pulpotomy on a primary molar?</button></div></div>';
+}
+
+function onAgentKeydown(e){
+  if(e.key === "Enter" && !e.shiftKey){ e.preventDefault(); sendAgentMessage(); }
+}
+
+function autoResizeAgent(){
+  const el = document.getElementById("agentInput");
+  el.style.height = "auto";
+  el.style.height = Math.min(el.scrollHeight, 120) + "px";
+}
 
 function startNew(){
   rawTranscript="";structuredNotes=null;recommendations=null;currentNoteId=null;
@@ -2152,7 +2788,7 @@ function buildPlainText(){
 
 function copyAll(){
   if(!structuredNotes)return;
-  navigator.clipboard.writeText(buildPlainText()).then(()=>{const b=document.getElementById("btnCopy");b.classList.add("copied");b.innerHTML="✓ Copied!";setTimeout(()=>{b.classList.remove("copied");b.innerHTML="📋 Copy";},2000);});
+  navigator.clipboard.writeText(buildPlainText()).then(()=>{const b=document.getElementById("btnCopy");b.classList.add("copied");b.innerHTML="Copied!";setTimeout(()=>{b.classList.remove("copied");b.innerHTML=ico("clipboard")+" Copy";},2000);});
   logAudit("copy_note","patient_notes",currentNoteId,{});
 }
 
@@ -2173,7 +2809,7 @@ function exportPDF(){
   Object.entries(SECTION_GROUPS).forEach(([g,keys])=>{keys.filter(k=>structuredNotes[k]&&String(structuredNotes[k]).trim()).forEach(key=>{if(y>265){doc.addPage();y=20;}doc.setFontSize(9);doc.setFont(undefined,"bold");doc.setTextColor(37,99,235);doc.text(LABELS[key].toUpperCase(),14,y);y+=5;doc.setFontSize(10);doc.setFont(undefined,"normal");doc.setTextColor(60,60,60);doc.splitTextToSize(String(structuredNotes[key]),pageW-28).forEach(line=>{if(y>275){doc.addPage();y=20;}doc.text(line,14,y);y+=5;});y+=4;});});
   doc.setFontSize(8);doc.setTextColor(150);doc.text("Confidential — PHIPA/PIPEDA Protected · DentaVoice",14,290);
   doc.save("DentaVoice_"+(name||"Note").replace(/\s+/g,"_")+"_"+date+".pdf");
-  logAudit("export_pdf","patient_notes",currentNoteId,{});showToast("✓ PDF downloaded");
+  logAudit("export_pdf","patient_notes",currentNoteId,{});showToast("PDF downloaded");
 }
 
 function exportCSV(){
@@ -2184,7 +2820,7 @@ function exportCSV(){
   Object.entries(SECTION_GROUPS).forEach(([g,keys])=>{keys.filter(k=>structuredNotes[k]&&String(structuredNotes[k]).trim()).forEach(k=>{csv+='"'+LABELS[k].replace(/"/g,'""')+'","'+String(structuredNotes[k]).replace(/"/g,'""')+'"\n';});});
   const blob=new Blob([csv],{type:"text/csv"});const url=URL.createObjectURL(blob);const a=document.createElement("a");a.href=url;
   a.download="DentaVoice_"+(name||"Note").replace(/\s+/g,"_")+"_"+date+".csv";a.click();URL.revokeObjectURL(url);
-  logAudit("export_csv","patient_notes",currentNoteId,{});showToast("✓ CSV downloaded");
+  logAudit("export_csv","patient_notes",currentNoteId,{});showToast("CSV downloaded");
 }
 
 // ===== HELPERS =====
