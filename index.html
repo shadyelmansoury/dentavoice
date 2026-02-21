@@ -1309,6 +1309,130 @@ body.recording .wave-bars { display: flex; }
 .btn-logout:hover { border-color: var(--slate-400); color: white; }
 
 /* ============================================
+   DELETE NOTE
+   ============================================ */
+.saved-item-actions { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+.saved-item-arrow { color: var(--blue-400); font-size: 16px; font-weight: 700; }
+.btn-delete-item {
+  background: none; border: none; cursor: pointer;
+  color: var(--slate-300); padding: 4px; border-radius: 6px;
+  transition: all 0.2s ease; display: flex; align-items: center; justify-content: center;
+}
+.btn-delete-item:hover { color: #EF4444; background: rgba(239,68,68,0.08); }
+.btn-action.danger {
+  color: #EF4444; border-color: rgba(239,68,68,0.3);
+}
+.btn-action.danger:hover { background: rgba(239,68,68,0.06); border-color: #EF4444; }
+
+/* Confirmation Dialog */
+.confirm-overlay {
+  position: fixed; inset: 0; background: rgba(15,23,42,0.5);
+  backdrop-filter: blur(4px); z-index: 1000;
+  display: none; align-items: center; justify-content: center;
+  animation: fadeIn 0.2s ease;
+}
+.confirm-overlay.visible { display: flex; }
+.confirm-dialog {
+  background: var(--card); border-radius: var(--radius-lg);
+  padding: 28px 24px; max-width: 380px; width: 90%;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+  animation: scaleIn 0.25s cubic-bezier(0.16,1,0.3,1);
+}
+.confirm-icon {
+  width: 48px; height: 48px; border-radius: 12px;
+  background: #FEF2F2; color: #EF4444;
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 16px;
+}
+.confirm-icon .ico { width: 24px; height: 24px; }
+.confirm-title { font-size: 17px; font-weight: 700; color: var(--text); margin-bottom: 8px; font-family: 'Sora', sans-serif; }
+.confirm-text { font-size: 13px; color: var(--text-light); line-height: 1.6; margin-bottom: 20px; }
+.confirm-name { font-weight: 700; color: var(--text); }
+.confirm-actions { display: flex; gap: 10px; }
+.confirm-actions button {
+  flex: 1; padding: 10px 16px; border-radius: var(--radius-sm);
+  font-size: 13px; font-weight: 600; cursor: pointer;
+  font-family: inherit; transition: all 0.2s ease;
+}
+.btn-confirm-cancel { background: var(--slate-100); border: 1px solid var(--border); color: var(--text); }
+.btn-confirm-cancel:hover { background: var(--slate-200); }
+.btn-confirm-delete { background: #EF4444; border: none; color: white; }
+.btn-confirm-delete:hover { background: #DC2626; }
+
+/* ============================================
+   PROFILE MODAL
+   ============================================ */
+.profile-overlay {
+  position: fixed; inset: 0; background: rgba(15,23,42,0.5);
+  backdrop-filter: blur(4px); z-index: 900;
+  display: none; align-items: center; justify-content: center;
+  animation: fadeIn 0.2s ease;
+}
+.profile-overlay.visible { display: flex; }
+.profile-modal {
+  background: var(--card); border-radius: var(--radius-lg);
+  padding: 0; max-width: 420px; width: 92%;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+  animation: scaleIn 0.25s cubic-bezier(0.16,1,0.3,1);
+  overflow: hidden;
+}
+.profile-header {
+  background: linear-gradient(135deg, var(--navy), #1E293B);
+  padding: 24px 24px 20px; display: flex; justify-content: space-between; align-items: flex-start;
+}
+.profile-header-info { color: #fff; }
+.profile-header-title { font-size: 17px; font-weight: 700; font-family: 'Sora', sans-serif; }
+.profile-header-email { font-size: 12px; color: var(--slate-400); margin-top: 4px; }
+.profile-close {
+  background: rgba(255,255,255,0.1); border: none; color: white;
+  width: 32px; height: 32px; border-radius: 8px;
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  transition: background 0.2s;
+}
+.profile-close:hover { background: rgba(255,255,255,0.2); }
+.profile-body { padding: 20px 24px 24px; }
+.profile-section { margin-bottom: 20px; }
+.profile-section:last-child { margin-bottom: 0; }
+.profile-section-label {
+  font-size: 10px; font-weight: 700; color: var(--slate-400);
+  text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 10px;
+}
+.profile-field { margin-bottom: 12px; }
+.profile-field label {
+  display: block; font-size: 12px; font-weight: 600;
+  color: var(--slate-500); margin-bottom: 4px;
+}
+.profile-field input {
+  width: 100%; padding: 10px 12px; border: 1.5px solid var(--slate-200);
+  border-radius: var(--radius-sm); font-size: 14px; font-family: inherit;
+  color: var(--text); background: white; outline: none;
+  transition: border-color 0.2s;
+}
+.profile-field input:focus { border-color: var(--blue-500); }
+.profile-field input::placeholder { color: var(--slate-300); }
+.profile-actions { display: flex; gap: 10px; margin-top: 6px; }
+.profile-actions button {
+  flex: 1; padding: 10px; border-radius: var(--radius-sm);
+  font-size: 13px; font-weight: 600; cursor: pointer;
+  font-family: inherit; transition: all 0.2s;
+}
+.btn-profile-save {
+  background: linear-gradient(135deg, var(--blue-600), var(--blue-500));
+  border: none; color: white;
+}
+.btn-profile-save:hover { box-shadow: 0 4px 16px rgba(59,130,246,0.3); }
+.btn-profile-save:disabled { opacity: 0.5; cursor: not-allowed; }
+.btn-profile-secondary { background: var(--slate-100); border: 1px solid var(--border); color: var(--text); }
+.btn-profile-secondary:hover { background: var(--slate-200); }
+.profile-msg {
+  font-size: 12px; padding: 8px 12px; border-radius: var(--radius-sm);
+  margin-bottom: 12px; display: none;
+}
+.profile-msg.success { display: block; background: #F0FDF4; color: #16A34A; border: 1px solid #BBF7D0; }
+.profile-msg.error { display: block; background: #FEF2F2; color: #DC2626; border: 1px solid #FECACA; }
+.profile-divider { height: 1px; background: var(--slate-100); margin: 16px 0; }
+
+/* ============================================
    SPINNER INLINE
    ============================================ */
 .spinner {
@@ -1644,6 +1768,21 @@ body.recording .method-icon.mic-style {
 
   /* Toast */
   .toast { font-size: 12px; padding: 10px 18px; bottom: 20px; }
+
+  /* Delete / Confirm */
+  .confirm-dialog { padding: 22px 18px; }
+  .confirm-title { font-size: 15px; }
+  .confirm-text { font-size: 12px; }
+  .confirm-actions button { padding: 10px 12px; font-size: 12px; }
+  .btn-delete-item .ico { width: 14px; height: 14px; }
+
+  /* Profile */
+  .profile-modal { width: 96%; }
+  .profile-header { padding: 18px 18px 16px; }
+  .profile-header-title { font-size: 15px; }
+  .profile-body { padding: 16px 18px 20px; }
+  .profile-field input { padding: 9px 10px; font-size: 13px; }
+  .profile-actions button { padding: 9px; font-size: 12px; }
 }
 
 /* ============================================
@@ -1750,6 +1889,7 @@ body.recording .method-icon.mic-style {
       <button class="btn-header" id="btnSearch" onclick="toggleSearch()"><svg class="ico" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="21" y2="21"/></svg> Search</button>
       <button class="btn-header" id="btnHistory" onclick="toggleSaved()"><svg class="ico" viewBox="0 0 24 24"><path d="M3 7V5a2 2 0 012-2h4l2 2h8a2 2 0 012 2v10a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg> History</button>
       <button class="btn-new" id="btnNew" onclick="startNew()"><svg class="ico" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> New</button>
+      <button class="btn-header" onclick="openProfile()"><svg class="ico" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a6 6 0 0112 0v1"/></svg> Profile</button>
       <button class="btn-logout" onclick="handleLogout()">Log out</button>
     </div>
   </div>
@@ -1874,6 +2014,7 @@ body.recording .method-icon.mic-style {
         <button class="btn-action" onclick="exportPDF()"><svg class="ico" viewBox="0 0 24 24"><path d="M6 2h8l6 6v12a2 2 0 01-2 2H6a2 2 0 01-2-2V4a2 2 0 012-2z"/><polyline points="14 2 14 8 20 8"/></svg> PDF</button>
         <button class="btn-action" onclick="exportCSV()"><svg class="ico" viewBox="0 0 24 24"><rect x="3" y="12" width="4" height="9" rx="1"/><rect x="10" y="6" width="4" height="15" rx="1"/><rect x="17" y="3" width="4" height="18" rx="1"/></svg> CSV</button>
         <button class="btn-action primary" onclick="saveNote()"><svg class="ico" viewBox="0 0 24 24"><path d="M17 21H7a2 2 0 01-2-2V5a2 2 0 012-2h7l5 5v11a2 2 0 01-2 2z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="12" x2="12" y2="18"/><polyline points="9 15 12 18 15 15"/></svg> Save</button>
+        <button class="btn-action danger" id="btnDeleteNote" style="display:none" onclick="requestDeleteCurrent()"><svg class="ico" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 6V4a2 2 0 012-2h0a2 2 0 012 2v2"/></svg> Delete</button>
       </div>
       <div class="patient-header"><div><div class="patient-header-name" id="structPatientName">Patient Notes</div><div class="patient-header-meta" id="structPatientMeta"></div></div><div class="section-count" id="sectionCount"></div></div>
       <div class="template-badge"><svg class="ico" viewBox="0 0 24 24"><path d="M6 2h8l6 6v12a2 2 0 01-2 2H6a2 2 0 01-2-2V4a2 2 0 012-2z"/><polyline points="14 2 14 8 20 8"/></svg> Standard Dental Clinical Note — SOAP Format</div>
@@ -1946,6 +2087,67 @@ body.recording .method-icon.mic-style {
 </div>
 
 <div class="toast" id="toast"></div>
+
+<!-- ===== DELETE CONFIRMATION ===== -->
+<div class="confirm-overlay" id="confirmOverlay" onclick="cancelDelete()">
+  <div class="confirm-dialog" onclick="event.stopPropagation()">
+    <div class="confirm-icon"><svg class="ico" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 6V4a2 2 0 012-2h0a2 2 0 012 2v2"/></svg></div>
+    <div class="confirm-title">Delete this record?</div>
+    <div class="confirm-text">This will permanently remove the record for <span class="confirm-name" id="confirmNoteName"></span>. This action cannot be undone.</div>
+    <div class="confirm-actions">
+      <button class="btn-confirm-cancel" onclick="cancelDelete()">Cancel</button>
+      <button class="btn-confirm-delete" id="confirmDeleteBtn" onclick="confirmDelete()">Delete Record</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== PROFILE MODAL ===== -->
+<div class="profile-overlay" id="profileOverlay" onclick="closeProfile()">
+  <div class="profile-modal" onclick="event.stopPropagation()">
+    <div class="profile-header">
+      <div class="profile-header-info">
+        <div class="profile-header-title" id="profileDisplayName"></div>
+        <div class="profile-header-email" id="profileDisplayEmail"></div>
+      </div>
+      <button class="profile-close" onclick="closeProfile()"><svg class="ico" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+    <div class="profile-body">
+      <div class="profile-msg" id="profileMsg"></div>
+
+      <div class="profile-section">
+        <div class="profile-section-label">Personal Information</div>
+        <div class="profile-field">
+          <label>Full Name</label>
+          <input id="profileName" type="text" placeholder="Dr. Full Name">
+        </div>
+        <div class="profile-field">
+          <label>Clinic / Practice Name</label>
+          <input id="profileClinic" type="text" placeholder="e.g. Smile Dental Clinic">
+        </div>
+        <div class="profile-actions">
+          <button class="btn-profile-save" id="profileSaveBtn" onclick="saveProfile()">Save Changes</button>
+        </div>
+      </div>
+
+      <div class="profile-divider"></div>
+
+      <div class="profile-section">
+        <div class="profile-section-label">Change Password</div>
+        <div class="profile-field">
+          <label>New Password</label>
+          <input id="profileNewPw" type="password" placeholder="Minimum 8 characters">
+        </div>
+        <div class="profile-field">
+          <label>Confirm New Password</label>
+          <input id="profileConfirmPw" type="password" placeholder="Re-enter new password">
+        </div>
+        <div class="profile-actions">
+          <button class="btn-profile-secondary" onclick="changePassword()">Update Password</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 
 <script>
 // ===== PARTICLES =====
@@ -2076,6 +2278,7 @@ async function handleLogout() {
   await logAudit("logout","session",null,{});
   await db.auth.signOut(); currentUser=null;
   closeAgent(); agentMessages = []; agentApiMessages = []; agentContextReady = false; agentPatientContext = ""; agentConvSummary = ""; agentTurnCount = 0; agentRecordCount = 0; agentPatientNames = [];
+  closeProfile(); cancelDelete();
   document.getElementById("appScreen").classList.remove("visible");
   document.getElementById("authScreen").style.display="flex";
   document.getElementById("loginBtn").disabled=false;
@@ -2430,6 +2633,8 @@ function showStructuredView(){
   renderRecommendations();
   document.getElementById("rawTranscriptText").textContent=rawTranscript;
   document.getElementById("btnNew").classList.add("visible");
+  // Show delete button only for existing saved notes
+  document.getElementById("btnDeleteNote").style.display=currentNoteId?"flex":"none";
 }
 
 function renderRecommendations(){
@@ -2479,14 +2684,15 @@ async function saveNote(){
     return;
   }
 
-  const noteData={user_id:currentUser.id,patient_name:patientName,patient_id:patientId,visit_date:document.getElementById("visitDate").value,raw_transcript:rawTranscript,structured_notes:structuredNotes,recommendations};
+  const noteData={user_id:currentUser.id,patient_name:patientName,patient_id:patientId,visit_date:document.getElementById("visitDate").value||new Date().toISOString().split("T")[0],raw_transcript:rawTranscript,structured_notes:structuredNotes,recommendations,status:"active"};
   try{
     let result;
     if(currentNoteId){result=await db.from("patient_notes").update(noteData).eq("id",currentNoteId).select();await logAudit("update_note","patient_notes",currentNoteId,{patient_name:noteData.patient_name});}
     else{result=await db.from("patient_notes").insert(noteData).select();if(result.data&&result.data[0])currentNoteId=result.data[0].id;await logAudit("create_note","patient_notes",currentNoteId,{patient_name:noteData.patient_name});}
     if(result.error)throw result.error;
+    if(!result.data||!result.data.length)throw new Error("No data returned — check database permissions (RLS).");
     showToast("Saved to secure database");loadSavedNotes();
-  }catch(e){showError("Failed to save: "+e.message);}
+  }catch(e){showError("Failed to save: "+e.message);console.error("Save error:",e);}
 }
 
 async function loadSavedNotes(){
@@ -2524,10 +2730,15 @@ function renderSavedList(){
     html += '<div class="saved-group"><div class="saved-group-label">'+label+'</div>';
     html += groups[label].map(n => {
       const initials = (n.patient_name||"?").split(" ").map(w=>w[0]).join("").substring(0,2).toUpperCase();
-      return '<button class="saved-item" onclick="loadNote(\''+n.id+'\')">'+
-        '<div class="saved-item-left"><div class="saved-item-avatar">'+initials+'</div><div><div class="saved-item-name">'+esc(n.patient_name)+'</div>'+
+      return '<div class="saved-item" style="position:relative">'+
+        '<div class="saved-item-left" onclick="loadNote(\''+n.id+'\')" style="flex:1;cursor:pointer">'+
+        '<div class="saved-item-avatar">'+initials+'</div><div><div class="saved-item-name">'+esc(n.patient_name)+'</div>'+
         '<div class="saved-item-meta">'+n.visit_date+(n.patient_id?" · ID: "+n.patient_id:"")+'</div></div></div>'+
-        '<div class="saved-item-arrow">→</div></button>';
+        '<div class="saved-item-actions">'+
+        '<button class="btn-delete-item" onclick="requestDeleteNote(\''+n.id+'\',\''+esc(n.patient_name).replace(/'/g,"\\'")+'\',event)" title="Delete record">'+
+        '<svg class="ico" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 6V4a2 2 0 012-2h0a2 2 0 012 2v2"/></svg></button>'+
+        '<div class="saved-item-arrow" onclick="loadNote(\''+n.id+'\')" style="cursor:pointer">&rarr;</div>'+
+        '</div></div>';
     }).join("");
     html += '</div>';
   });
@@ -2706,6 +2917,158 @@ async function showPatientTimeline(name, patientId){
 }
 
 function closeTimeline(){ document.getElementById("patientTimelinePanel").classList.remove("visible"); }
+
+// ===== DELETE NOTE =====
+let pendingDeleteId = null;
+let pendingDeleteName = "";
+
+function requestDeleteNote(id, name, event){
+  event.stopPropagation();
+  pendingDeleteId = id;
+  pendingDeleteName = name;
+  document.getElementById("confirmNoteName").textContent = name;
+  document.getElementById("confirmOverlay").classList.add("visible");
+}
+
+function requestDeleteCurrent(){
+  if(!currentNoteId) return;
+  const name = document.getElementById("patientName").value || "this patient";
+  pendingDeleteId = currentNoteId;
+  pendingDeleteName = name;
+  document.getElementById("confirmNoteName").textContent = name;
+  document.getElementById("confirmOverlay").classList.add("visible");
+}
+
+function cancelDelete(){
+  pendingDeleteId = null;
+  pendingDeleteName = "";
+  document.getElementById("confirmOverlay").classList.remove("visible");
+}
+
+async function confirmDelete(){
+  if(!pendingDeleteId) return;
+  const btn = document.getElementById("confirmDeleteBtn");
+  btn.disabled = true; btn.textContent = "Deleting...";
+  try{
+    // Soft-delete: set status to 'deleted'
+    const{error} = await db.from("patient_notes")
+      .update({status:"deleted"})
+      .eq("id", pendingDeleteId)
+      .eq("user_id", currentUser.id); // Ensure only owner can delete
+    if(error) throw error;
+    await logAudit("delete_note","patient_notes",pendingDeleteId,{patient_name:pendingDeleteName});
+
+    // If we deleted the currently viewed note, go back to home
+    if(currentNoteId === pendingDeleteId){
+      currentNoteId = null;
+      structuredNotes = null;
+      recommendations = null;
+      rawTranscript = "";
+      document.getElementById("structuredView").classList.remove("visible");
+      document.getElementById("recordView").classList.remove("hidden");
+      document.getElementById("patientName").value = "";
+      document.getElementById("patientId").value = "";
+      document.getElementById("manualInput").value = "";
+      updateTranscriptDisplay("");
+      updateProcessBtn();
+    }
+
+    showToast("Record deleted");
+    loadSavedNotes();
+  }catch(e){
+    showError("Failed to delete: "+e.message);
+    console.error("Delete error:",e);
+  }finally{
+    btn.disabled = false; btn.textContent = "Delete Record";
+    cancelDelete();
+  }
+}
+
+// ===== PROFILE =====
+function openProfile(){
+  if(!currentUser) return;
+  const meta = currentUser.user_metadata || {};
+  document.getElementById("profileDisplayName").textContent = meta.full_name || "My Profile";
+  document.getElementById("profileDisplayEmail").textContent = currentUser.email || "";
+  document.getElementById("profileName").value = meta.full_name || "";
+  document.getElementById("profileClinic").value = meta.clinic_name || "";
+  document.getElementById("profileNewPw").value = "";
+  document.getElementById("profileConfirmPw").value = "";
+  hideProfileMsg();
+  document.getElementById("profileOverlay").classList.add("visible");
+}
+
+function closeProfile(){
+  document.getElementById("profileOverlay").classList.remove("visible");
+}
+
+function showProfileMsg(msg, type){
+  const el = document.getElementById("profileMsg");
+  el.textContent = msg;
+  el.className = "profile-msg " + type;
+}
+function hideProfileMsg(){
+  const el = document.getElementById("profileMsg");
+  el.className = "profile-msg";
+  el.textContent = "";
+}
+
+async function saveProfile(){
+  const name = document.getElementById("profileName").value.trim();
+  const clinic = document.getElementById("profileClinic").value.trim();
+  if(!name){ showProfileMsg("Name is required.", "error"); return; }
+
+  const btn = document.getElementById("profileSaveBtn");
+  btn.disabled = true; btn.textContent = "Saving...";
+  hideProfileMsg();
+
+  try{
+    const{data, error} = await db.auth.updateUser({
+      data: { full_name: name, clinic_name: clinic }
+    });
+    if(error) throw error;
+
+    // Update currentUser reference
+    currentUser = data.user;
+    // Update header display
+    document.getElementById("headerUser").textContent = name;
+    document.getElementById("profileDisplayName").textContent = name;
+
+    showProfileMsg("Profile updated successfully.", "success");
+    await logAudit("update_profile","user",currentUser.id,{full_name:name,clinic_name:clinic});
+  }catch(e){
+    showProfileMsg("Failed to update: "+e.message, "error");
+    console.error("Profile update error:",e);
+  }finally{
+    btn.disabled = false; btn.textContent = "Save Changes";
+  }
+}
+
+async function changePassword(){
+  const newPw = document.getElementById("profileNewPw").value;
+  const confirmPw = document.getElementById("profileConfirmPw").value;
+  hideProfileMsg();
+
+  if(!newPw || newPw.length < 8){
+    showProfileMsg("Password must be at least 8 characters.", "error"); return;
+  }
+  if(newPw !== confirmPw){
+    showProfileMsg("Passwords do not match.", "error"); return;
+  }
+
+  try{
+    const{error} = await db.auth.updateUser({ password: newPw });
+    if(error) throw error;
+
+    document.getElementById("profileNewPw").value = "";
+    document.getElementById("profileConfirmPw").value = "";
+    showProfileMsg("Password updated successfully.", "success");
+    await logAudit("change_password","user",currentUser.id,{});
+  }catch(e){
+    showProfileMsg("Failed to change password: "+e.message, "error");
+    console.error("Password change error:",e);
+  }
+}
 
 // ===== AI AGENT (OPTIMIZED) =====
 let agentMessages = [];       // Raw messages for display
