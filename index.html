@@ -1876,7 +1876,7 @@ async function handleSignup() {
 async function handleLogout() {
   await logAudit("logout","session",null,{});
   await db.auth.signOut(); currentUser=null;
-  closeAgent(); agentMessages = []; agentApiMessages = []; agentContextReady = false; agentPatientContext = ""; agentConvSummary = ""; agentTurnCount = 0; agentRecordCount = 0;
+  closeAgent(); agentMessages = []; agentApiMessages = []; agentContextReady = false; agentPatientContext = ""; agentConvSummary = ""; agentTurnCount = 0; agentRecordCount = 0; agentPatientNames = [];
   document.getElementById("appScreen").classList.remove("visible");
   document.getElementById("authScreen").style.display="flex";
   document.getElementById("loginBtn").disabled=false;
@@ -2471,21 +2471,46 @@ let agentContextReady = false;
 let agentConvSummary = "";     // Running summary of older turns
 let agentTurnCount = 0;
 let agentRecordCount = 0;
+let agentPatientNames = [];    // Dynamic name index from loaded records
 
-// Patient data keywords for query classification
-const PATIENT_DATA_KEYWORDS = [
+// Structural keywords that ALWAYS indicate a data query
+const DATA_KEYWORDS = [
   "patient","patients","record","records","history","visit","visits",
   "follow-up","follow up","followup","schedule","scheduled",
   "this week","this month","last week","last month","today","yesterday",
   "how many","total","count","summary","summarize","statistics","stats",
   "diagnosis","diagnosed","treatment","treated","prescribed","medication",
-  "who","which patient","all patients","list of",
-  "farida","amira",// common names in the practice
+  "who","which","all patients","list of","case","cases","chart","charts",
+  "appointments","recall","overdue","pending","recent","last visit",
+];
+
+// Keywords that clearly indicate a KNOWLEDGE-ONLY query (no patient data needed)
+const KNOWLEDGE_ONLY_KEYWORDS = [
+  "what is","what are","how to","how do","explain","define","definition",
+  "compare","difference between","protocol for","guidelines for",
+  "best practice","evidence","recommendation for","dosing","dosage",
+  "technique","procedure for","material","materials","equipment",
+  "instrument","brand","manufacturer","curing","bonding","cement",
+  "infection control","sterilization","pharmacology","radiology",
+  "cdt code for","billing","insurance",
 ];
 
 function needsPatientData(query){
   const q = query.toLowerCase();
-  return PATIENT_DATA_KEYWORDS.some(kw => q.includes(kw));
+
+  // 1. Check if query mentions any known patient name (dynamic index)
+  if(agentPatientNames.some(name => q.includes(name))) return true;
+
+  // 2. Check structural data keywords
+  if(DATA_KEYWORDS.some(kw => q.includes(kw))) return true;
+
+  // 3. Check if it's clearly a knowledge-only question
+  if(KNOWLEDGE_ONLY_KEYWORDS.some(kw => q.includes(kw))) return false;
+
+  // 4. DEFAULT: include patient data when uncertain
+  //    Better to send data and not need it than miss a valid patient query
+  //    Cost impact is minimal with prompt caching
+  return true;
 }
 
 function toggleAgent(){
@@ -2578,6 +2603,22 @@ async function loadAgentContext(){
 
       agentPatientContext = header + lines.join("\n");
       document.getElementById("agentContextText").textContent = data.length + " records indexed";
+
+      // Build dynamic name index for query classification
+      // Extract all unique patient names and split into individual words
+      const nameSet = new Set();
+      data.forEach(n => {
+        if(n.patient_name){
+          // Add full name and each word (lowercased)
+          nameSet.add(n.patient_name.toLowerCase().trim());
+          n.patient_name.toLowerCase().trim().split(/\s+/).forEach(word => {
+            if(word.length > 2) nameSet.add(word); // skip very short words like "al"
+          });
+        }
+        // Also index patient IDs
+        if(n.patient_id) nameSet.add(n.patient_id.toLowerCase().trim());
+      });
+      agentPatientNames = [...nameSet];
     }
 
     document.querySelector(".agent-context-dot").classList.add("ready");
