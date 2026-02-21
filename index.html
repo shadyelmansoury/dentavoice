@@ -652,7 +652,7 @@ body.recording .wave-bars { display: flex; }
 .btn-edit:hover { background: var(--slate-200); }
 .btn-edit.saving { background: var(--blue-500); color: #fff; }
 
-.section-content { font-size: 14px; line-height: 1.75; color: var(--slate-700); white-space: pre-wrap; }
+.section-content { font-size: 14px; line-height: 1.75; color: var(--slate-700); white-space: pre-wrap; word-break: break-word; overflow-wrap: break-word; }
 
 .section-edit {
   width: 100%; padding: 12px; border-radius: 8px;
@@ -1477,6 +1477,205 @@ body.recording .method-icon.mic-style {
   animation: fadeIn 0.3s ease;
 }
 .validation-msg.visible { display: block; }
+
+/* ============================================
+   RESPONSIVE — TABLETS (≤768px)
+   ============================================ */
+@media(max-width:768px){
+  .header { padding: 12px 14px; flex-wrap: wrap; gap: 10px; }
+  .header-actions { gap: 4px; flex-wrap: wrap; }
+  .header-title { font-size: 16px; }
+  .header-logo { width: 34px; height: 34px; }
+  .header-logo svg { width: 18px; height: 18px; }
+  .btn-header { padding: 7px 10px; font-size: 11px; }
+  .btn-new { padding: 7px 12px; font-size: 11px; }
+  .container { padding: 12px 10px 100px; }
+  .card { padding: 14px 14px; margin-bottom: 10px; }
+  .record-card { padding: 24px 14px; }
+  .patient-row { gap: 10px; }
+  .field { flex: 1 1 140px; }
+  .field-small { flex: 1 1 100px; }
+  .note-section { padding: 14px 14px; }
+  .patient-header { padding: 14px 16px; }
+  .patient-header-name { font-size: 16px; }
+  .action-bar { gap: 6px; }
+  .btn-action { padding: 8px 10px; font-size: 11px; gap: 4px; }
+  .mic-wrapper { margin-bottom: 18px; }
+  .mic-btn, .method-icon { width: 72px; height: 72px; }
+  .mic-btn svg, .method-icon svg { width: 28px; height: 28px; }
+  .mic-ring-1 { width: 90px; height: 90px; }
+  .mic-ring-2 { width: 115px; height: 115px; }
+  .mic-ring-3 { width: 140px; height: 140px; }
+  .mic-status { font-size: 14px; }
+  .mic-hint { font-size: 12px; margin-bottom: 18px; }
+  .tips-title { font-size: 13px; }
+  .tip-row { font-size: 12px; }
+  .btn-process { padding: 12px 24px; font-size: 14px; }
+  .recs-panel { padding: 14px; }
+  .template-badge { font-size: 10px; padding: 5px 10px; }
+  .section-title { font-size: 10px; }
+  .section-content { font-size: 13px; line-height: 1.65; }
+  .saved-item { padding: 12px; }
+  .search-panel, .saved-panel { border-radius: var(--radius-md); }
+}
+
+/* ============================================
+   RESPONSIVE — MOBILE (≤480px)
+   ============================================ */
+@media(max-width:480px){
+  .header { padding: 10px 12px; gap: 8px; }
+  .header-left { gap: 8px; }
+  .header-title { font-size: 15px; }
+  .header-sub { font-size: 10px; }
+  .header-logo { width: 30px; height: 30px; border-radius: 8px; }
+  .header-logo svg { width: 16px; height: 16px; }
+  .header-actions { gap: 3px; width: 100%; justify-content: flex-start; }
+  .btn-header { padding: 6px 8px; font-size: 10px; gap: 3px; }
+  .btn-header .ico { width: 13px; height: 13px; }
+  .btn-new { padding: 6px 10px; font-size: 10px; }
+  .btn-new .ico { width: 13px; height: 13px; }
+  .btn-logout { padding: 6px 8px; font-size: 10px; }
+
+  .container { padding: 10px 8px 90px; }
+  .card { padding: 12px 12px; border-radius: var(--radius-md); }
+  .record-card { padding: 20px 12px; }
+
+  /* Patient form — stack vertically */
+  .patient-row { flex-direction: column; gap: 8px; }
+  .field, .field-small { flex: 1 1 100%; }
+  .field-label { font-size: 10px; }
+  .field-input { padding: 8px 10px; font-size: 13px; }
+
+  /* Mic area — smaller */
+  .input-methods { gap: 16px; }
+  .mic-wrapper { margin-bottom: 14px; }
+  .mic-btn, .method-icon { width: 64px; height: 64px; }
+  .mic-btn svg, .method-icon svg { width: 24px; height: 24px; }
+  .method-label { font-size: 12px; }
+  .method-divider { font-size: 11px; }
+  .mic-ring-1 { width: 80px; height: 80px; }
+  .mic-ring-2 { width: 100px; height: 100px; }
+  .mic-ring-3 { width: 120px; height: 120px; }
+  .mic-status { font-size: 13px; }
+  .mic-hint { font-size: 11px; margin-bottom: 14px; }
+  .wave-bars { height: 20px; }
+
+  .transcript-box { padding: 12px; min-height: 60px; }
+  .transcript-label { font-size: 9px; }
+  .transcript-text { font-size: 13px; line-height: 1.6; }
+  .manual-input { padding: 10px; font-size: 13px; min-height: 50px; margin-top: 8px; }
+  .btn-process { padding: 12px 20px; font-size: 13px; margin-top: 14px; width: 100%; }
+
+  /* Tips */
+  .tips-title { font-size: 12px; }
+  .tip-row { font-size: 11px; padding: 8px 10px; }
+  .tip-num { width: 18px; height: 18px; font-size: 10px; }
+
+  /* Structured view */
+  .action-bar { gap: 4px; }
+  .btn-action { padding: 7px 8px; font-size: 10px; gap: 3px; flex: 1 1 auto; justify-content: center; }
+  .btn-action .ico { width: 13px; height: 13px; }
+  .patient-header { padding: 12px 14px; flex-direction: column; gap: 8px; align-items: flex-start; }
+  .patient-header-name { font-size: 15px; }
+  .patient-header-meta { font-size: 11px; }
+  .section-count { font-size: 10px; padding: 4px 8px; }
+  .template-badge { font-size: 9px; padding: 4px 8px; }
+
+  .note-section { padding: 12px 12px; margin-bottom: 6px; }
+  .section-header { gap: 6px; }
+  .section-title { font-size: 9px; gap: 4px; }
+  .section-title .ico { width: 12px; height: 12px; }
+  .section-content { font-size: 13px; line-height: 1.6; }
+  .section-edit { padding: 10px; font-size: 13px; }
+  .btn-edit { padding: 4px 8px; font-size: 10px; }
+
+  /* Recommendations */
+  .recs-panel { padding: 12px; border-radius: var(--radius-md); }
+  .recs-header { gap: 8px; }
+  .recs-title { font-size: 14px; }
+  .recs-subtitle { font-size: 11px; }
+  .rec-item { padding: 10px; }
+  .rec-text { font-size: 12px; }
+  .rec-actions { gap: 4px; }
+  .btn-rec { padding: 5px 10px; font-size: 10px; }
+  .recs-disclaimer { font-size: 10px; }
+
+  /* Search & History panels */
+  .search-panel, .saved-panel { border-radius: var(--radius-sm); }
+  .search-title, .saved-title { font-size: 14px; }
+  .search-input { font-size: 14px; padding: 10px 12px 10px 38px; }
+  .saved-item { padding: 10px; }
+  .saved-item-name { font-size: 13px; }
+  .saved-item-meta { font-size: 10px; }
+
+  /* Timeline */
+  .timeline-header { padding: 12px; }
+  .timeline-patient-name { font-size: 15px; }
+
+  /* OCR preview */
+  .ocr-preview-img { max-height: 180px; }
+  .ocr-preview-label { font-size: 12px; }
+
+  /* Patient history inline */
+  .patient-history { padding: 10px; }
+  .patient-history-title { font-size: 12px; }
+
+  /* Auth screen */
+  .auth-card { padding: 28px 20px; margin: 16px; max-width: 100%; }
+  .auth-title { font-size: 22px; }
+  .auth-subtitle { font-size: 13px; }
+
+  /* Agent panel */
+  .agent-panel { width: 100vw; }
+  .agent-header { padding: 12px 14px; }
+  .agent-title { font-size: 14px; }
+  .agent-messages { padding: 14px; gap: 12px; }
+  .agent-welcome-title { font-size: 16px; }
+  .agent-welcome-text { font-size: 12px; }
+  .agent-chip { font-size: 11px; padding: 6px 10px; }
+  .agent-msg-bubble { padding: 10px 12px; font-size: 12px; border-radius: 12px; }
+  .agent-input-area { padding: 10px 12px 14px; }
+  .agent-input { padding: 10px 12px; font-size: 13px; border-radius: 12px; }
+  .agent-send-btn { width: 40px; height: 40px; border-radius: 10px; }
+
+  /* Loading */
+  .loading-card { padding: 28px 20px; }
+  .loading-title { font-size: 16px; }
+
+  /* Toast */
+  .toast { font-size: 12px; padding: 10px 18px; bottom: 20px; }
+}
+
+/* ============================================
+   RESPONSIVE — SMALL MOBILE (≤360px)
+   ============================================ */
+@media(max-width:360px){
+  .header-title { font-size: 14px; }
+  .btn-header { padding: 5px 6px; font-size: 9px; }
+  .btn-header .ico { width: 12px; height: 12px; }
+  .container { padding: 8px 6px 80px; }
+  .card { padding: 10px 10px; }
+  .mic-btn, .method-icon { width: 56px; height: 56px; }
+  .mic-btn svg, .method-icon svg { width: 22px; height: 22px; }
+  .btn-action { padding: 6px 6px; font-size: 9px; }
+  .section-content { font-size: 12px; }
+  .patient-header-name { font-size: 14px; }
+}
+
+/* ============================================
+   TOUCH OPTIMIZATION
+   ============================================ */
+@media(hover:none) and (pointer:coarse){
+  .btn-header, .btn-action, .btn-new, .btn-edit,
+  .btn-rec, .agent-chip, .btn-process, .btn-logout,
+  .saved-item, .method-btn, .agent-send-btn {
+    min-height: 40px;
+  }
+  .field-input { min-height: 42px; font-size: 16px; /* prevents iOS zoom */ }
+  .agent-input { min-height: 44px; font-size: 16px; }
+  .manual-input { font-size: 16px; }
+  .search-input { font-size: 16px; }
+}
 </style>
 </head>
 <body>
@@ -1908,43 +2107,88 @@ async function logAudit(action,rType,rId,details){
 }
 
 // ===== RECORDING =====
+let pendingInterim = "";
 function toggleRecording(){isRecording?stopRecording():startRecording();}
 
 function startRecording(){
   hideError();
   const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
   if(!SR){showError("Speech recognition not supported. Please use Chrome.");return;}
-  recognition=new SR(); recognition.continuous=true; recognition.interimResults=true; recognition.lang="en-US";
+  recognition=new SR();
+  recognition.continuous=true;
+  recognition.interimResults=true;
+  recognition.lang="en-US";
+  recognition.maxAlternatives=1;
+  pendingInterim="";
+
   recognition.onresult=function(e){
     let interim="",final="";
-    for(let i=e.resultIndex;i<e.results.length;i++){const t=e.results[i][0].transcript;if(e.results[i].isFinal)final+=t+" ";else interim+=t;}
-    if(final){rawTranscript+=final;document.getElementById("manualInput").value=rawTranscript;}
+    for(let i=e.resultIndex;i<e.results.length;i++){
+      const t=e.results[i][0].transcript;
+      if(e.results[i].isFinal){ final+=t+" "; }
+      else { interim+=t; }
+    }
+    if(final){
+      rawTranscript+=final;
+      pendingInterim=""; // Clear interim since it's now finalized
+    } else {
+      pendingInterim=interim; // Track latest interim text
+    }
+    // Always sync textarea so user can see what's captured
+    document.getElementById("manualInput").value=rawTranscript+pendingInterim;
     updateTranscriptDisplay(interim);
   };
+
   recognition.onerror=function(e){
     if(e.error==="not-allowed"){showError("Microphone access denied.");stopRecording();}
+    else if(e.error==="network"){showError("Network error — check your connection.");stopRecording();}
     else if(e.error!=="no-speech"&&e.error!=="aborted")showError("Speech error: "+e.error);
   };
-  recognition.onend=function(){if(isRecording)try{recognition.start();}catch(e){}};
+
+  // Auto-restart on end (mobile browsers stop after silence)
+  recognition.onend=function(){
+    if(isRecording){
+      // Capture any remaining interim text before restart
+      if(pendingInterim.trim()){
+        rawTranscript+=pendingInterim+" ";
+        pendingInterim="";
+        document.getElementById("manualInput").value=rawTranscript;
+        updateTranscriptDisplay("");
+      }
+      try{recognition.start();}catch(e){}
+    }
+  };
+
   try{
     recognition.start();isRecording=true;document.body.classList.add("recording");
     document.getElementById("micIcon").innerHTML='<rect x="6" y="4" width="12" height="16" rx="2" fill="currentColor"/>';
     document.getElementById("micLabel").textContent="Stop";
     document.getElementById("micStatus").textContent="Listening... Tap mic to stop";
     document.getElementById("micHint").textContent="Speak naturally — describe the patient visit";
-    document.getElementById("manualInput").style.display="none";
+    // Keep textarea visible but readonly during recording so user sees live text
+    const mi=document.getElementById("manualInput");
+    mi.style.display="block";mi.readOnly=true;mi.style.opacity="0.7";
     updateProcessBtn();
   }catch(e){showError("Could not start recording.");}
 }
 
 function stopRecording(){
+  // Capture any final interim text before stopping
+  if(pendingInterim.trim()){
+    rawTranscript+=pendingInterim+" ";
+    pendingInterim="";
+  }
   if(recognition){recognition.onend=null;recognition.stop();recognition=null;}
   isRecording=false;document.body.classList.remove("recording");
   document.getElementById("micIcon").innerHTML='<path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/>';
   document.getElementById("micLabel").textContent="Dictate";
   document.getElementById("micStatus").textContent="Dictate or scan clinical notes";
   document.getElementById("micHint").textContent="Voice record a patient visit, or photograph handwritten/printed notes";
-  document.getElementById("manualInput").style.display="block";
+  // Restore textarea to editable
+  const mi=document.getElementById("manualInput");
+  mi.style.display="block";mi.readOnly=false;mi.style.opacity="1";
+  mi.value=rawTranscript; // Sync final text
+  updateTranscriptDisplay("");
   updateProcessBtn();
 }
 
