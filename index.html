@@ -568,6 +568,20 @@ body.recording .wave-bars { display: flex; }
 /* ============================================
    STRUCTURED VIEW
    ============================================ */
+/* Template selector */
+.template-selector { margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--slate-100); }
+.template-selector label { font-size: 10px; font-weight: 700; letter-spacing: 0.06em; color: var(--blue-600); text-transform: uppercase; display: block; margin-bottom: 6px; }
+.template-select { width: 100%; padding: 10px 36px 10px 12px; font-size: 14px; font-family: inherit; border: 1.5px solid var(--slate-200); border-radius: 10px; background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23475569' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E") no-repeat right 12px center; appearance: none; -webkit-appearance: none; color: var(--slate-800); cursor: pointer; transition: border-color 0.2s, box-shadow 0.2s; }
+.template-select:focus { outline: none; border-color: var(--blue-400); box-shadow: 0 0 0 3px rgba(37,99,235,0.1); }
+.template-select:hover { border-color: var(--blue-300); }
+.template-select option { padding: 8px; }
+.template-hint { font-size: 11px; color: var(--slate-400); margin-top: 5px; }
+/* Template field rows in structured view */
+.template-field { display: flex; gap: 0; border-bottom: 1px solid var(--slate-50); padding: 5px 0; }
+.template-field:last-child { border-bottom: none; }
+.template-field-label { font-size: 12px; font-weight: 700; color: var(--blue-700); min-width: 140px; max-width: 180px; padding-top: 1px; flex-shrink: 0; }
+.template-field-value { font-size: 13.5px; color: var(--slate-700); flex: 1; line-height: 1.6; }
+.template-field-value.blank { color: var(--slate-300); font-style: italic; }
 .structured-view { display: none; }
 .structured-view.visible { display: block; }
 .record-view.hidden { display: none; }
@@ -1712,6 +1726,11 @@ body.recording .method-icon.mic-style {
   .section-content { font-size: 13px; line-height: 1.6; }
   .section-edit { padding: 10px; font-size: 13px; }
   .btn-edit { padding: 4px 8px; font-size: 10px; }
+  .template-select { padding: 9px 32px 9px 10px; font-size: 13px; }
+  .template-hint { font-size: 10px; }
+  .template-field { flex-direction: column; gap: 2px; padding: 4px 0; }
+  .template-field-label { min-width: unset; max-width: unset; font-size: 11px; }
+  .template-field-value { font-size: 13px; }
 
   /* Recommendations */
   .recs-panel { padding: 12px; border-radius: var(--radius-md); }
@@ -1938,6 +1957,30 @@ body.recording .method-icon.mic-style {
         <div class="field-small"><label class="field-label">Visit Date</label><input class="field-input" id="visitDate" type="date"></div>
       </div>
       <div class="validation-msg" id="validationMsg">Patient name and ID are required to save a record.</div>
+      <div class="template-selector">
+        <label>Note Template</label>
+        <select class="template-select" id="templateSelect" onchange="onTemplateChange()">
+          <option value="">General SOAP (no template)</option>
+          <optgroup label="New Patient Exams (NPE)">
+            <option value="npe_no_caries">NPE – No Caries / No Treatment</option>
+            <option value="npe_no_caries_simple">NPE – No Caries (Simplified)</option>
+            <option value="npe_caries_ga">NPE – Caries / Recommended GA</option>
+            <option value="npe_caries_n2o">NPE – Caries / Recommended N2O</option>
+            <option value="npe_caries_po">NPE – Caries / Recommended PO Sedation</option>
+          </optgroup>
+          <optgroup label="Treatment">
+            <option value="restorative">Restorative (Standard / No Sedation)</option>
+            <option value="restorative_n2o">Restorative with N2O</option>
+            <option value="po_sedation">Oral Sedation (PO/Midazolam) Restorative</option>
+            <option value="ga_rehab">GA Oral Rehabilitation</option>
+            <option value="combined_n2o_po">Combined N2O + Oral Sedation (Midazolam)</option>
+          </optgroup>
+          <optgroup label="Follow-Up">
+            <option value="recall">Recall Exam</option>
+          </optgroup>
+        </select>
+        <div class="template-hint" id="templateHint">Select a template to structure notes into specific fields</div>
+      </div>
       <div class="patient-history" id="patientHistory">
         <div class="patient-history-header">
           <div class="patient-history-icon"><svg class="ico" viewBox="0 0 24 24"><rect x="6" y="3" width="12" height="18" rx="2"/><path d="M9 3h6v2H9z"/><line x1="9" y1="10" x2="15" y2="10"/><line x1="9" y1="14" x2="13" y2="14"/></svg></div>
@@ -2017,7 +2060,7 @@ body.recording .method-icon.mic-style {
         <button class="btn-action danger" id="btnDeleteNote" style="display:none" onclick="requestDeleteCurrent()"><svg class="ico" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 6V4a2 2 0 012-2h0a2 2 0 012 2v2"/></svg> Delete</button>
       </div>
       <div class="patient-header"><div><div class="patient-header-name" id="structPatientName">Patient Notes</div><div class="patient-header-meta" id="structPatientMeta"></div></div><div class="section-count" id="sectionCount"></div></div>
-      <div class="template-badge"><svg class="ico" viewBox="0 0 24 24"><path d="M6 2h8l6 6v12a2 2 0 01-2 2H6a2 2 0 01-2-2V4a2 2 0 012-2z"/><polyline points="14 2 14 8 20 8"/></svg> Standard Dental Clinical Note — SOAP Format</div>
+      <div class="template-badge" id="templateBadge"><svg class="ico" viewBox="0 0 24 24"><path d="M6 2h8l6 6v12a2 2 0 01-2 2H6a2 2 0 01-2-2V4a2 2 0 012-2z"/><polyline points="14 2 14 8 20 8"/></svg> Standard Dental Clinical Note — SOAP Format</div>
       <div id="sectionsContainer"></div>
       <div class="recs-panel" id="recsPanel">
         <div class="recs-header"><div class="recs-icon"><svg class="ico" viewBox="0 0 24 24"><path d="M9 21h6"/><path d="M12 3a6 6 0 014 10.5V17a1 1 0 01-1 1H9a1 1 0 01-1-1v-3.5A6 6 0 0112 3z"/></svg></div><div><div class="recs-title">Clinical Considerations</div><div class="recs-subtitle">AI-generated suggestions for your review</div></div></div>
@@ -2218,6 +2261,7 @@ const db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 let currentUser = null, isRecording = false, recognition = null;
 let rawTranscript = "", structuredNotes = null, recommendations = null;
 let savedNotes = [], currentNoteId = null;
+let selectedTemplateId = null, currentTemplateMeta = null;
 
 const LABELS = {
   subjective_chief_complaint:"S — Chief Complaint", subjective_hpi:"S — History of Present Illness",
@@ -2594,17 +2638,33 @@ function updateProcessBtn(){
 }
 
 // ===== AI =====
+function onTemplateChange(){
+  selectedTemplateId=document.getElementById("templateSelect").value||null;
+  const hint=document.getElementById("templateHint");
+  if(selectedTemplateId){
+    const opt=document.getElementById("templateSelect").selectedOptions[0];
+    hint.textContent="AI will structure notes using: "+opt.textContent;
+    hint.style.color="var(--blue-600)";
+  }else{
+    hint.textContent="Select a template to structure notes into specific fields";
+    hint.style.color="var(--slate-400)";
+  }
+}
+
 async function processNotes(){
   rawTranscript=document.getElementById("manualInput").value||rawTranscript;
   if(!rawTranscript.trim()){showError("No notes to process.");return;}
   showLoading("Analyzing dictation...");hideError();
   try{
     updateLoadingStep("Structuring notes & generating insights...");
-    const r=await fetch(API_URL,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({transcript:rawTranscript.trim()})});
+    const payload={transcript:rawTranscript.trim()};
+    if(selectedTemplateId) payload.template_id=selectedTemplateId;
+    const r=await fetch(API_URL,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)});
     const data=await r.json();if(data.error)throw new Error(data.error);
     structuredNotes=data.notes||{};recommendations=data.recommendations||[];
+    currentTemplateMeta=data.template_meta||null;
     if(data.usage)console.log("Usage:",data.usage);
-    await logAudit("process_notes","patient_notes",null,{patient_name:document.getElementById("patientName").value});
+    await logAudit("process_notes","patient_notes",null,{patient_name:document.getElementById("patientName").value,template:selectedTemplateId||"soap"});
     hideLoading();showStructuredView();
   }catch(err){hideLoading();showError("Failed: "+err.message);}
 }
@@ -2618,22 +2678,49 @@ function showStructuredView(){
   const date=document.getElementById("visitDate").value;
   document.getElementById("structPatientName").textContent=name;
   document.getElementById("structPatientMeta").textContent=date+(id?" · ID: "+id:"");
-  const entries=Object.entries(structuredNotes).filter(([k,v])=>v&&LABELS[k]);
-  document.getElementById("sectionCount").textContent=entries.length+" sections";
   const container=document.getElementById("sectionsContainer");container.innerHTML="";
+  const badge=document.getElementById("templateBadge");
   let idx=0;
-  Object.entries(SECTION_GROUPS).forEach(([g,keys])=>{
-    keys.filter(k=>structuredNotes[k]&&String(structuredNotes[k]).trim()).forEach(key=>{
-      const s=document.createElement("div");s.className="note-section";s.id="section-"+key;
+
+  if(currentTemplateMeta){
+    // ===== TEMPLATE MODE =====
+    badge.textContent="";badge.innerHTML=ico("filetext")+" "+esc(currentTemplateMeta.name);
+    let totalFields=0;
+    currentTemplateMeta.sections.forEach(sec=>{
+      const secData=structuredNotes[sec.key]||{};
+      const s=document.createElement("div");s.className="note-section";s.id="section-"+sec.key;
       s.style.animationDelay=(0.1+idx*0.06)+"s";
-      s.innerHTML='<div class="section-header"><div class="section-title">'+(ICONS[key]||_I.filetext)+" "+LABELS[key]+'</div><button class="btn-edit" onclick="toggleEdit(\''+key+'\')">Edit</button></div><div class="section-content" id="content-'+key+'">'+esc(String(structuredNotes[key]))+'</div><textarea class="section-edit" id="edit-'+key+'">'+esc(String(structuredNotes[key]))+'</textarea>';
+      // Section icon mapping
+      const secIcons={presentation:_I.chat,health:_I.building,dental_history:_I.tooth,treatment:_I.activity,evaluation:_I.steth,plan:_I.calendar,operative_team:_I.user,reasons:_I.cliplist,sedation_record:_I.pill,sedation_assessment:_I.pill,preop_vitals:_I.activity,n2o_sedation:_I.micro,postoperative:_I.syringe};
+      const secIcon=secIcons[sec.key]||_I.filetext;
+      let fieldsHtml="";
+      sec.fields.forEach(f=>{
+        const val=secData[f.key]||"[blank]";
+        const isBlank=val==="[blank]"||!val.trim();
+        fieldsHtml+='<div class="template-field"><div class="template-field-label">'+esc(f.label)+'</div><div class="template-field-value'+(isBlank?" blank":"")+'">'+esc(val)+'</div></div>';
+        totalFields++;
+      });
+      s.innerHTML='<div class="section-header"><div class="section-title">'+secIcon+" "+esc(sec.title)+'</div><button class="btn-edit" onclick="toggleEditSection(\''+sec.key+'\')">Edit</button></div><div class="section-content" id="content-'+sec.key+'">'+fieldsHtml+'</div><textarea class="section-edit" id="edit-'+sec.key+'" style="display:none"></textarea>';
       container.appendChild(s);idx++;
     });
-  });
+    document.getElementById("sectionCount").textContent=currentTemplateMeta.sections.length+" sections · "+totalFields+" fields";
+  }else{
+    // ===== LEGACY SOAP MODE =====
+    badge.innerHTML=ico("filetext")+" Standard Dental Clinical Note — SOAP Format";
+    const entries=Object.entries(structuredNotes).filter(([k,v])=>v&&LABELS[k]);
+    document.getElementById("sectionCount").textContent=entries.length+" sections";
+    Object.entries(SECTION_GROUPS).forEach(([g,keys])=>{
+      keys.filter(k=>structuredNotes[k]&&String(structuredNotes[k]).trim()).forEach(key=>{
+        const s=document.createElement("div");s.className="note-section";s.id="section-"+key;
+        s.style.animationDelay=(0.1+idx*0.06)+"s";
+        s.innerHTML='<div class="section-header"><div class="section-title">'+(ICONS[key]||_I.filetext)+" "+LABELS[key]+'</div><button class="btn-edit" onclick="toggleEdit(\''+key+'\')">Edit</button></div><div class="section-content" id="content-'+key+'">'+esc(String(structuredNotes[key]))+'</div><textarea class="section-edit" id="edit-'+key+'">'+esc(String(structuredNotes[key]))+'</textarea>';
+        container.appendChild(s);idx++;
+      });
+    });
+  }
   renderRecommendations();
   document.getElementById("rawTranscriptText").textContent=rawTranscript;
   document.getElementById("btnNew").classList.add("visible");
-  // Show delete button only for existing saved notes
   document.getElementById("btnDeleteNote").style.display=currentNoteId?"flex":"none";
 }
 
@@ -2657,6 +2744,40 @@ function toggleEdit(key){
   const c=document.getElementById("content-"+key),e=document.getElementById("edit-"+key),b=document.querySelector("#section-"+key+" .btn-edit");
   if(e.style.display==="block"){structuredNotes[key]=e.value;c.textContent=e.value;c.style.display="block";e.style.display="none";b.textContent="Edit";b.classList.remove("saving");}
   else{c.style.display="none";e.style.display="block";e.focus();b.textContent="Save";b.classList.add("saving");}
+}
+
+function toggleEditSection(secKey){
+  const c=document.getElementById("content-"+secKey),e=document.getElementById("edit-"+secKey),b=document.querySelector("#section-"+secKey+" .btn-edit");
+  if(!currentTemplateMeta)return;
+  const sec=currentTemplateMeta.sections.find(s=>s.key===secKey);if(!sec)return;
+  if(e.style.display==="block"){
+    // Save: parse textarea back into structured fields
+    const lines=e.value.split("\n");
+    if(!structuredNotes[secKey])structuredNotes[secKey]={};
+    lines.forEach(line=>{
+      const colonIdx=line.indexOf(":");
+      if(colonIdx>0){
+        const label=line.substring(0,colonIdx).trim();
+        const val=line.substring(colonIdx+1).trim();
+        const field=sec.fields.find(f=>f.label===label);
+        if(field)structuredNotes[secKey][field.key]=val;
+      }
+    });
+    // Re-render the field rows
+    let fieldsHtml="";
+    sec.fields.forEach(f=>{
+      const val=(structuredNotes[secKey]||{})[f.key]||"[blank]";
+      const isBlank=val==="[blank]"||!val.trim();
+      fieldsHtml+='<div class="template-field"><div class="template-field-label">'+esc(f.label)+'</div><div class="template-field-value'+(isBlank?" blank":"")+'">'+esc(val)+'</div></div>';
+    });
+    c.innerHTML=fieldsHtml;c.style.display="block";e.style.display="none";b.textContent="Edit";b.classList.remove("saving");
+  }else{
+    // Enter edit: build editable text from fields
+    const secData=structuredNotes[secKey]||{};
+    let text=sec.fields.map(f=>f.label+": "+(secData[f.key]||"[blank]")).join("\n");
+    e.value=text;e.rows=sec.fields.length+1;
+    c.style.display="none";e.style.display="block";e.focus();b.textContent="Save";b.classList.add("saving");
+  }
 }
 
 // ===== DATABASE =====
@@ -2684,7 +2805,7 @@ async function saveNote(){
     return;
   }
 
-  const noteData={user_id:currentUser.id,patient_name:patientName,patient_id:patientId,visit_date:document.getElementById("visitDate").value||new Date().toISOString().split("T")[0],raw_transcript:rawTranscript,structured_notes:structuredNotes,recommendations,status:"active"};
+  const noteData={user_id:currentUser.id,patient_name:patientName,patient_id:patientId,visit_date:document.getElementById("visitDate").value||new Date().toISOString().split("T")[0],raw_transcript:rawTranscript,structured_notes:structuredNotes,recommendations,status:"active",template_id:selectedTemplateId||null,template_meta:currentTemplateMeta||null};
   try{
     let result;
     if(currentNoteId){result=await db.from("patient_notes").update(noteData).eq("id",currentNoteId).select();await logAudit("update_note","patient_notes",currentNoteId,{patient_name:noteData.patient_name});}
@@ -2752,6 +2873,8 @@ async function loadNote(id){
     document.getElementById("patientId").value=data.patient_id||"";document.getElementById("visitDate").value=data.visit_date||"";
     rawTranscript=data.raw_transcript||"";document.getElementById("manualInput").value=rawTranscript;
     structuredNotes=data.structured_notes;recommendations=data.recommendations||[];
+    currentTemplateMeta=data.template_meta||null;selectedTemplateId=data.template_id||null;
+    document.getElementById("templateSelect").value=selectedTemplateId||"";onTemplateChange();
     await logAudit("view_note","patient_notes",id,{patient_name:data.patient_name});
     if(structuredNotes)showStructuredView();else{showRecordView();updateTranscriptDisplay("");updateProcessBtn();}
     closeSaved(); closeSearch(); closeTimeline();
@@ -3407,10 +3530,11 @@ function autoResizeAgent(){
 }
 
 function startNew(){
-  rawTranscript="";structuredNotes=null;recommendations=null;currentNoteId=null;
+  rawTranscript="";structuredNotes=null;recommendations=null;currentNoteId=null;currentTemplateMeta=null;selectedTemplateId=null;
   document.getElementById("patientName").value="";document.getElementById("patientId").value="";
   document.getElementById("visitDate").value=new Date().toISOString().split("T")[0];
   document.getElementById("manualInput").value="";
+  document.getElementById("templateSelect").value="";onTemplateChange();
   document.getElementById("structuredView").classList.remove("visible");
   document.getElementById("recordView").classList.remove("hidden");
   document.getElementById("recsPanel").classList.remove("visible");
@@ -3426,10 +3550,22 @@ function startNew(){
 // ===== EXPORT =====
 function buildPlainText(){
   const name=document.getElementById("patientName").value,id=document.getElementById("patientId").value,date=document.getElementById("visitDate").value;
-  let t="DENTAL CLINICAL NOTES (SOAP FORMAT)\n═══════════════════════════════════════\n";
+  const tmplName=currentTemplateMeta?currentTemplateMeta.name:"SOAP FORMAT";
+  let t="DENTAL CLINICAL NOTES ("+tmplName+")\n═══════════════════════════════════════\n";
   if(name)t+="Patient: "+name+"\n";if(id)t+="ID: "+id+"\n";
   t+="Date: "+date+"\nProvider: Dr. Amira Mahmoud\n═══════════════════════════════════════\n\n";
-  Object.entries(SECTION_GROUPS).forEach(([g,keys])=>{keys.filter(k=>structuredNotes[k]&&String(structuredNotes[k]).trim()).forEach(k=>{t+=LABELS[k].toUpperCase()+"\n"+structuredNotes[k]+"\n\n";});});
+  if(currentTemplateMeta){
+    currentTemplateMeta.sections.forEach(sec=>{
+      const secData=structuredNotes[sec.key]||{};
+      const hasData=sec.fields.some(f=>{const v=secData[f.key];return v&&v!=="[blank]"&&v.trim();});
+      if(!hasData)return;
+      t+=sec.title+"\n───────────────────────────────────────\n";
+      sec.fields.forEach(f=>{const v=secData[f.key]||"[blank]";t+=f.label+": "+v+"\n";});
+      t+="\n";
+    });
+  }else{
+    Object.entries(SECTION_GROUPS).forEach(([g,keys])=>{keys.filter(k=>structuredNotes[k]&&String(structuredNotes[k]).trim()).forEach(k=>{t+=LABELS[k].toUpperCase()+"\n"+structuredNotes[k]+"\n\n";});});
+  }
   if(recommendations&&recommendations.length){t+="═══════════════════════════════════════\nAI CLINICAL CONSIDERATIONS (Advisory)\n───────────────────────────────────────\n";recommendations.forEach(r=>t+="• ["+r.category.toUpperCase()+"] "+r.title+"\n  "+r.detail+"\n");t+="\n";}
   t+="═══════════════════════════════════════\nDocumented via DentaVoice\n";return t;
 }
@@ -3444,17 +3580,34 @@ function exportPDF(){
   if(!structuredNotes)return;
   const{jsPDF}=window.jspdf;const doc=new jsPDF();
   const name=document.getElementById("patientName").value,id=document.getElementById("patientId").value,date=document.getElementById("visitDate").value;
+  const tmplName=currentTemplateMeta?currentTemplateMeta.name:"SOAP Format";
   const pageW=doc.internal.pageSize.getWidth();let y=20;
   doc.setFillColor(15,23,42);doc.rect(0,0,pageW,35,"F");
   doc.setTextColor(255,255,255);doc.setFontSize(18);doc.setFont(undefined,"bold");
   doc.text("DentaVoice — Clinical Notes",14,15);
   doc.setFontSize(10);doc.setFont(undefined,"normal");
-  doc.text("SOAP Format · Dr. Amira Mahmoud",14,23);
+  doc.text(tmplName+" · Dr. Amira Mahmoud",14,23);
   doc.text("Generated: "+new Date().toLocaleString(),14,30);
   y=45;doc.setTextColor(0,0,0);doc.setFontSize(11);doc.setFont(undefined,"bold");
   if(name){doc.text("Patient: "+name,14,y);y+=6;}if(id){doc.text("ID: "+id,14,y);y+=6;}
   doc.text("Visit Date: "+date,14,y);y+=10;doc.setDrawColor(200);doc.line(14,y,pageW-14,y);y+=8;
-  Object.entries(SECTION_GROUPS).forEach(([g,keys])=>{keys.filter(k=>structuredNotes[k]&&String(structuredNotes[k]).trim()).forEach(key=>{if(y>265){doc.addPage();y=20;}doc.setFontSize(9);doc.setFont(undefined,"bold");doc.setTextColor(37,99,235);doc.text(LABELS[key].toUpperCase(),14,y);y+=5;doc.setFontSize(10);doc.setFont(undefined,"normal");doc.setTextColor(60,60,60);doc.splitTextToSize(String(structuredNotes[key]),pageW-28).forEach(line=>{if(y>275){doc.addPage();y=20;}doc.text(line,14,y);y+=5;});y+=4;});});
+  if(currentTemplateMeta){
+    currentTemplateMeta.sections.forEach(sec=>{
+      const secData=structuredNotes[sec.key]||{};
+      if(y>255){doc.addPage();y=20;}
+      doc.setFontSize(11);doc.setFont(undefined,"bold");doc.setTextColor(37,99,235);doc.text(sec.title,14,y);y+=6;
+      sec.fields.forEach(f=>{
+        const v=secData[f.key]||"[blank]";
+        if(y>272){doc.addPage();y=20;}
+        doc.setFontSize(8);doc.setFont(undefined,"bold");doc.setTextColor(80,80,80);doc.text(f.label+":",14,y);
+        doc.setFontSize(9);doc.setFont(undefined,"normal");doc.setTextColor(60,60,60);
+        const lines=doc.splitTextToSize(v,pageW-60);doc.text(lines,56,y);y+=Math.max(lines.length*4.5,5);
+      });
+      y+=4;
+    });
+  }else{
+    Object.entries(SECTION_GROUPS).forEach(([g,keys])=>{keys.filter(k=>structuredNotes[k]&&String(structuredNotes[k]).trim()).forEach(key=>{if(y>265){doc.addPage();y=20;}doc.setFontSize(9);doc.setFont(undefined,"bold");doc.setTextColor(37,99,235);doc.text(LABELS[key].toUpperCase(),14,y);y+=5;doc.setFontSize(10);doc.setFont(undefined,"normal");doc.setTextColor(60,60,60);doc.splitTextToSize(String(structuredNotes[key]),pageW-28).forEach(line=>{if(y>275){doc.addPage();y=20;}doc.text(line,14,y);y+=5;});y+=4;});});
+  }
   doc.setFontSize(8);doc.setTextColor(150);doc.text("Confidential — PHIPA/PIPEDA Protected · DentaVoice",14,290);
   doc.save("DentaVoice_"+(name||"Note").replace(/\s+/g,"_")+"_"+date+".pdf");
   logAudit("export_pdf","patient_notes",currentNoteId,{});showToast("PDF downloaded");
@@ -3463,9 +3616,20 @@ function exportPDF(){
 function exportCSV(){
   if(!structuredNotes)return;
   const name=document.getElementById("patientName").value,id=document.getElementById("patientId").value,date=document.getElementById("visitDate").value;
-  let csv="Section,Content\n";csv+='"Patient Name","'+(name||"").replace(/"/g,'""')+'"\n';csv+='"Patient ID","'+(id||"").replace(/"/g,'""')+'"\n';
-  csv+='"Visit Date","'+date+'"\n';csv+='"Provider","Dr. Amira Mahmoud"\n';
-  Object.entries(SECTION_GROUPS).forEach(([g,keys])=>{keys.filter(k=>structuredNotes[k]&&String(structuredNotes[k]).trim()).forEach(k=>{csv+='"'+LABELS[k].replace(/"/g,'""')+'","'+String(structuredNotes[k]).replace(/"/g,'""')+'"\n';});});
+  let csv="Section,Field,Content\n";csv+='"Info","Patient Name","'+(name||"").replace(/"/g,'""')+'"\n';csv+='"Info","Patient ID","'+(id||"").replace(/"/g,'""')+'"\n';
+  csv+='"Info","Visit Date","'+date+'"\n';csv+='"Info","Provider","Dr. Amira Mahmoud"\n';
+  if(currentTemplateMeta){
+    csv+='"Info","Template","'+currentTemplateMeta.name.replace(/"/g,'""')+'"\n';
+    currentTemplateMeta.sections.forEach(sec=>{
+      const secData=structuredNotes[sec.key]||{};
+      sec.fields.forEach(f=>{
+        const v=(secData[f.key]||"[blank]").replace(/"/g,'""');
+        csv+='"'+sec.title.replace(/"/g,'""')+'","'+f.label.replace(/"/g,'""')+'","'+v+'"\n';
+      });
+    });
+  }else{
+    Object.entries(SECTION_GROUPS).forEach(([g,keys])=>{keys.filter(k=>structuredNotes[k]&&String(structuredNotes[k]).trim()).forEach(k=>{csv+='"'+LABELS[k].replace(/"/g,'""')+'","","'+String(structuredNotes[k]).replace(/"/g,'""')+'"\n';});});
+  }
   const blob=new Blob([csv],{type:"text/csv"});const url=URL.createObjectURL(blob);const a=document.createElement("a");a.href=url;
   a.download="DentaVoice_"+(name||"Note").replace(/\s+/g,"_")+"_"+date+".csv";a.click();URL.revokeObjectURL(url);
   logAudit("export_csv","patient_notes",currentNoteId,{});showToast("CSV downloaded");
