@@ -1,3648 +1,440 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="DentaVoice">
-<meta name="theme-color" content="#0F172A">
-<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0%25' stop-color='%233B82F6'/%3E%3Cstop offset='100%25' stop-color='%2306B6D4'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='64' height='64' rx='14' fill='%230F172A'/%3E%3Cpath d='M32 12c-4.5 0-8 1.5-10 4.5C20 19.5 19 24 19 28c0 3 .5 6 1.5 9 1.2 3.5 2.5 7 3.5 11 .8 3 1.5 5 2.5 5s2-2 2.5-5l1-4h4l1 4c.5 3 1.5 5 2.5 5s1.7-2 2.5-5c1-4 2.3-7.5 3.5-11 1-3 1.5-6 1.5-9 0-4-1-8.5-3-11.5-2-3-5.5-4.5-10-4.5z' fill='url(%23g)' opacity='.9'/%3E%3Cpath d='M15 30h3M46 30h3M13 26h3M48 26h3M14 34h3M47 34h3' stroke='%2360A5FA' stroke-width='1.5' stroke-linecap='round' opacity='.5'/%3E%3C/svg%3E">
-<title>DentaVoice — AI Clinical Notes</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Sora:wght@400;600;700;800&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<style>
-:root {
-  --navy: #0F172A;
-  --navy-light: #1E293B;
-  --slate-800: #1E293B;
-  --slate-700: #334155;
-  --slate-600: #475569;
-  --slate-500: #64748B;
-  --slate-400: #94A3B8;
-  --slate-300: #CBD5E1;
-  --slate-200: #E2E8F0;
-  --slate-100: #F1F5F9;
-  --slate-50: #F8FAFC;
-  --blue-600: #2563EB;
-  --blue-500: #3B82F6;
-  --blue-400: #60A5FA;
-  --blue-300: #93C5FD;
-  --blue-200: #BFDBFE;
-  --blue-100: #DBEAFE;
-  --blue-50: #EFF6FF;
-  --cyan-500: #06B6D4;
-  --cyan-400: #22D3EE;
-  --teal-500: #14B8A6;
-  --amber-500: #F59E0B;
-  --amber-400: #FBBF24;
-  --red-500: #EF4444;
-  --red-100: #FEE2E2;
-  --green-500: #22C55E;
-  --green-100: #DCFCE7;
-  --purple-500: #A855F7;
-  --purple-100: #F3E8FF;
-  --rose-500: #F43F5E;
-  --rose-100: #FFE4E6;
-  --bg: var(--slate-50);
-  --card: #ffffff;
-  --border: var(--slate-200);
-  --text: var(--navy);
-  --text-mid: var(--slate-600);
-  --text-light: var(--slate-400);
-  --shadow-sm: 0 1px 3px rgba(15,23,42,0.06), 0 1px 2px rgba(15,23,42,0.04);
-  --shadow-md: 0 4px 16px rgba(15,23,42,0.08), 0 2px 4px rgba(15,23,42,0.04);
-  --shadow-lg: 0 12px 40px rgba(15,23,42,0.12), 0 4px 12px rgba(15,23,42,0.06);
-  --shadow-xl: 0 20px 60px rgba(15,23,42,0.16), 0 8px 24px rgba(15,23,42,0.08);
-  --shadow-glow: 0 0 30px rgba(59,130,246,0.15);
-  --radius-sm: 10px;
-  --radius-md: 14px;
-  --radius-lg: 20px;
-  --radius-xl: 24px;
-}
-
-* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
-
-body {
-  font-family: 'Outfit', system-ui, -apple-system, sans-serif;
-  background: var(--bg); color: var(--text);
-  min-height: 100vh; min-height: 100dvh;
-  overflow-x: hidden;
-  -webkit-font-smoothing: antialiased;
-}
-
-/* ============================================
-   ANIMATIONS
-   ============================================ */
-@keyframes fadeInUp {
-  from { opacity: 0; transform: translateY(24px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-@keyframes fadeInDown {
-  from { opacity: 0; transform: translateY(-16px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-@keyframes scaleIn {
-  from { opacity: 0; transform: scale(0.92); }
-  to { opacity: 1; transform: scale(1); }
-}
-@keyframes slideInRight {
-  from { opacity: 0; transform: translateX(30px); }
-  to { opacity: 1; transform: translateX(0); }
-}
-@keyframes slideInLeft {
-  from { opacity: 0; transform: translateX(-30px); }
-  to { opacity: 1; transform: translateX(0); }
-}
-@keyframes float {
-  0%, 100% { transform: translateY(0px) rotate(0deg); }
-  33% { transform: translateY(-8px) rotate(1deg); }
-  66% { transform: translateY(4px) rotate(-1deg); }
-}
-@keyframes shimmer {
-  0% { background-position: -200% center; }
-  100% { background-position: 200% center; }
-}
-@keyframes pulseGlow {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(59,130,246,0.3); }
-  50% { box-shadow: 0 0 0 12px rgba(59,130,246,0); }
-}
-@keyframes ripple1 {
-  0%, 100% { transform: translate(-50%,-50%) scale(1); opacity: 0.6; }
-  50% { transform: translate(-50%,-50%) scale(1.3); opacity: 0; }
-}
-@keyframes ripple2 {
-  0%, 100% { transform: translate(-50%,-50%) scale(1); opacity: 0.4; }
-  50% { transform: translate(-50%,-50%) scale(1.5); opacity: 0; }
-}
-@keyframes ripple3 {
-  0%, 100% { transform: translate(-50%,-50%) scale(1); opacity: 0.2; }
-  50% { transform: translate(-50%,-50%) scale(1.7); opacity: 0; }
-}
-@keyframes spin { to { transform: rotate(360deg); } }
-@keyframes dotPulse {
-  0%, 80%, 100% { transform: scale(0); opacity: 0; }
-  40% { transform: scale(1); opacity: 1; }
-}
-@keyframes waveBar {
-  0%, 100% { height: 6px; }
-  50% { height: 20px; }
-}
-@keyframes gradientShift {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
-}
-@keyframes particleFloat {
-  0% { transform: translateY(0) translateX(0) scale(1); opacity: 0; }
-  10% { opacity: 1; }
-  90% { opacity: 1; }
-  100% { transform: translateY(-100vh) translateX(50px) scale(0); opacity: 0; }
-}
-
-.animate-in { animation: fadeInUp 0.6s cubic-bezier(0.16,1,0.3,1) both; }
-.animate-in-d1 { animation-delay: 0.08s; }
-.animate-in-d2 { animation-delay: 0.16s; }
-.animate-in-d3 { animation-delay: 0.24s; }
-.animate-in-d4 { animation-delay: 0.32s; }
-.animate-in-d5 { animation-delay: 0.40s; }
-.animate-in-d6 { animation-delay: 0.48s; }
-
-/* ============================================
-   AUTH SCREEN
-   ============================================ */
-.auth-screen {
-  min-height: 100vh; min-height: 100dvh;
-  display: flex; align-items: center; justify-content: center;
-  position: relative; overflow: hidden;
-  background: var(--navy);
-}
-
-.auth-bg {
-  position: absolute; inset: 0; overflow: hidden;
-  pointer-events: none;
-}
-
-.auth-bg::before {
-  content: '';
-  position: absolute;
-  top: -50%; left: -50%;
-  width: 200%; height: 200%;
-  background:
-    radial-gradient(ellipse at 20% 50%, rgba(59,130,246,0.15) 0%, transparent 50%),
-    radial-gradient(ellipse at 80% 20%, rgba(6,182,212,0.1) 0%, transparent 50%),
-    radial-gradient(ellipse at 50% 80%, rgba(168,85,247,0.08) 0%, transparent 50%);
-  animation: gradientShift 15s ease-in-out infinite;
-  background-size: 200% 200%;
-}
-
-.auth-particles {
-  position: absolute; inset: 0; overflow: hidden;
-}
-
-.particle {
-  position: absolute; bottom: -20px;
-  width: 4px; height: 4px;
-  background: var(--blue-400);
-  border-radius: 50%;
-  opacity: 0;
-  animation: particleFloat linear infinite;
-}
-
-.auth-grid {
-  position: absolute; inset: 0;
-  background-image:
-    linear-gradient(rgba(59,130,246,0.03) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(59,130,246,0.03) 1px, transparent 1px);
-  background-size: 60px 60px;
-}
-
-.auth-card {
-  position: relative; z-index: 10;
-  background: rgba(255,255,255,0.97);
-  backdrop-filter: blur(20px);
-  border: 1px solid rgba(255,255,255,0.2);
-  border-radius: var(--radius-xl);
-  padding: 40px 32px;
-  max-width: 400px; width: calc(100% - 40px);
-  box-shadow: var(--shadow-xl), 0 0 80px rgba(59,130,246,0.08);
-  animation: scaleIn 0.7s cubic-bezier(0.16,1,0.3,1) both;
-}
-
-.auth-logo { text-align: center; margin-bottom: 32px; animation: fadeInDown 0.7s cubic-bezier(0.16,1,0.3,1) 0.1s both; }
-
-.logo-mark {
-  width: 64px; height: 64px;
-  margin: 0 auto 14px;
-  position: relative;
-  animation: float 6s ease-in-out infinite;
-}
-
-.logo-mark svg { width: 100%; height: 100%; }
-
-.auth-logo-title {
-  font-family: 'Sora', sans-serif;
-  font-size: 28px; font-weight: 800;
-  background: linear-gradient(135deg, var(--navy) 0%, var(--blue-600) 50%, var(--cyan-500) 100%);
-  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-  background-clip: text;
-  letter-spacing: -0.03em;
-}
-
-.auth-logo-sub {
-  font-size: 13px; color: var(--text-light); margin-top: 4px;
-  font-weight: 400; letter-spacing: 0.02em;
-}
-
-.auth-tabs {
-  display: flex; gap: 4px; margin-bottom: 28px;
-  background: var(--slate-100); border-radius: var(--radius-sm); padding: 4px;
-  animation: fadeInUp 0.6s cubic-bezier(0.16,1,0.3,1) 0.2s both;
-}
-
-.auth-tab {
-  flex: 1; padding: 10px; text-align: center; font-size: 13px; font-weight: 600;
-  cursor: pointer; border: none; background: transparent; color: var(--text-light);
-  font-family: inherit; border-radius: 7px; transition: all 0.3s cubic-bezier(0.16,1,0.3,1);
-  position: relative; letter-spacing: 0.01em;
-}
-
-.auth-tab.active {
-  background: var(--card);
-  color: var(--blue-600);
-  box-shadow: var(--shadow-sm);
-}
-
-.auth-field {
-  margin-bottom: 18px;
-  animation: fadeInUp 0.5s cubic-bezier(0.16,1,0.3,1) both;
-}
-.auth-field:nth-child(1) { animation-delay: 0.25s; }
-.auth-field:nth-child(2) { animation-delay: 0.3s; }
-.auth-field:nth-child(3) { animation-delay: 0.35s; }
-
-.auth-label {
-  font-size: 11px; font-weight: 600; color: var(--slate-500);
-  text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 6px; display: block;
-}
-
-.auth-input {
-  width: 100%; padding: 13px 16px;
-  border: 2px solid var(--slate-200); border-radius: var(--radius-sm);
-  font-size: 15px; font-family: inherit; font-weight: 500;
-  outline: none; transition: all 0.3s cubic-bezier(0.16,1,0.3,1);
-  background: var(--slate-50); color: var(--text);
-}
-
-.auth-input:focus {
-  border-color: var(--blue-500);
-  background: white;
-  box-shadow: 0 0 0 4px rgba(59,130,246,0.1);
-}
-
-.auth-input::placeholder { color: var(--slate-300); font-weight: 400; }
-
-.auth-btn {
-  width: 100%; padding: 14px;
-  background: linear-gradient(135deg, var(--blue-600) 0%, var(--blue-500) 50%, var(--cyan-500) 100%);
-  background-size: 200% 200%;
-  color: #fff; border: none; border-radius: var(--radius-sm);
-  font-size: 15px; font-weight: 700; cursor: pointer;
-  font-family: inherit; margin-top: 10px;
-  box-shadow: 0 4px 16px rgba(59,130,246,0.3);
-  transition: all 0.3s cubic-bezier(0.16,1,0.3,1);
-  animation: fadeInUp 0.5s cubic-bezier(0.16,1,0.3,1) 0.4s both;
-  letter-spacing: 0.01em;
-  position: relative; overflow: hidden;
-}
-
-.auth-btn::after {
-  content: '';
-  position: absolute; inset: 0;
-  background: linear-gradient(135deg, transparent, rgba(255,255,255,0.15), transparent);
-  background-size: 200% 100%;
-  animation: shimmer 3s ease-in-out infinite;
-}
-
-.auth-btn:hover { background-size: 100% 100%; transform: translateY(-1px); box-shadow: 0 6px 24px rgba(59,130,246,0.35); }
-.auth-btn:active { transform: translateY(0); box-shadow: 0 2px 8px rgba(59,130,246,0.3); }
-.auth-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
-
-.auth-error {
-  background: var(--red-100); border: 1px solid #FECACA;
-  border-radius: var(--radius-sm); padding: 11px 14px;
-  font-size: 13px; color: #DC2626; font-weight: 500;
-  margin-bottom: 16px; display: none;
-  animation: scaleIn 0.3s ease both;
-}
-.auth-error.visible { display: block; }
-
-.auth-footer {
-  text-align: center; margin-top: 24px; font-size: 11px; color: var(--text-light);
-  line-height: 1.6; letter-spacing: 0.02em;
-  animation: fadeIn 0.6s 0.5s both;
-}
-
-.auth-footer .lock-icon {
-  display: inline-flex; align-items: center; gap: 4px;
-  background: var(--green-100); color: #16A34A;
-  padding: 3px 10px; border-radius: 20px; font-weight: 600;
-  font-size: 10px; margin-bottom: 4px;
-}
-
-/* ============================================
-   HEADER
-   ============================================ */
-.header {
-  background: var(--navy);
-  padding: 14px 20px;
-  display: flex; align-items: center; justify-content: space-between;
-  position: sticky; top: 0; z-index: 100;
-  box-shadow: 0 2px 24px rgba(15,23,42,0.2);
-  animation: fadeInDown 0.5s cubic-bezier(0.16,1,0.3,1) both;
-}
-
-.header-left { display: flex; align-items: center; gap: 12px; }
-
-.header-logo {
-  width: 38px; height: 38px;
-  background: linear-gradient(135deg, var(--blue-600), var(--cyan-500));
-  border-radius: 10px;
-  display: flex; align-items: center; justify-content: center;
-  box-shadow: 0 2px 12px rgba(59,130,246,0.25);
-  transition: transform 0.3s ease;
-}
-.header-logo:hover { transform: rotate(-5deg) scale(1.05); }
-.header-logo svg { width: 22px; height: 22px; }
-
-.header-title {
-  font-family: 'Sora', sans-serif;
-  font-size: 18px; font-weight: 700; color: #fff;
-  letter-spacing: -0.02em;
-}
-
-.header-sub { font-size: 11px; color: var(--slate-400); margin-top: 0; font-weight: 400; }
-.header-actions { display: flex; gap: 6px; align-items: center; }
-
-.btn-header {
-  background: var(--slate-700);
-  border: 1px solid var(--slate-600);
-  border-radius: var(--radius-sm);
-  padding: 8px 13px; color: var(--slate-300);
-  font-size: 12px; font-weight: 500;
-  font-family: inherit; cursor: pointer;
-  transition: all 0.2s ease;
-  display: flex; align-items: center; gap: 5px;
-}
-.btn-header:hover { background: var(--slate-600); color: white; }
-.btn-header:active { transform: scale(0.96); }
-
-.btn-new {
-  background: linear-gradient(135deg, var(--blue-600), var(--blue-500));
-  border: none; border-radius: var(--radius-sm);
-  padding: 8px 14px; color: #fff;
-  font-size: 12px; font-weight: 600;
-  font-family: inherit; cursor: pointer;
-  display: none; transition: all 0.2s ease;
-  box-shadow: 0 2px 8px rgba(59,130,246,0.3);
-}
-.btn-new.visible { display: flex; align-items: center; gap: 4px; }
-.btn-new:active { transform: scale(0.96); }
-
-/* ============================================
-   MAIN CONTAINER
-   ============================================ */
-.app-screen { display: none; }
-.app-screen.visible { display: block; }
-.container { max-width: 720px; margin: 0 auto; padding: 16px 14px 120px; }
-
-.card {
-  background: var(--card);
-  border-radius: var(--radius-lg);
-  padding: 18px 20px;
-  margin-bottom: 12px;
-  box-shadow: var(--shadow-sm);
-  border: 1px solid var(--border);
-  transition: all 0.3s ease;
-}
-
-/* ============================================
-   PATIENT INFO
-   ============================================ */
-.patient-row { display: flex; gap: 14px; flex-wrap: wrap; }
-.field { flex: 1 1 160px; }
-.field-small { flex: 0 1 120px; }
-
-.field-label {
-  font-size: 10px; font-weight: 700; color: var(--slate-400);
-  text-transform: uppercase; letter-spacing: 0.08em;
-}
-
-.field-input {
-  width: 100%; margin-top: 4px; padding: 9px 0;
-  border: none; border-bottom: 2px solid var(--slate-200);
-  font-size: 15px; font-weight: 600;
-  background: transparent; outline: none;
-  font-family: inherit; color: var(--text);
-  transition: border-color 0.3s ease;
-}
-.field-input:focus { border-bottom-color: var(--blue-500); }
-.field-input::placeholder { color: var(--slate-300); font-weight: 400; }
-
-.error-box {
-  background: var(--red-100); border: 1px solid #FECACA;
-  border-radius: var(--radius-md); padding: 12px 16px;
-  margin-bottom: 12px; font-size: 13px; font-weight: 500; color: #DC2626;
-  display: none; align-items: center; gap: 8px;
-  animation: scaleIn 0.3s ease;
-}
-.error-box.visible { display: flex; }
-
-/* ============================================
-   RECORDING
-   ============================================ */
-.record-card {
-  text-align: center; padding: 32px 20px;
-  border-radius: var(--radius-xl);
-  background: linear-gradient(180deg, var(--card) 0%, var(--blue-50) 100%);
-  border: 1px solid var(--blue-200);
-}
-
-.mic-wrapper { position: relative; display: inline-block; margin-bottom: 24px; }
-
-.mic-ring-1, .mic-ring-2, .mic-ring-3 {
-  position: absolute; top: 50%; left: 50%;
-  transform: translate(-50%,-50%);
-  border-radius: 50%; pointer-events: none; opacity: 0;
-  border: 2px solid var(--blue-400);
-}
-.mic-ring-1 { width: 110px; height: 110px; }
-.mic-ring-2 { width: 140px; height: 140px; }
-.mic-ring-3 { width: 170px; height: 170px; }
-
-body.recording .mic-ring-1 { animation: ripple1 2s ease-in-out infinite; }
-body.recording .mic-ring-2 { animation: ripple2 2s ease-in-out infinite 0.3s; }
-body.recording .mic-ring-3 { animation: ripple3 2s ease-in-out infinite 0.6s; }
-
-.mic-btn {
-  width: 88px; height: 88px; border-radius: 50%; border: none;
-  background: linear-gradient(135deg, var(--blue-600), var(--blue-500));
-  color: #fff; font-size: 36px; cursor: pointer;
-  position: relative; z-index: 2;
-  box-shadow: 0 6px 32px rgba(59,130,246,0.35);
-  transition: all 0.3s cubic-bezier(0.16,1,0.3,1);
-  display: flex; align-items: center; justify-content: center;
-}
-.mic-btn:hover { transform: scale(1.05); box-shadow: 0 8px 40px rgba(59,130,246,0.4); }
-.mic-btn:active { transform: scale(0.95); }
-
-body.recording .mic-btn {
-  background: linear-gradient(135deg, #EF4444, #F87171);
-  box-shadow: 0 6px 32px rgba(239,68,68,0.35);
-  animation: pulseGlow 2s infinite;
-}
-
-.mic-status {
-  font-size: 16px; font-weight: 700; color: var(--navy);
-  margin-bottom: 2px; letter-spacing: -0.01em;
-  font-family: 'Sora', sans-serif;
-}
-body.recording .mic-status { color: #EF4444; }
-
-.mic-hint { font-size: 13px; color: var(--text-light); margin-bottom: 24px; font-weight: 400; }
-
-/* Wave bars animation during recording */
-.wave-bars {
-  display: none; align-items: center; justify-content: center;
-  gap: 3px; height: 24px; margin-bottom: 16px;
-}
-body.recording .wave-bars { display: flex; }
-
-.wave-bar {
-  width: 3px; height: 6px;
-  background: var(--blue-500); border-radius: 2px;
-  animation: waveBar 1.2s ease-in-out infinite;
-}
-.wave-bar:nth-child(1) { animation-delay: 0s; }
-.wave-bar:nth-child(2) { animation-delay: 0.1s; }
-.wave-bar:nth-child(3) { animation-delay: 0.2s; }
-.wave-bar:nth-child(4) { animation-delay: 0.3s; }
-.wave-bar:nth-child(5) { animation-delay: 0.4s; }
-.wave-bar:nth-child(6) { animation-delay: 0.3s; }
-.wave-bar:nth-child(7) { animation-delay: 0.2s; }
-
-.transcript-box {
-  background: white; border-radius: var(--radius-md); padding: 16px;
-  min-height: 80px; text-align: left;
-  border: 1px solid var(--slate-200);
-}
-
-.transcript-label {
-  font-size: 10px; font-weight: 700; color: var(--slate-400);
-  text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 8px;
-}
-
-.transcript-text { font-size: 14px; line-height: 1.7; color: var(--slate-700); }
-.transcript-interim { color: var(--blue-400); font-style: italic; }
-.transcript-placeholder { color: var(--slate-300); font-size: 13px; font-style: italic; }
-
-.manual-input {
-  width: 100%; margin-top: 12px; padding: 14px;
-  border-radius: var(--radius-md); border: 2px solid var(--slate-200);
-  font-size: 14px; font-family: inherit; min-height: 60px;
-  resize: vertical; outline: none; transition: all 0.3s ease;
-  background: white; color: var(--text);
-}
-.manual-input:focus { border-color: var(--blue-500); box-shadow: 0 0 0 4px rgba(59,130,246,0.08); }
-
-.btn-process {
-  margin-top: 20px; padding: 14px 32px;
-  background: linear-gradient(135deg, var(--blue-600), var(--cyan-500));
-  color: #fff; border: none; border-radius: var(--radius-md);
-  font-size: 15px; font-weight: 700; cursor: pointer;
-  box-shadow: 0 4px 20px rgba(59,130,246,0.3);
-  font-family: inherit; display: none;
-  align-items: center; gap: 8px;
-  transition: all 0.3s cubic-bezier(0.16,1,0.3,1);
-  position: relative; overflow: hidden;
-  letter-spacing: 0.01em;
-}
-.btn-process::after {
-  content: '';
-  position: absolute; inset: 0;
-  background: linear-gradient(135deg, transparent, rgba(255,255,255,0.1), transparent);
-  background-size: 200% 100%;
-  animation: shimmer 2.5s ease-in-out infinite;
-}
-.btn-process.visible { display: inline-flex; }
-.btn-process:hover { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(59,130,246,0.35); }
-.btn-process:active { transform: translateY(0); }
-.btn-process:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
-
-/* ============================================
-   STRUCTURED VIEW
-   ============================================ */
-/* Template selector */
-.template-selector { margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--slate-100); }
-.template-selector label { font-size: 10px; font-weight: 700; letter-spacing: 0.06em; color: var(--blue-600); text-transform: uppercase; display: block; margin-bottom: 6px; }
-.template-select { width: 100%; padding: 10px 36px 10px 12px; font-size: 14px; font-family: inherit; border: 1.5px solid var(--slate-200); border-radius: 10px; background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23475569' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E") no-repeat right 12px center; appearance: none; -webkit-appearance: none; color: var(--slate-800); cursor: pointer; transition: border-color 0.2s, box-shadow 0.2s; }
-.template-select:focus { outline: none; border-color: var(--blue-400); box-shadow: 0 0 0 3px rgba(37,99,235,0.1); }
-.template-select:hover { border-color: var(--blue-300); }
-.template-select option { padding: 8px; }
-.template-hint { font-size: 11px; color: var(--slate-400); margin-top: 5px; }
-/* Template field rows in structured view */
-.template-field { display: flex; gap: 0; border-bottom: 1px solid var(--slate-50); padding: 5px 0; }
-.template-field:last-child { border-bottom: none; }
-.template-field-label { font-size: 12px; font-weight: 700; color: var(--blue-700); min-width: 140px; max-width: 180px; padding-top: 1px; flex-shrink: 0; }
-.template-field-value { font-size: 13.5px; color: var(--slate-700); flex: 1; line-height: 1.6; }
-.template-field-value.blank { color: var(--slate-300); font-style: italic; }
-.structured-view { display: none; }
-.structured-view.visible { display: block; }
-.record-view.hidden { display: none; }
-
-.action-bar { display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; }
-
-.btn-action {
-  padding: 10px 14px; background: var(--card);
-  border: 1px solid var(--border); border-radius: var(--radius-sm);
-  font-size: 12px; font-weight: 600; cursor: pointer;
-  font-family: inherit; display: flex; align-items: center;
-  gap: 6px; transition: all 0.2s ease;
-  color: var(--slate-600);
-}
-.btn-action:hover { background: var(--slate-50); border-color: var(--slate-300); }
-.btn-action:active { transform: scale(0.96); }
-.btn-action.primary {
-  background: linear-gradient(135deg, var(--blue-600), var(--blue-500));
-  color: #fff; border: none; font-weight: 700;
-  box-shadow: 0 2px 12px rgba(59,130,246,0.25);
-}
-.btn-action.primary:hover { box-shadow: 0 4px 20px rgba(59,130,246,0.3); }
-.btn-action.copied { background: var(--green-500); color: #fff; border-color: var(--green-500); }
-
-.patient-header {
-  background: linear-gradient(135deg, var(--navy) 0%, var(--slate-800) 100%);
-  border-radius: var(--radius-lg); padding: 18px 22px; margin-bottom: 10px;
-  color: #fff; display: flex; justify-content: space-between; align-items: center;
-  box-shadow: 0 4px 24px rgba(15,23,42,0.15);
-  animation: fadeInUp 0.5s cubic-bezier(0.16,1,0.3,1) both;
-}
-
-.patient-header-name {
-  font-size: 18px; font-weight: 800;
-  font-family: 'Sora', sans-serif;
-  letter-spacing: -0.02em;
-}
-.patient-header-meta { font-size: 12px; opacity: 0.6; margin-top: 3px; }
-
-.section-count {
-  background: rgba(59,130,246,0.2); border: 1px solid rgba(59,130,246,0.3);
-  border-radius: var(--radius-sm);
-  padding: 5px 12px; font-size: 11px; font-weight: 600;
-  color: var(--blue-300);
-}
-
-.template-badge {
-  display: inline-flex; align-items: center; gap: 6px;
-  background: var(--blue-50); border: 1px solid var(--blue-200);
-  border-radius: var(--radius-sm); padding: 7px 14px;
-  font-size: 11px; font-weight: 600; color: var(--blue-600);
-  margin-bottom: 10px;
-  animation: fadeIn 0.4s 0.3s both;
-}
-
-.note-section {
-  background: var(--card);
-  border-radius: var(--radius-md);
-  padding: 16px 20px;
-  box-shadow: var(--shadow-sm);
-  border: 1px solid var(--border);
-  margin-bottom: 8px;
-  transition: all 0.3s ease;
-  animation: fadeInUp 0.4s cubic-bezier(0.16,1,0.3,1) both;
-}
-.note-section:hover { box-shadow: var(--shadow-md); border-color: var(--blue-200); }
-
-.section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
-
-.section-title {
-  font-size: 11px; font-weight: 700; color: var(--blue-600);
-  text-transform: uppercase; letter-spacing: 0.04em;
-  display: flex; align-items: center; gap: 6px;
-}
-
-.btn-edit {
-  background: var(--slate-100); color: var(--slate-500); border: none;
-  border-radius: 6px; padding: 5px 12px; font-size: 11px;
-  font-weight: 600; cursor: pointer; font-family: inherit;
-  transition: all 0.2s ease;
-}
-.btn-edit:hover { background: var(--slate-200); }
-.btn-edit.saving { background: var(--blue-500); color: #fff; }
-
-.section-content { font-size: 14px; line-height: 1.75; color: var(--slate-700); white-space: pre-wrap; word-break: break-word; overflow-wrap: break-word; }
-
-.section-edit {
-  width: 100%; padding: 12px; border-radius: 8px;
-  border: 2px solid var(--blue-500); font-size: 14px;
-  font-family: inherit; min-height: 55px; resize: vertical;
-  outline: none; line-height: 1.6; display: none;
-  background: var(--blue-50);
-}
-
-/* ============================================
-   RECOMMENDATIONS
-   ============================================ */
-.recs-panel {
-  background: linear-gradient(135deg, #FFFBEB 0%, #FEF3C7 100%);
-  border: 1px solid #FDE68A; border-radius: var(--radius-lg);
-  padding: 20px; margin-bottom: 12px; display: none;
-  animation: fadeInUp 0.5s cubic-bezier(0.16,1,0.3,1) both;
-}
-.recs-panel.visible { display: block; }
-
-.recs-header { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; }
-
-.recs-icon {
-  width: 36px; height: 36px;
-  background: linear-gradient(135deg, var(--amber-500), var(--amber-400));
-  border-radius: 10px;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 18px; box-shadow: 0 2px 8px rgba(245,158,11,0.3);
-}
-
-.recs-title { font-family: 'Sora', sans-serif; font-size: 16px; font-weight: 700; color: #92400E; letter-spacing: -0.01em; }
-.recs-subtitle { font-size: 11px; color: #B45309; font-weight: 400; }
-
-.rec-item {
-  background: #fff; border: 1px solid #FDE68A;
-  border-radius: var(--radius-md); padding: 14px 16px;
-  margin-bottom: 8px; transition: all 0.3s ease;
-}
-.rec-item:hover { box-shadow: 0 2px 12px rgba(245,158,11,0.1); }
-.rec-item.dismissed { opacity: 0.35; }
-
-.rec-category {
-  font-size: 9px; font-weight: 700; text-transform: uppercase;
-  letter-spacing: 0.06em; padding: 3px 8px; border-radius: 5px;
-  display: inline-block; margin-bottom: 6px;
-}
-.rec-category.clinical { background: var(--blue-100); color: var(--blue-600); }
-.rec-category.followup { background: var(--green-100); color: #16A34A; }
-.rec-category.medication { background: var(--purple-100); color: var(--purple-500); }
-.rec-category.preventive { background: #FEF3C7; color: #92400E; }
-.rec-category.diagnostic { background: var(--rose-100); color: var(--rose-500); }
-.rec-category.safety { background: var(--red-100); color: var(--red-500); }
-
-.rec-text { font-size: 13px; line-height: 1.65; color: var(--slate-600); }
-.rec-actions { display: flex; gap: 6px; margin-top: 10px; }
-
-.btn-rec {
-  padding: 5px 14px; border-radius: 7px; font-size: 11px; font-weight: 600;
-  cursor: pointer; font-family: inherit; border: none; transition: all 0.2s ease;
-}
-.btn-rec.accept { background: var(--green-100); color: #16A34A; }
-.btn-rec.accept:hover { background: #BBF7D0; }
-.btn-rec.accept:active { transform: scale(0.96); }
-.btn-rec.dismiss { background: var(--slate-100); color: var(--slate-500); }
-.btn-rec.dismiss:hover { background: var(--slate-200); }
-
-.recs-disclaimer {
-  font-size: 10px; color: #B45309; font-style: italic;
-  margin-top: 12px; padding-top: 12px;
-  border-top: 1px solid #FDE68A; line-height: 1.5;
-}
-
-/* ============================================
-   LOADING
-   ============================================ */
-.loading-overlay {
-  display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-  background: rgba(15,23,42,0.6); z-index: 200;
-  align-items: center; justify-content: center;
-  backdrop-filter: blur(8px);
-}
-.loading-overlay.visible { display: flex; }
-
-.loading-card {
-  background: #fff; border-radius: var(--radius-xl);
-  padding: 40px 32px; text-align: center;
-  max-width: 300px; width: 90%;
-  box-shadow: var(--shadow-xl);
-  animation: scaleIn 0.4s cubic-bezier(0.16,1,0.3,1) both;
-}
-
-.loading-spinner {
-  width: 52px; height: 52px;
-  border: 3px solid var(--slate-200);
-  border-top-color: var(--blue-500);
-  border-radius: 50%;
-  animation: spin 0.8s linear infinite;
-  margin: 0 auto 20px;
-}
-
-.loading-dots { display: flex; justify-content: center; gap: 6px; margin-bottom: 18px; }
-.loading-dot {
-  width: 8px; height: 8px;
-  background: var(--blue-500); border-radius: 50%;
-  animation: dotPulse 1.4s ease-in-out infinite;
-}
-.loading-dot:nth-child(2) { animation-delay: 0.16s; }
-.loading-dot:nth-child(3) { animation-delay: 0.32s; }
-
-.loading-title {
-  font-family: 'Sora', sans-serif;
-  font-size: 17px; font-weight: 700;
-  color: var(--navy); margin-bottom: 6px;
-  letter-spacing: -0.01em;
-}
-
-.loading-step { font-size: 13px; color: var(--text-light); font-weight: 400; }
-
-/* ============================================
-   SAVED NOTES
-   ============================================ */
-.saved-panel { display: none; }
-.saved-panel.visible { display: block; }
-
-.saved-empty { color: var(--text-light); font-size: 13px; padding: 20px 0; text-align: center; }
-
-/* ============================================
-   RAW DETAILS & TIPS
-   ============================================ */
-.raw-details { margin-top: 10px; }
-.raw-details summary {
-  font-size: 12px; font-weight: 600; color: var(--text-light);
-  cursor: pointer; outline: none; padding: 14px 0;
-  transition: color 0.2s;
-}
-.raw-details summary:hover { color: var(--blue-500); }
-.raw-details-text { font-size: 12px; line-height: 1.7; color: var(--slate-500); font-style: italic; padding-bottom: 8px; white-space: pre-wrap; }
-
-.tips-title {
-  font-size: 15px; font-weight: 700; color: var(--navy);
-  font-family: 'Sora', sans-serif; margin-bottom: 14px;
-  letter-spacing: -0.01em;
-  display: flex; align-items: center; gap: 8px;
-}
-
-.tip-row {
-  display: flex; align-items: flex-start; gap: 12px;
-  font-size: 13px; color: var(--slate-600); line-height: 1.6;
-  margin-bottom: 10px;
-}
-
-.tip-num {
-  background: var(--blue-100); color: var(--blue-600);
-  border-radius: 8px; width: 24px; height: 24px; min-width: 24px;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 11px; font-weight: 700; flex-shrink: 0;
-}
-
-/* ============================================
-   SEARCH PANEL
-   ============================================ */
-.search-panel { display: none; }
-.search-panel.visible { display: block; animation: fadeInDown 0.35s cubic-bezier(0.16,1,0.3,1) both; }
-
-.search-header {
-  display: flex; justify-content: space-between; align-items: center;
-  margin-bottom: 14px;
-}
-
-.search-title {
-  font-size: 16px; font-weight: 700;
-  font-family: 'Sora', sans-serif;
-  letter-spacing: -0.01em;
-}
-
-.btn-close-panel {
-  background: var(--slate-100); border: none; border-radius: 8px;
-  width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;
-  font-size: 14px; color: var(--slate-500); cursor: pointer;
-  font-family: inherit; transition: all 0.2s;
-}
-.btn-close-panel:hover { background: var(--slate-200); color: var(--navy); }
-
-.search-bar {
-  position: relative; display: flex; align-items: center;
-  background: var(--slate-50); border: 2px solid var(--slate-200);
-  border-radius: var(--radius-sm); padding: 0 14px;
-  transition: all 0.3s ease; margin-bottom: 14px;
-}
-.search-bar:focus-within { border-color: var(--blue-500); background: white; box-shadow: 0 0 0 4px rgba(59,130,246,0.08); }
-
-.search-icon { color: var(--slate-400); flex-shrink: 0; }
-
-.search-input {
-  flex: 1; padding: 12px 10px; border: none; background: transparent;
-  font-size: 15px; font-family: inherit; font-weight: 500;
-  outline: none; color: var(--text);
-}
-.search-input::placeholder { color: var(--slate-300); font-weight: 400; }
-
-.search-clear {
-  background: none; border: none; font-size: 16px; color: var(--slate-400);
-  cursor: pointer; padding: 4px; display: none; transition: color 0.2s;
-}
-.search-clear.visible { display: block; }
-.search-clear:hover { color: var(--red-500); }
-
-.search-result-group {
-  margin-bottom: 14px;
-  animation: fadeInUp 0.3s cubic-bezier(0.16,1,0.3,1) both;
-}
-
-.search-result-patient {
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 12px 14px; background: var(--blue-50); border: 1px solid var(--blue-200);
-  border-radius: var(--radius-sm); cursor: pointer;
-  transition: all 0.2s ease; width: 100%; font-family: inherit; text-align: left;
-}
-.search-result-patient:hover { background: var(--blue-100); border-color: var(--blue-300); }
-.search-result-patient:active { transform: scale(0.98); }
-
-.search-result-info { display: flex; align-items: center; gap: 10px; }
-
-.search-result-avatar {
-  width: 36px; height: 36px; border-radius: 10px;
-  background: linear-gradient(135deg, var(--blue-500), var(--cyan-500));
-  display: flex; align-items: center; justify-content: center;
-  font-size: 14px; font-weight: 700; color: white;
-}
-
-.search-result-name { font-size: 14px; font-weight: 700; color: var(--navy); }
-.search-result-meta { font-size: 11px; color: var(--slate-500); margin-top: 1px; }
-.search-result-visits {
-  font-size: 11px; font-weight: 600; color: var(--blue-500);
-  background: white; padding: 4px 10px; border-radius: 6px;
-}
-
-/* ============================================
-   SAVED PANEL (IMPROVED)
-   ============================================ */
-.saved-panel { display: none; }
-.saved-panel.visible { display: block; animation: fadeInDown 0.35s cubic-bezier(0.16,1,0.3,1) both; }
-
-.saved-panel-header {
-  display: flex; justify-content: space-between; align-items: center;
-  margin-bottom: 14px;
-}
-
-.saved-title {
-  font-size: 16px; font-weight: 700;
-  font-family: 'Sora', sans-serif;
-  margin-bottom: 0; letter-spacing: -0.01em;
-  display: flex; align-items: center; gap: 8px;
-}
-
-.saved-empty { color: var(--text-light); font-size: 13px; padding: 20px 0; text-align: center; }
-
-.saved-group { margin-bottom: 16px; }
-.saved-group-label {
-  font-size: 10px; font-weight: 700; color: var(--slate-400);
-  text-transform: uppercase; letter-spacing: 0.08em;
-  margin-bottom: 8px; padding-left: 2px;
-}
-
-.saved-item {
-  background: var(--slate-50); border: 1px solid var(--border);
-  border-radius: var(--radius-md); padding: 14px 16px;
-  text-align: left; cursor: pointer;
-  display: flex; justify-content: space-between; align-items: center;
-  margin-bottom: 6px; width: 100%; font-family: inherit;
-  transition: all 0.2s ease;
-}
-.saved-item:hover { background: var(--blue-50); border-color: var(--blue-200); }
-.saved-item:active { transform: scale(0.98); }
-.saved-item-left { display: flex; align-items: center; gap: 12px; }
-.saved-item-avatar {
-  width: 32px; height: 32px; border-radius: 8px;
-  background: var(--slate-200);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 12px; font-weight: 700; color: var(--slate-500);
-  flex-shrink: 0;
-}
-.saved-item-name { font-weight: 700; font-size: 14px; color: var(--text); }
-.saved-item-meta { font-size: 11px; color: var(--text-light); margin-top: 2px; }
-.saved-item-arrow { color: var(--blue-400); font-size: 16px; font-weight: 700; }
-
-/* ============================================
-   PATIENT TIMELINE
-   ============================================ */
-.patient-timeline-panel { display: none; }
-.patient-timeline-panel.visible { display: block; animation: fadeInUp 0.4s cubic-bezier(0.16,1,0.3,1) both; }
-
-.timeline-header {
-  display: flex; align-items: center; gap: 14px; margin-bottom: 12px;
-}
-
-.btn-back-timeline {
-  background: var(--slate-100); border: none; border-radius: var(--radius-sm);
-  padding: 8px 14px; font-size: 13px; font-weight: 600;
-  color: var(--slate-600); cursor: pointer; font-family: inherit;
-  transition: all 0.2s;
-}
-.btn-back-timeline:hover { background: var(--slate-200); }
-.btn-back-timeline:active { transform: scale(0.96); }
-
-.timeline-patient-name {
-  font-size: 18px; font-weight: 800; color: var(--navy);
-  font-family: 'Sora', sans-serif; letter-spacing: -0.02em;
-}
-
-.timeline-patient-id {
-  font-size: 12px; color: var(--slate-500); font-weight: 500;
-}
-
-.timeline-count {
-  font-size: 12px; font-weight: 600; color: var(--blue-500);
-  margin-bottom: 14px;
-  display: flex; align-items: center; gap: 6px;
-}
-
-.timeline-item {
-  display: flex; gap: 14px; width: 100%; font-family: inherit;
-  text-align: left; cursor: pointer; background: none; border: none;
-  padding: 0; margin-bottom: 4px;
-  transition: all 0.2s ease;
-}
-.timeline-item:active { transform: scale(0.98); }
-
-.timeline-line {
-  display: flex; flex-direction: column; align-items: center;
-  width: 24px; flex-shrink: 0;
-}
-
-.timeline-dot {
-  width: 12px; height: 12px; border-radius: 50%;
-  background: var(--blue-500); border: 3px solid var(--blue-100);
-  flex-shrink: 0;
-}
-
-.timeline-connector {
-  width: 2px; flex: 1; min-height: 20px;
-  background: var(--blue-200);
-}
-
-.timeline-content {
-  flex: 1; background: var(--card); border: 1px solid var(--border);
-  border-radius: var(--radius-md); padding: 14px 16px;
-  margin-bottom: 8px;
-  transition: all 0.2s ease;
-}
-.timeline-content:hover { border-color: var(--blue-200); box-shadow: var(--shadow-md); }
-
-.timeline-date {
-  font-size: 12px; font-weight: 700; color: var(--blue-600);
-  margin-bottom: 4px;
-}
-
-.timeline-diagnosis {
-  font-size: 13px; font-weight: 600; color: var(--navy);
-  margin-bottom: 3px;
-}
-
-.timeline-treatment {
-  font-size: 12px; color: var(--slate-500); line-height: 1.5;
-}
-
-.timeline-badges {
-  display: flex; gap: 4px; margin-top: 8px; flex-wrap: wrap;
-}
-
-.timeline-badge {
-  font-size: 9px; font-weight: 700; text-transform: uppercase;
-  letter-spacing: 0.04em; padding: 2px 8px; border-radius: 4px;
-  background: var(--slate-100); color: var(--slate-500);
-}
-.timeline-badge.has-recs { background: #FEF3C7; color: #92400E; }
-
-/* ============================================
-   AI AGENT PANEL
-   ============================================ */
-.btn-agent {
-  background: linear-gradient(135deg, rgba(168,85,247,0.2), rgba(59,130,246,0.2)) !important;
-  border-color: rgba(168,85,247,0.3) !important;
-  color: #E9D5FF !important;
-}
-.btn-agent:hover { background: linear-gradient(135deg, rgba(168,85,247,0.3), rgba(59,130,246,0.3)) !important; }
-
-.agent-overlay {
-  position: fixed; inset: 0; background: rgba(15,23,42,0.5);
-  backdrop-filter: blur(4px); z-index: 900;
-  opacity: 0; pointer-events: none;
-  transition: opacity 0.3s ease;
-}
-.agent-overlay.visible { opacity: 1; pointer-events: auto; }
-
-.agent-panel {
-  position: fixed; right: 0; top: 0; bottom: 0;
-  width: 480px; max-width: 100vw;
-  background: var(--card); z-index: 910;
-  display: flex; flex-direction: column;
-  box-shadow: -8px 0 40px rgba(15,23,42,0.2);
-  transform: translateX(100%);
-  transition: transform 0.4s cubic-bezier(0.16,1,0.3,1);
-}
-.agent-panel.visible { transform: translateX(0); }
-
-@media(max-width:600px){
-  .agent-panel { width: 100vw; }
-}
-
-.agent-header {
-  padding: 16px 20px;
-  background: linear-gradient(135deg, var(--navy), #1E293B);
-  display: flex; justify-content: space-between; align-items: center;
-  flex-shrink: 0;
-}
-
-.agent-header-left { display: flex; align-items: center; gap: 12px; }
-
-.agent-avatar {
-  width: 40px; height: 40px; border-radius: 12px;
-  background: linear-gradient(135deg, var(--purple-500), var(--blue-500));
-  display: flex; align-items: center; justify-content: center;
-  color: white;
-}
-
-.agent-title {
-  font-size: 15px; font-weight: 700; color: white;
-  font-family: 'Sora', sans-serif; letter-spacing: -0.01em;
-}
-
-.agent-status {
-  font-size: 11px; color: var(--slate-400); margin-top: 1px;
-}
-
-.agent-header-actions { display: flex; gap: 6px; }
-
-.agent-clear-btn, .agent-close-btn {
-  background: rgba(255,255,255,0.1); border: none; border-radius: 8px;
-  width: 34px; height: 34px; display: flex; align-items: center; justify-content: center;
-  font-size: 14px; color: var(--slate-400); cursor: pointer;
-  transition: all 0.2s;
-}
-.agent-clear-btn:hover, .agent-close-btn:hover { background: rgba(255,255,255,0.2); color: white; }
-
-.agent-messages {
-  flex: 1; overflow-y: auto; padding: 20px;
-  display: flex; flex-direction: column; gap: 16px;
-  scroll-behavior: smooth;
-}
-
-.agent-welcome {
-  text-align: center; padding: 20px 10px;
-  animation: fadeInUp 0.5s cubic-bezier(0.16,1,0.3,1) both;
-}
-
-.agent-welcome-icon { font-size: 40px; margin-bottom: 12px; }
-
-.agent-welcome-title {
-  font-size: 18px; font-weight: 800; color: var(--navy);
-  font-family: 'Sora', sans-serif; margin-bottom: 8px;
-}
-
-.agent-welcome-text {
-  font-size: 13px; color: var(--slate-500); line-height: 1.6;
-  max-width: 360px; margin: 0 auto 20px;
-}
-
-.agent-suggestions {
-  display: flex; flex-wrap: wrap; gap: 8px;
-  justify-content: center;
-}
-
-.agent-chip {
-  background: var(--blue-50); border: 1px solid var(--blue-200);
-  border-radius: 20px; padding: 8px 14px;
-  font-size: 12px; font-weight: 500; color: var(--blue-600);
-  cursor: pointer; font-family: inherit;
-  transition: all 0.2s; text-align: left;
-  line-height: 1.4;
-}
-.agent-chip:hover { background: var(--blue-100); border-color: var(--blue-300); }
-.agent-chip:active { transform: scale(0.96); }
-
-.agent-msg {
-  display: flex; gap: 10px; max-width: 92%;
-  animation: fadeInUp 0.3s cubic-bezier(0.16,1,0.3,1) both;
-}
-.agent-msg.user { flex-direction: row-reverse; margin-left: auto; }
-
-.agent-msg-avatar {
-  width: 28px; height: 28px; border-radius: 8px; flex-shrink: 0;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 12px; font-weight: 700;
-}
-.agent-msg.assistant .agent-msg-avatar {
-  background: linear-gradient(135deg, var(--purple-500), var(--blue-500));
-  color: white;
-}
-.agent-msg.user .agent-msg-avatar {
-  background: var(--slate-200); color: var(--slate-600);
-}
-
-.agent-msg-bubble {
-  padding: 12px 16px; border-radius: 16px;
-  font-size: 13px; line-height: 1.7;
-}
-.agent-msg.user .agent-msg-bubble {
-  background: linear-gradient(135deg, var(--blue-500), var(--blue-600));
-  color: white; border-bottom-right-radius: 4px;
-}
-.agent-msg.assistant .agent-msg-bubble {
-  background: var(--slate-50); color: var(--text);
-  border: 1px solid var(--border); border-bottom-left-radius: 4px;
-}
-
-.agent-msg-bubble p { margin: 0 0 8px 0; }
-.agent-msg-bubble p:last-child { margin-bottom: 0; }
-.agent-msg-bubble strong { color: var(--navy); }
-.agent-msg-bubble code {
-  background: rgba(15,23,42,0.06); padding: 1px 5px;
-  border-radius: 4px; font-size: 12px; font-family: 'Courier New', monospace;
-}
-
-.agent-msg-bubble ol, .agent-msg-bubble ul {
-  margin: 6px 0; padding-left: 20px;
-}
-.agent-msg-bubble li { margin-bottom: 4px; }
-
-.agent-msg-time {
-  font-size: 10px; color: var(--slate-400); margin-top: 4px;
-  text-align: right;
-}
-
-.agent-typing {
-  display: flex; gap: 10px; align-items: flex-start;
-  animation: fadeIn 0.3s both;
-}
-
-.agent-typing-dots {
-  display: flex; gap: 4px; padding: 14px 18px;
-  background: var(--slate-50); border: 1px solid var(--border);
-  border-radius: 16px; border-bottom-left-radius: 4px;
-}
-
-.agent-typing-dot {
-  width: 6px; height: 6px; border-radius: 50%;
-  background: var(--slate-400);
-  animation: agentTyping 1.4s ease-in-out infinite;
-}
-.agent-typing-dot:nth-child(2) { animation-delay: 0.2s; }
-.agent-typing-dot:nth-child(3) { animation-delay: 0.4s; }
-
-@keyframes agentTyping {
-  0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
-  30% { transform: translateY(-6px); opacity: 1; }
-}
-
-.agent-input-area {
-  padding: 12px 16px 16px; flex-shrink: 0;
-  border-top: 1px solid var(--border);
-  background: var(--card);
-}
-
-.agent-context-badge {
-  display: flex; align-items: center; gap: 6px;
-  font-size: 10px; font-weight: 600; color: var(--slate-400);
-  margin-bottom: 8px; padding-left: 4px;
-}
-
-.agent-context-dot {
-  width: 6px; height: 6px; border-radius: 50%;
-  background: var(--amber-500);
-  animation: pulse 2s infinite;
-}
-.agent-context-dot.ready { background: var(--green-500); animation: none; }
-
-@keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.4; }
-}
-
-.agent-input-row {
-  display: flex; align-items: flex-end; gap: 8px;
-}
-
-.agent-input {
-  flex: 1; padding: 12px 14px; border: 2px solid var(--slate-200);
-  border-radius: 14px; font-size: 14px; font-family: inherit;
-  outline: none; resize: none; background: var(--slate-50);
-  color: var(--text); line-height: 1.5;
-  max-height: 120px; transition: border-color 0.2s;
-}
-.agent-input:focus { border-color: var(--blue-500); background: white; }
-.agent-input::placeholder { color: var(--slate-300); }
-
-.agent-send-btn {
-  width: 44px; height: 44px; border-radius: 12px; border: none;
-  background: linear-gradient(135deg, var(--purple-500), var(--blue-500));
-  color: white; cursor: pointer; flex-shrink: 0;
-  display: flex; align-items: center; justify-content: center;
-  transition: all 0.2s; box-shadow: 0 4px 16px rgba(168,85,247,0.25);
-}
-.agent-send-btn:hover { transform: scale(1.05); box-shadow: 0 6px 24px rgba(168,85,247,0.35); }
-.agent-send-btn:active { transform: scale(0.95); }
-.agent-send-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
-
-/* ============================================
-   SVG ICON SYSTEM
-   ============================================ */
-.ico {
-  display: inline-block; vertical-align: middle;
-  width: 16px; height: 16px; flex-shrink: 0;
-  stroke: currentColor; fill: none;
-  stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round;
-}
-.ico-sm { width: 14px; height: 14px; }
-.ico-lg { width: 20px; height: 20px; }
-.ico-xl { width: 24px; height: 24px; }
-.ico-fill { fill: currentColor; stroke: none; }
-.section-title .ico { width: 15px; height: 15px; margin-right: 2px; opacity: 0.7; }
-.btn-header .ico, .btn-action .ico, .btn-new .ico, .btn-process .ico { margin-right: 4px; }
-.tips-title .ico, .saved-title .ico, .search-title .ico, .recs-icon .ico { width: 18px; height: 18px; }
-.agent-welcome-icon .ico { width: 48px; height: 48px; stroke-width: 1.2; }
-
-/* ============================================
-   TOAST
-   ============================================ */
-.toast {
-  position: fixed; bottom: 32px; left: 50%;
-  transform: translateX(-50%) translateY(80px);
-  background: var(--navy); color: #fff;
-  padding: 13px 28px; border-radius: var(--radius-md);
-  font-size: 14px; font-weight: 600;
-  box-shadow: var(--shadow-lg);
-  z-index: 999; transition: all 0.4s cubic-bezier(0.16,1,0.3,1);
-  pointer-events: none;
-  display: flex; align-items: center; gap: 8px;
-}
-.toast.show { transform: translateX(-50%) translateY(0); }
-
-/* ============================================
-   USER BAR
-   ============================================ */
-.btn-logout {
-  background: transparent;
-  border: 1px solid var(--slate-600);
-  border-radius: var(--radius-sm);
-  padding: 7px 12px; color: var(--slate-400);
-  font-size: 11px; font-weight: 500;
-  font-family: inherit; cursor: pointer;
-  transition: all 0.2s;
-}
-.btn-logout:hover { border-color: var(--slate-400); color: white; }
-
-/* ============================================
-   DELETE NOTE
-   ============================================ */
-.saved-item-actions { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
-.saved-item-arrow { color: var(--blue-400); font-size: 16px; font-weight: 700; }
-.btn-delete-item {
-  background: none; border: none; cursor: pointer;
-  color: var(--slate-300); padding: 4px; border-radius: 6px;
-  transition: all 0.2s ease; display: flex; align-items: center; justify-content: center;
-}
-.btn-delete-item:hover { color: #EF4444; background: rgba(239,68,68,0.08); }
-.btn-action.danger {
-  color: #EF4444; border-color: rgba(239,68,68,0.3);
-}
-.btn-action.danger:hover { background: rgba(239,68,68,0.06); border-color: #EF4444; }
-
-/* Confirmation Dialog */
-.confirm-overlay {
-  position: fixed; inset: 0; background: rgba(15,23,42,0.5);
-  backdrop-filter: blur(4px); z-index: 1000;
-  display: none; align-items: center; justify-content: center;
-  animation: fadeIn 0.2s ease;
-}
-.confirm-overlay.visible { display: flex; }
-.confirm-dialog {
-  background: var(--card); border-radius: var(--radius-lg);
-  padding: 28px 24px; max-width: 380px; width: 90%;
-  box-shadow: 0 20px 60px rgba(0,0,0,0.2);
-  animation: scaleIn 0.25s cubic-bezier(0.16,1,0.3,1);
-}
-.confirm-icon {
-  width: 48px; height: 48px; border-radius: 12px;
-  background: #FEF2F2; color: #EF4444;
-  display: flex; align-items: center; justify-content: center;
-  margin-bottom: 16px;
-}
-.confirm-icon .ico { width: 24px; height: 24px; }
-.confirm-title { font-size: 17px; font-weight: 700; color: var(--text); margin-bottom: 8px; font-family: 'Sora', sans-serif; }
-.confirm-text { font-size: 13px; color: var(--text-light); line-height: 1.6; margin-bottom: 20px; }
-.confirm-name { font-weight: 700; color: var(--text); }
-.confirm-actions { display: flex; gap: 10px; }
-.confirm-actions button {
-  flex: 1; padding: 10px 16px; border-radius: var(--radius-sm);
-  font-size: 13px; font-weight: 600; cursor: pointer;
-  font-family: inherit; transition: all 0.2s ease;
-}
-.btn-confirm-cancel { background: var(--slate-100); border: 1px solid var(--border); color: var(--text); }
-.btn-confirm-cancel:hover { background: var(--slate-200); }
-.btn-confirm-delete { background: #EF4444; border: none; color: white; }
-.btn-confirm-delete:hover { background: #DC2626; }
-
-/* ============================================
-   PROFILE MODAL
-   ============================================ */
-.profile-overlay {
-  position: fixed; inset: 0; background: rgba(15,23,42,0.5);
-  backdrop-filter: blur(4px); z-index: 900;
-  display: none; align-items: center; justify-content: center;
-  animation: fadeIn 0.2s ease;
-}
-.profile-overlay.visible { display: flex; }
-.profile-modal {
-  background: var(--card); border-radius: var(--radius-lg);
-  padding: 0; max-width: 420px; width: 92%;
-  box-shadow: 0 20px 60px rgba(0,0,0,0.2);
-  animation: scaleIn 0.25s cubic-bezier(0.16,1,0.3,1);
-  overflow: hidden;
-}
-.profile-header {
-  background: linear-gradient(135deg, var(--navy), #1E293B);
-  padding: 24px 24px 20px; display: flex; justify-content: space-between; align-items: flex-start;
-}
-.profile-header-info { color: #fff; }
-.profile-header-title { font-size: 17px; font-weight: 700; font-family: 'Sora', sans-serif; }
-.profile-header-email { font-size: 12px; color: var(--slate-400); margin-top: 4px; }
-.profile-close {
-  background: rgba(255,255,255,0.1); border: none; color: white;
-  width: 32px; height: 32px; border-radius: 8px;
-  cursor: pointer; display: flex; align-items: center; justify-content: center;
-  transition: background 0.2s;
-}
-.profile-close:hover { background: rgba(255,255,255,0.2); }
-.profile-body { padding: 20px 24px 24px; }
-.profile-section { margin-bottom: 20px; }
-.profile-section:last-child { margin-bottom: 0; }
-.profile-section-label {
-  font-size: 10px; font-weight: 700; color: var(--slate-400);
-  text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 10px;
-}
-.profile-field { margin-bottom: 12px; }
-.profile-field label {
-  display: block; font-size: 12px; font-weight: 600;
-  color: var(--slate-500); margin-bottom: 4px;
-}
-.profile-field input {
-  width: 100%; padding: 10px 12px; border: 1.5px solid var(--slate-200);
-  border-radius: var(--radius-sm); font-size: 14px; font-family: inherit;
-  color: var(--text); background: white; outline: none;
-  transition: border-color 0.2s;
-}
-.profile-field input:focus { border-color: var(--blue-500); }
-.profile-field input::placeholder { color: var(--slate-300); }
-.profile-actions { display: flex; gap: 10px; margin-top: 6px; }
-.profile-actions button {
-  flex: 1; padding: 10px; border-radius: var(--radius-sm);
-  font-size: 13px; font-weight: 600; cursor: pointer;
-  font-family: inherit; transition: all 0.2s;
-}
-.btn-profile-save {
-  background: linear-gradient(135deg, var(--blue-600), var(--blue-500));
-  border: none; color: white;
-}
-.btn-profile-save:hover { box-shadow: 0 4px 16px rgba(59,130,246,0.3); }
-.btn-profile-save:disabled { opacity: 0.5; cursor: not-allowed; }
-.btn-profile-secondary { background: var(--slate-100); border: 1px solid var(--border); color: var(--text); }
-.btn-profile-secondary:hover { background: var(--slate-200); }
-.profile-msg {
-  font-size: 12px; padding: 8px 12px; border-radius: var(--radius-sm);
-  margin-bottom: 12px; display: none;
-}
-.profile-msg.success { display: block; background: #F0FDF4; color: #16A34A; border: 1px solid #BBF7D0; }
-.profile-msg.error { display: block; background: #FEF2F2; color: #DC2626; border: 1px solid #FECACA; }
-.profile-divider { height: 1px; background: var(--slate-100); margin: 16px 0; }
-
-/* ============================================
-   SPINNER INLINE
-   ============================================ */
-.spinner {
-  display: inline-block; width: 16px; height: 16px;
-  border: 2px solid rgba(255,255,255,0.3);
-  border-top-color: #fff; border-radius: 50%;
-  animation: spin 0.8s linear infinite;
-}
-
-/* ============================================
-   OCR / SCAN
-   ============================================ */
-.input-methods {
-  display: flex; align-items: center; justify-content: center;
-  gap: 20px; margin-bottom: 24px;
-}
-
-.method-btn {
-  display: flex; flex-direction: column; align-items: center; gap: 8px;
-  cursor: pointer; border: none; background: none; font-family: inherit;
-  transition: all 0.3s cubic-bezier(0.16,1,0.3,1);
-}
-.method-btn:active { transform: scale(0.92); }
-
-.method-icon {
-  width: 88px; height: 88px; border-radius: 50%; border: none;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 36px; cursor: pointer; position: relative; z-index: 2;
-  transition: all 0.3s cubic-bezier(0.16,1,0.3,1);
-}
-
-.method-icon.mic-style {
-  background: linear-gradient(135deg, var(--blue-600), var(--blue-500));
-  color: #fff;
-  box-shadow: 0 6px 32px rgba(59,130,246,0.35);
-}
-.method-icon.mic-style:hover { transform: scale(1.05); box-shadow: 0 8px 40px rgba(59,130,246,0.4); }
-
-body.recording .method-icon.mic-style {
-  background: linear-gradient(135deg, #EF4444, #F87171);
-  box-shadow: 0 6px 32px rgba(239,68,68,0.35);
-  animation: pulseGlow 2s infinite;
-}
-
-.method-icon.scan-style {
-  background: linear-gradient(135deg, var(--cyan-500), var(--teal-500));
-  color: #fff;
-  box-shadow: 0 6px 32px rgba(6,182,212,0.3);
-}
-.method-icon.scan-style:hover { transform: scale(1.05); box-shadow: 0 8px 40px rgba(6,182,212,0.35); }
-
-.method-label {
-  font-size: 12px; font-weight: 600; color: var(--slate-500);
-  letter-spacing: 0.01em;
-}
-
-.method-divider {
-  font-size: 11px; font-weight: 600; color: var(--slate-300);
-  text-transform: uppercase; letter-spacing: 0.1em;
-  padding-bottom: 28px;
-}
-
-.ocr-preview {
-  display: none; margin-top: 12px;
-  background: var(--slate-50); border: 2px solid var(--blue-200);
-  border-radius: var(--radius-md); padding: 12px;
-  position: relative; animation: fadeInUp 0.4s cubic-bezier(0.16,1,0.3,1) both;
-}
-.ocr-preview.visible { display: block; }
-
-.ocr-preview-header {
-  display: flex; justify-content: space-between; align-items: center;
-  margin-bottom: 10px;
-}
-
-.ocr-preview-label {
-  font-size: 10px; font-weight: 700; color: var(--cyan-500);
-  text-transform: uppercase; letter-spacing: 0.08em;
-  display: flex; align-items: center; gap: 6px;
-}
-
-.btn-remove-img {
-  background: var(--slate-200); border: none; border-radius: 6px;
-  padding: 4px 10px; font-size: 10px; font-weight: 600;
-  color: var(--slate-500); cursor: pointer; font-family: inherit;
-  transition: all 0.2s;
-}
-.btn-remove-img:hover { background: var(--red-100); color: var(--red-500); }
-
-.ocr-preview-img {
-  max-width: 100%; max-height: 240px;
-  border-radius: var(--radius-sm);
-  object-fit: contain; display: block;
-  margin: 0 auto;
-  box-shadow: var(--shadow-sm);
-}
-
-.ocr-status {
-  text-align: center; padding: 16px 0;
-  font-size: 13px; color: var(--blue-500); font-weight: 600;
-  display: flex; align-items: center; justify-content: center; gap: 8px;
-}
-
-.ocr-status .spinner {
-  border-color: rgba(59,130,246,0.2);
-  border-top-color: var(--blue-500);
-}
-
-.file-input-hidden { display: none; }
-
-/* ============================================
-   PATIENT HISTORY PANEL
-   ============================================ */
-.patient-history {
-  display: none; margin-top: 12px;
-  background: linear-gradient(135deg, var(--blue-50), #F0F9FF);
-  border: 1px solid var(--blue-200);
-  border-radius: var(--radius-md); padding: 14px 16px;
-  animation: fadeInUp 0.4s cubic-bezier(0.16,1,0.3,1) both;
-}
-.patient-history.visible { display: block; }
-
-.patient-history-header {
-  display: flex; align-items: center; gap: 8px;
-  margin-bottom: 10px;
-}
-
-.patient-history-icon {
-  width: 28px; height: 28px;
-  background: linear-gradient(135deg, var(--blue-500), var(--cyan-500));
-  border-radius: 7px; display: flex; align-items: center; justify-content: center;
-  font-size: 13px;
-}
-
-.patient-history-title {
-  font-size: 13px; font-weight: 700; color: var(--navy);
-  font-family: 'Sora', sans-serif;
-}
-
-.patient-history-count {
-  font-size: 11px; color: var(--blue-500); font-weight: 500;
-}
-
-.history-item {
-  background: white; border: 1px solid var(--blue-100);
-  border-radius: var(--radius-sm); padding: 10px 14px;
-  margin-bottom: 6px; cursor: pointer;
-  display: flex; justify-content: space-between; align-items: center;
-  width: 100%; font-family: inherit; text-align: left;
-  transition: all 0.2s ease;
-}
-.history-item:hover { border-color: var(--blue-300); box-shadow: 0 2px 8px rgba(59,130,246,0.08); }
-.history-item:active { transform: scale(0.98); }
-.history-item-date { font-size: 13px; font-weight: 600; color: var(--navy); }
-.history-item-preview { font-size: 11px; color: var(--slate-500); margin-top: 2px; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.history-item-arrow { color: var(--blue-400); font-size: 14px; font-weight: 700; }
-
-/* Required field indicator */
-.field-required::after {
-  content: ' *'; color: var(--red-500); font-weight: 700;
-}
-
-.validation-msg {
-  font-size: 11px; color: var(--red-500); font-weight: 500;
-  margin-top: 4px; display: none;
-  animation: fadeIn 0.3s ease;
-}
-.validation-msg.visible { display: block; }
-
-/* ============================================
-   RESPONSIVE — TABLETS (≤768px)
-   ============================================ */
-@media(max-width:768px){
-  .header { padding: 12px 14px; flex-wrap: wrap; gap: 10px; }
-  .header-actions { gap: 4px; flex-wrap: wrap; }
-  .header-title { font-size: 16px; }
-  .header-logo { width: 34px; height: 34px; }
-  .header-logo svg { width: 18px; height: 18px; }
-  .btn-header { padding: 7px 10px; font-size: 11px; }
-  .btn-new { padding: 7px 12px; font-size: 11px; }
-  .container { padding: 12px 10px 100px; }
-  .card { padding: 14px 14px; margin-bottom: 10px; }
-  .record-card { padding: 24px 14px; }
-  .patient-row { gap: 10px; }
-  .field { flex: 1 1 140px; }
-  .field-small { flex: 1 1 100px; }
-  .note-section { padding: 14px 14px; }
-  .patient-header { padding: 14px 16px; }
-  .patient-header-name { font-size: 16px; }
-  .action-bar { gap: 6px; }
-  .btn-action { padding: 8px 10px; font-size: 11px; gap: 4px; }
-  .mic-wrapper { margin-bottom: 18px; }
-  .mic-btn, .method-icon { width: 72px; height: 72px; }
-  .mic-btn svg, .method-icon svg { width: 28px; height: 28px; }
-  .mic-ring-1 { width: 90px; height: 90px; }
-  .mic-ring-2 { width: 115px; height: 115px; }
-  .mic-ring-3 { width: 140px; height: 140px; }
-  .mic-status { font-size: 14px; }
-  .mic-hint { font-size: 12px; margin-bottom: 18px; }
-  .tips-title { font-size: 13px; }
-  .tip-row { font-size: 12px; }
-  .btn-process { padding: 12px 24px; font-size: 14px; }
-  .recs-panel { padding: 14px; }
-  .template-badge { font-size: 10px; padding: 5px 10px; }
-  .section-title { font-size: 10px; }
-  .section-content { font-size: 13px; line-height: 1.65; }
-  .saved-item { padding: 12px; }
-  .search-panel, .saved-panel { border-radius: var(--radius-md); }
-}
-
-/* ============================================
-   RESPONSIVE — MOBILE (≤480px)
-   ============================================ */
-@media(max-width:480px){
-  .header { padding: 10px 12px; gap: 8px; }
-  .header-left { gap: 8px; }
-  .header-title { font-size: 15px; }
-  .header-sub { font-size: 10px; }
-  .header-logo { width: 30px; height: 30px; border-radius: 8px; }
-  .header-logo svg { width: 16px; height: 16px; }
-  .header-actions { gap: 3px; width: 100%; justify-content: flex-start; }
-  .btn-header { padding: 6px 8px; font-size: 10px; gap: 3px; }
-  .btn-header .ico { width: 13px; height: 13px; }
-  .btn-new { padding: 6px 10px; font-size: 10px; }
-  .btn-new .ico { width: 13px; height: 13px; }
-  .btn-logout { padding: 6px 8px; font-size: 10px; }
-
-  .container { padding: 10px 8px 90px; }
-  .card { padding: 12px 12px; border-radius: var(--radius-md); }
-  .record-card { padding: 20px 12px; }
-
-  /* Patient form — stack vertically */
-  .patient-row { flex-direction: column; gap: 8px; }
-  .field, .field-small { flex: 1 1 100%; }
-  .field-label { font-size: 10px; }
-  .field-input { padding: 8px 10px; font-size: 13px; }
-
-  /* Mic area — smaller */
-  .input-methods { gap: 16px; }
-  .mic-wrapper { margin-bottom: 14px; }
-  .mic-btn, .method-icon { width: 64px; height: 64px; }
-  .mic-btn svg, .method-icon svg { width: 24px; height: 24px; }
-  .method-label { font-size: 12px; }
-  .method-divider { font-size: 11px; }
-  .mic-ring-1 { width: 80px; height: 80px; }
-  .mic-ring-2 { width: 100px; height: 100px; }
-  .mic-ring-3 { width: 120px; height: 120px; }
-  .mic-status { font-size: 13px; }
-  .mic-hint { font-size: 11px; margin-bottom: 14px; }
-  .wave-bars { height: 20px; }
-
-  .transcript-box { padding: 12px; min-height: 60px; }
-  .transcript-label { font-size: 9px; }
-  .transcript-text { font-size: 13px; line-height: 1.6; }
-  .manual-input { padding: 10px; font-size: 13px; min-height: 50px; margin-top: 8px; }
-  .btn-process { padding: 12px 20px; font-size: 13px; margin-top: 14px; width: 100%; }
-
-  /* Tips */
-  .tips-title { font-size: 12px; }
-  .tip-row { font-size: 11px; padding: 8px 10px; }
-  .tip-num { width: 18px; height: 18px; font-size: 10px; }
-
-  /* Structured view */
-  .action-bar { gap: 4px; }
-  .btn-action { padding: 7px 8px; font-size: 10px; gap: 3px; flex: 1 1 auto; justify-content: center; }
-  .btn-action .ico { width: 13px; height: 13px; }
-  .patient-header { padding: 12px 14px; flex-direction: column; gap: 8px; align-items: flex-start; }
-  .patient-header-name { font-size: 15px; }
-  .patient-header-meta { font-size: 11px; }
-  .section-count { font-size: 10px; padding: 4px 8px; }
-  .template-badge { font-size: 9px; padding: 4px 8px; }
-
-  .note-section { padding: 12px 12px; margin-bottom: 6px; }
-  .section-header { gap: 6px; }
-  .section-title { font-size: 9px; gap: 4px; }
-  .section-title .ico { width: 12px; height: 12px; }
-  .section-content { font-size: 13px; line-height: 1.6; }
-  .section-edit { padding: 10px; font-size: 13px; }
-  .btn-edit { padding: 4px 8px; font-size: 10px; }
-  .template-select { padding: 9px 32px 9px 10px; font-size: 13px; }
-  .template-hint { font-size: 10px; }
-  .template-field { flex-direction: column; gap: 2px; padding: 4px 0; }
-  .template-field-label { min-width: unset; max-width: unset; font-size: 11px; }
-  .template-field-value { font-size: 13px; }
-
-  /* Recommendations */
-  .recs-panel { padding: 12px; border-radius: var(--radius-md); }
-  .recs-header { gap: 8px; }
-  .recs-title { font-size: 14px; }
-  .recs-subtitle { font-size: 11px; }
-  .rec-item { padding: 10px; }
-  .rec-text { font-size: 12px; }
-  .rec-actions { gap: 4px; }
-  .btn-rec { padding: 5px 10px; font-size: 10px; }
-  .recs-disclaimer { font-size: 10px; }
-
-  /* Search & History panels */
-  .search-panel, .saved-panel { border-radius: var(--radius-sm); }
-  .search-title, .saved-title { font-size: 14px; }
-  .search-input { font-size: 14px; padding: 10px 12px 10px 38px; }
-  .saved-item { padding: 10px; }
-  .saved-item-name { font-size: 13px; }
-  .saved-item-meta { font-size: 10px; }
-
-  /* Timeline */
-  .timeline-header { padding: 12px; }
-  .timeline-patient-name { font-size: 15px; }
-
-  /* OCR preview */
-  .ocr-preview-img { max-height: 180px; }
-  .ocr-preview-label { font-size: 12px; }
-
-  /* Patient history inline */
-  .patient-history { padding: 10px; }
-  .patient-history-title { font-size: 12px; }
-
-  /* Auth screen */
-  .auth-card { padding: 28px 20px; margin: 16px; max-width: 100%; }
-  .auth-title { font-size: 22px; }
-  .auth-subtitle { font-size: 13px; }
-
-  /* Agent panel */
-  .agent-panel { width: 100vw; }
-  .agent-header { padding: 12px 14px; }
-  .agent-title { font-size: 14px; }
-  .agent-messages { padding: 14px; gap: 12px; }
-  .agent-welcome-title { font-size: 16px; }
-  .agent-welcome-text { font-size: 12px; }
-  .agent-chip { font-size: 11px; padding: 6px 10px; }
-  .agent-msg-bubble { padding: 10px 12px; font-size: 12px; border-radius: 12px; }
-  .agent-input-area { padding: 10px 12px 14px; }
-  .agent-input { padding: 10px 12px; font-size: 13px; border-radius: 12px; }
-  .agent-send-btn { width: 40px; height: 40px; border-radius: 10px; }
-
-  /* Loading */
-  .loading-card { padding: 28px 20px; }
-  .loading-title { font-size: 16px; }
-
-  /* Toast */
-  .toast { font-size: 12px; padding: 10px 18px; bottom: 20px; }
-
-  /* Delete / Confirm */
-  .confirm-dialog { padding: 22px 18px; }
-  .confirm-title { font-size: 15px; }
-  .confirm-text { font-size: 12px; }
-  .confirm-actions button { padding: 10px 12px; font-size: 12px; }
-  .btn-delete-item .ico { width: 14px; height: 14px; }
-
-  /* Profile */
-  .profile-modal { width: 96%; }
-  .profile-header { padding: 18px 18px 16px; }
-  .profile-header-title { font-size: 15px; }
-  .profile-body { padding: 16px 18px 20px; }
-  .profile-field input { padding: 9px 10px; font-size: 13px; }
-  .profile-actions button { padding: 9px; font-size: 12px; }
-}
-
-/* ============================================
-   RESPONSIVE — SMALL MOBILE (≤360px)
-   ============================================ */
-@media(max-width:360px){
-  .header-title { font-size: 14px; }
-  .btn-header { padding: 5px 6px; font-size: 9px; }
-  .btn-header .ico { width: 12px; height: 12px; }
-  .container { padding: 8px 6px 80px; }
-  .card { padding: 10px 10px; }
-  .mic-btn, .method-icon { width: 56px; height: 56px; }
-  .mic-btn svg, .method-icon svg { width: 22px; height: 22px; }
-  .btn-action { padding: 6px 6px; font-size: 9px; }
-  .section-content { font-size: 12px; }
-  .patient-header-name { font-size: 14px; }
-}
-
-/* ============================================
-   TOUCH OPTIMIZATION
-   ============================================ */
-@media(hover:none) and (pointer:coarse){
-  .btn-header, .btn-action, .btn-new, .btn-edit,
-  .btn-rec, .agent-chip, .btn-process, .btn-logout,
-  .saved-item, .method-btn, .agent-send-btn {
-    min-height: 40px;
+// DentaVoice API Proxy — Template-based structuring + OCR + AI Agent
+// Runs on Netlify's servers, keeps API key secure
+
+const requestCounts = {};
+const RATE_LIMIT = 30;
+const RATE_WINDOW_MS = 10 * 60 * 1000;
+
+function checkRateLimit(ip) {
+  const now = Date.now();
+  if (!requestCounts[ip] || now - requestCounts[ip].start > RATE_WINDOW_MS) {
+    requestCounts[ip] = { count: 1, start: now };
+    return true;
   }
-  .field-input { min-height: 42px; font-size: 16px; /* prevents iOS zoom */ }
-  .agent-input { min-height: 44px; font-size: 16px; }
-  .manual-input { font-size: 16px; }
-  .search-input { font-size: 16px; }
+  requestCounts[ip].count++;
+  return requestCounts[ip].count <= RATE_LIMIT;
 }
-</style>
-</head>
-<body>
 
-<!-- ===== AUTH SCREEN ===== -->
-<div class="auth-screen" id="authScreen">
-  <div class="auth-bg">
-    <div class="auth-grid"></div>
-    <div class="auth-particles" id="authParticles"></div>
-  </div>
+// ===== 11 TEMPLATE DEFINITIONS =====
+// Each template: sections → fields. Field format "key:Label".
+// Shared field strings avoid repetition.
 
-  <div class="auth-card">
-    <div class="auth-logo">
-      <div class="logo-mark">
-        <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <defs>
-            <linearGradient id="logoGrad" x1="0" y1="0" x2="64" y2="64">
-              <stop offset="0%" stop-color="#2563EB"/>
-              <stop offset="100%" stop-color="#06B6D4"/>
-            </linearGradient>
-          </defs>
-          <rect width="64" height="64" rx="16" fill="#0F172A"/>
-          <path d="M32 12c-4.5 0-8 1.5-10 4.5C20 19.5 19 24 19 28c0 3 .5 6 1.5 9 1.2 3.5 2.5 7 3.5 11 .8 3 1.5 5 2.5 5s2-2 2.5-5l1-4h4l1 4c.5 3 1.5 5 2.5 5s1.7-2 2.5-5c1-4 2.3-7.5 3.5-11 1-3 1.5-6 1.5-9 0-4-1-8.5-3-11.5-2-3-5.5-4.5-10-4.5z" fill="url(#logoGrad)" opacity="0.9"/>
-          <path d="M14 28h4M46 28h4M12 24h4M48 24h4M13 32h4M47 32h4" stroke="#60A5FA" stroke-width="1.8" stroke-linecap="round" opacity="0.5"/>
-        </svg>
-      </div>
-      <div class="auth-logo-title">DentaVoice</div>
-      <div class="auth-logo-sub">AI-Powered Clinical Notes</div>
-    </div>
+const F = {
+  HEALTH_FULL: "medhx:Medhx|conditions:Conditions|allergies:Allergies|rx:Rx|surgeries:Surgeries/Hospitalizations|social_history:Social history",
+  DENTAL_HISTORY: "ldv:LDV|dental_home:Dental home|trauma:Trauma|habits:Habits|brushing:Brushing|diet:Diet",
+  NPE_TX: "eoe:EOE|ioe:IOE|soft_tissue:Soft tissue|occlusion:Occlusion|hard_tissue:Hard tissue|oh:OH|rads:Rads|rad_findings:Rad findings|other_treatment:Other treatment",
+  RESTORATIVE: "extraction:Extraction|ssc:SSC|sscp:SSCP (Pulpotomy)|composite_resin:Composite resin|sealant:Sealant",
+  PRES_FULL: "type:Presentation type|presenting_with:Presents with|preop_discussion:Pre-op discussion|consent:Consent|chief_complaint:Chief complaint|history:History",
+  PRES_SHORT: "type:Presentation type|presenting_with:Presents with|preop_discussion:Pre-op discussion|chief_complaint:Chief complaint|history:History",
+};
 
-    <div class="auth-tabs">
-      <button class="auth-tab active" id="tabLogin" onclick="switchAuthTab('login')">Log In</button>
-      <button class="auth-tab" id="tabSignup" onclick="switchAuthTab('signup')">Sign Up</button>
-    </div>
+const TEMPLATES = {
+  npe_no_caries: {
+    name: "NPE – No Caries / No Treatment",
+    sections: [
+      { key:"presentation", title:"PRESENTATION", fields: F.PRES_FULL },
+      { key:"health", title:"HEALTH", fields: F.HEALTH_FULL },
+      { key:"dental_history", title:"DENTAL HISTORY", fields: F.DENTAL_HISTORY },
+      { key:"treatment", title:"TREATMENT", fields: F.NPE_TX },
+      { key:"evaluation", title:"EVALUATION", fields: "diagnoses:Diagnoses|behaviour:Behaviour|discussion:Discussion & OHI|modalities:Discussed modalities of treatment|recommended_modality:Recommended modality|parent_consent:Parent agreement" },
+      { key:"plan", title:"PLAN", fields: "plan:Plan" },
+    ],
+  },
+  npe_no_caries_simple: {
+    name: "NPE – No Caries (Simplified)",
+    sections: [
+      { key:"presentation", title:"PRESENTATION", fields: F.PRES_FULL },
+      { key:"health", title:"HEALTH", fields: F.HEALTH_FULL },
+      { key:"dental_history", title:"DENTAL HISTORY", fields: F.DENTAL_HISTORY },
+      { key:"treatment", title:"TREATMENT", fields: F.NPE_TX },
+      { key:"evaluation", title:"EVALUATION", fields: "diagnoses:Diagnoses|behaviour:Behaviour|discussion:Discussion & OHI|parent_consent:Parent agreement" },
+      { key:"plan", title:"PLAN", fields: "plan:Plan" },
+    ],
+  },
+  npe_caries_ga: {
+    name: "NPE – Caries / Recommended GA",
+    sections: [
+      { key:"presentation", title:"PRESENTATION", fields: F.PRES_FULL },
+      { key:"health", title:"HEALTH", fields: F.HEALTH_FULL },
+      { key:"dental_history", title:"DENTAL HISTORY", fields: F.DENTAL_HISTORY },
+      { key:"treatment", title:"TREATMENT", fields: F.NPE_TX },
+      { key:"evaluation", title:"EVALUATION", fields: "diagnoses:Diagnoses|behaviour:Behaviour|discussion:Discussion & OHI|treatment_spectrum:Treatment spectrum discussed|modalities:Discussed modalities|recommended_modality:Recommended (GA)|parent_consent:Parent agreement" },
+      { key:"plan", title:"PLAN", fields: "plan:Plan" },
+    ],
+  },
+  npe_caries_n2o: {
+    name: "NPE – Caries / Recommended N2O",
+    sections: [
+      { key:"presentation", title:"PRESENTATION", fields: F.PRES_FULL },
+      { key:"health", title:"HEALTH", fields: F.HEALTH_FULL },
+      { key:"dental_history", title:"DENTAL HISTORY", fields: F.DENTAL_HISTORY },
+      { key:"treatment", title:"TREATMENT", fields: F.NPE_TX },
+      { key:"evaluation", title:"EVALUATION", fields: "diagnoses:Diagnoses|behaviour:Behaviour|discussion:Discussion & OHI|treatment_spectrum:Treatment spectrum discussed|modalities:Discussed modalities|recommended_modality:Recommended (N2O)|parent_consent:Parent agreement" },
+      { key:"plan", title:"PLAN", fields: "plan:Plan" },
+    ],
+  },
+  npe_caries_po: {
+    name: "NPE – Caries / Recommended PO Sedation",
+    sections: [
+      { key:"presentation", title:"PRESENTATION", fields: F.PRES_FULL },
+      { key:"health", title:"HEALTH", fields: F.HEALTH_FULL },
+      { key:"dental_history", title:"DENTAL HISTORY", fields: F.DENTAL_HISTORY },
+      { key:"treatment", title:"TREATMENT", fields: F.NPE_TX },
+      { key:"evaluation", title:"EVALUATION", fields: "diagnoses:Diagnoses|behaviour:Behaviour|discussion:Discussion & OHI|treatment_spectrum:Treatment spectrum discussed|modalities:Discussed modalities|recommended_modality:Recommended (PO/N2O)|parent_consent:Parent agreement" },
+      { key:"plan", title:"PLAN", fields: "plan:Plan" },
+    ],
+  },
+  ga_rehab: {
+    name: "GA Oral Rehabilitation",
+    sections: [
+      { key:"presentation", title:"PRESENTATION", fields: "type:Presentation type|presenting_with:Presents with|preop_discussion:Pre-op discussion|parent_awareness:Parent awareness of changes" },
+      { key:"operative_team", title:"OPERATIVE TEAM", fields: "surgeon:Surgeon/Dentist|assistant:Dental Assistant|anesthesiologist:Anesthesiologist|nurse:Medical Nurse" },
+      { key:"reasons", title:"REASONS FOR PROCEDURE", fields: "reasons:Reasons for procedure" },
+      { key:"health", title:"HEALTH", fields: "medhx:Medhx|medical_history:Medical history" },
+      { key:"treatment", title:"TREATMENT", fields: "ga_narrative:GA procedure narrative|isolation:Isolation|clinical_exam:Clinical examination|rad_exam:Radiographic examination|rad_findings:Radiographic findings|"+F.RESTORATIVE+"|prophy_fluoride:Prophy & Topical F-|margins_occlusion:Margins + Occlusion|extubation:Extubation & Recovery|dismissal:Dismissal" },
+      { key:"evaluation", title:"EVALUATION", fields: "postop_discussion:Post-op discussion with parents|recovery_instructions:Recovery instructions|expectations:Expectations & pain management|recall:Recall recommendation" },
+      { key:"plan", title:"PLAN", fields: "plan:Plan" },
+    ],
+  },
+  po_sedation: {
+    name: "Oral Sedation (PO/Midazolam) Restorative",
+    sections: [
+      { key:"presentation", title:"PRESENTATION", fields: F.PRES_SHORT },
+      { key:"health", title:"HEALTH", fields: "medhx:Medhx|preop_workup:Pre-operative workup|preop_vitals:Pre-operative vitals|patient_weight:Patient weight" },
+      { key:"sedation_record", title:"SEDATION RECORD", fields: "time_provided:Time sedation provided|sedation_mg:Sedation (mg)|sedation_ml:Sedation (ml)|vitals_admin:Vitals at administration|vitals_15:Vitals 15 min|vitals_30:Vitals 30 min|vitals_45:Vitals 45 min|vitals_60:Vitals 60 min|vitals_75:Vitals 75 min|postop_vitals_time:Post-op vitals time|max_sedation:Max sedation level|vitals_postop:Vitals post-op|discharge_status:Discharge status" },
+      { key:"treatment", title:"TREATMENT", fields: "anesthesia:Anesthesia|isolation:Isolation|"+F.RESTORATIVE+"|margins_occlusion:Margins + Occlusion" },
+      { key:"evaluation", title:"EVALUATION", fields: "behaviour:Behaviour|poi_discussion:POI & discussion" },
+      { key:"plan", title:"PLAN", fields: "plan:Plan" },
+    ],
+  },
+  recall: {
+    name: "Recall Exam",
+    sections: [
+      { key:"presentation", title:"PRESENTATION", fields: F.PRES_FULL },
+      { key:"health", title:"HEALTH", fields: F.HEALTH_FULL },
+      { key:"dental_history", title:"DENTAL HISTORY", fields: F.DENTAL_HISTORY },
+      { key:"treatment", title:"TREATMENT", fields: F.NPE_TX },
+      { key:"evaluation", title:"EVALUATION", fields: "diagnoses:Diagnoses|behaviour:Behaviour|discussion:Discussion & OHI|treatment_spectrum:Treatment spectrum discussed|modalities:Discussed modalities|recommended_modality:Recommended modality|parent_consent:Parent agreement" },
+      { key:"plan", title:"PLAN", fields: "plan:Plan" },
+    ],
+  },
+  restorative: {
+    name: "Restorative (Standard / No Sedation)",
+    sections: [
+      { key:"presentation", title:"PRESENTATION", fields: F.PRES_SHORT },
+      { key:"health", title:"HEALTH", fields: "medhx:Medhx" },
+      { key:"treatment", title:"TREATMENT", fields: "anesthesia:Anesthesia|isolation:Isolation|"+F.RESTORATIVE+"|margins_occlusion:Margins + Occlusion" },
+      { key:"evaluation", title:"EVALUATION", fields: "behaviour:Behaviour|poi_discussion:POI & discussion" },
+      { key:"plan", title:"PLAN", fields: "plan:Plan" },
+    ],
+  },
+  restorative_n2o: {
+    name: "Restorative with N2O",
+    sections: [
+      { key:"presentation", title:"PRESENTATION", fields: F.PRES_SHORT },
+      { key:"health", title:"HEALTH", fields: "medhx:Medhx|preop_workup:Pre-operative workup" },
+      { key:"treatment", title:"TREATMENT", fields: "n2o_preop_vitals:N2O pre-op vitals|n2o_titration:N2O titration|n2o_start:Time N2O started|n2o_postop_vitals:N2O post-op vitals|n2o_end:Time N2O finished|discharge_status:Discharge status|anesthesia:Anesthesia|isolation:Isolation|"+F.RESTORATIVE+"|margins_occlusion:Margins + Occlusion" },
+      { key:"evaluation", title:"EVALUATION", fields: "behaviour:Behaviour|poi_discussion:POI & discussion" },
+      { key:"plan", title:"PLAN", fields: "plan:Plan" },
+    ],
+  },
+  combined_n2o_po: {
+    name: "Combined N2O + Oral Sedation (Midazolam)",
+    sections: [
+      { key:"presentation", title:"PRESENTATION", fields: "presenting_with:Presents with|medical_review:Medical history reviewed|treatment_plan_review:Treatment plan reviewed|cooperation_note:Cooperation/GA note|npo_status:NPO status|consent:Informed consent" },
+      { key:"sedation_assessment", title:"SEDATION ASSESSMENT", fields: "mallampati:Mallampati|brodsky:Brodsky|asa:ASA|sedation_hx:Sedation history|weight:Weight|midazolam_dose:Midazolam dose & calculation|time_given:Given PO at" },
+      { key:"preop_vitals", title:"PRE-OPERATIVE VITALS", fields: "bp:BP|hr:HR|spo2:SpO2|rr:RR|tx_started:Tx started at|monitoring:Monitoring" },
+      { key:"n2o_sedation", title:"N2O SEDATION", fields: "n2o_consent:Consent|n2o_protocol:Protocol|n2o_percentage:N2O % maintained|titration_back:Titration back to O2|staff_present:Staff present|units:Units administered" },
+      { key:"treatment", title:"TREATMENT", fields: "anesthesia:Anesthesia|isolation:Isolation|composite:Composite (tooth #)|ssc:SSC (tooth #)|extraction:Extraction" },
+      { key:"postoperative", title:"POST-OPERATIVE", fields: "intended_sedation:Intended sedation level|achieved_sedation:Achieved sedation level|postop_vitals:Post-op vitals|tx_ended:Tx ended at|fit_discharge:Fit for discharge at|poi_given:POI given|discharge_status:Discharge status|left_facility:Left facility at|postop_instructions:Post-op instructions|child_cooperation:Cooperation (Frankl)" },
+      { key:"plan", title:"PLAN", fields: "next_visit:Next visit" },
+    ],
+  },
+};
 
-    <div class="auth-error" id="authError"></div>
+// Build a template-specific prompt for the AI
+function buildTemplatePrompt(templateId) {
+  const tmpl = TEMPLATES[templateId];
+  if (!tmpl) return null;
 
-    <div id="loginForm">
-      <div class="auth-field"><label class="auth-label">Email</label><input class="auth-input" id="loginEmail" type="email" placeholder="name@clinic.com"></div>
-      <div class="auth-field"><label class="auth-label">Password</label><input class="auth-input" id="loginPassword" type="password" placeholder="Enter your password"></div>
-      <button class="auth-btn" id="loginBtn" onclick="handleLogin()">Log In</button>
-    </div>
+  let fieldSpec = "";
+  tmpl.sections.forEach((sec) => {
+    fieldSpec += `\n### ${sec.title}\n`;
+    sec.fields.split("|").forEach((f) => {
+      const [key, label] = f.split(":");
+      fieldSpec += `- "${sec.key}.${key}": ${label}\n`;
+    });
+  });
 
-    <div id="signupForm" style="display:none;">
-      <div class="auth-field"><label class="auth-label">Full Name</label><input class="auth-input" id="signupName" type="text" placeholder="Dr. Amira Mahmoud"></div>
-      <div class="auth-field"><label class="auth-label">Email</label><input class="auth-input" id="signupEmail" type="email" placeholder="name@clinic.com"></div>
-      <div class="auth-field"><label class="auth-label">Password</label><input class="auth-input" id="signupPassword" type="password" placeholder="Min 8 characters"></div>
-      <button class="auth-btn" id="signupBtn" onclick="handleSignup()">Create Account</button>
-    </div>
+  return `You are a pediatric dental clinical documentation assistant. Structure the dictated notes into the "${tmpl.name}" template.
 
-    <div class="auth-footer">
-      <div class="lock-icon"><svg class="ico ico-sm" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 018 0v4"/></svg> Encrypted</div><br>
-      Patient data on Canadian servers · PHIPA/PIPEDA compliant
-    </div>
-  </div>
-</div>
+Return ONLY a JSON object with two keys:
 
-<!-- ===== MAIN APP ===== -->
-<div class="app-screen" id="appScreen">
-  <div class="header">
-    <div class="header-left" onclick="goHome()" style="cursor:pointer;">
-      <div class="header-logo">
-        <svg viewBox="0 0 32 32" fill="none"><path d="M16 5c-2.5 0-4.5.8-5.5 2.5S9 12 9 14.2c0 1.7.3 3.4.8 5 .7 2 1.4 4 2 6.3.4 1.5.8 2.7 1.4 2.7s1.1-1.1 1.4-2.7l.5-2.3h2l.5 2.3c.3 1.6.8 2.7 1.4 2.7s1-.9 1.4-2.7c.6-2.3 1.3-4.3 2-6.3.5-1.6.8-3.3.8-5 0-2.2-.6-4.8-1.7-6.5S18.5 5 16 5z" fill="white" opacity="0.95"/><path d="M6 14.5h2.5M23.5 14.5H26M5 12h2.5M24.5 12H27M5.5 17h2.5M24 17h2.5" stroke="white" stroke-width="1.2" stroke-linecap="round" opacity="0.4"/></svg>
-      </div>
-      <div>
-        <div class="header-title">DentaVoice</div>
-        <div class="header-sub" id="headerUser">Clinical Notes</div>
-      </div>
-    </div>
-    <div class="header-actions">
-      <button class="btn-header btn-agent" id="btnAgent" onclick="toggleAgent()"><svg class="ico" viewBox="0 0 24 24"><rect x="4" y="8" width="16" height="12" rx="2"/><path d="M12 8V4H8"/><circle cx="9" cy="14" r="1" fill="currentColor" stroke="none"/><circle cx="15" cy="14" r="1" fill="currentColor" stroke="none"/><path d="M9 18h6"/></svg> AI Agent</button>
-      <button class="btn-header" id="btnSearch" onclick="toggleSearch()"><svg class="ico" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="21" y2="21"/></svg> Search</button>
-      <button class="btn-header" id="btnHistory" onclick="toggleSaved()"><svg class="ico" viewBox="0 0 24 24"><path d="M3 7V5a2 2 0 012-2h4l2 2h8a2 2 0 012 2v10a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg> History</button>
-      <button class="btn-new" id="btnNew" onclick="startNew()"><svg class="ico" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> New</button>
-      <button class="btn-header" onclick="openProfile()"><svg class="ico" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a6 6 0 0112 0v1"/></svg> Profile</button>
-      <button class="btn-logout" onclick="handleLogout()">Log out</button>
-    </div>
-  </div>
+"notes": a nested object. Top-level keys are section keys, each containing field key-value pairs. Use the EXACT keys below. If a field was not mentioned, use "[blank]". Keep values concise using dental shorthand (WNL, bid, OHI, etc.).
+${fieldSpec}
+"recommendations": array of 2-4 objects: {category:"clinical|followup|medication|preventive|diagnostic|safety", title:"5-8 words", detail:"1-2 sentences", priority:"high|medium|low"}
 
-  <div class="container">
-    <!-- SEARCH PANEL -->
-    <div class="card search-panel" id="searchPanel">
-      <div class="search-header">
-        <div class="search-title"><svg class="ico" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="21" y2="21"/></svg> Search Patients</div>
-        <button class="btn-close-panel" onclick="closeSearch()"><svg class="ico ico-sm" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
-      </div>
-      <div class="search-bar">
-        <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-        <input class="search-input" id="searchInput" type="text" placeholder="Search by patient name or ID..." oninput="onSearchInput()">
-        <button class="search-clear" id="searchClear" onclick="clearSearch()"><svg class="ico ico-sm" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
-      </div>
-      <div id="searchResults"><div class="saved-empty">Type a name or ID to search</div></div>
-    </div>
+Rules:
+- FDI tooth numbering. Proper pediatric dental terminology.
+- Fill template defaults when dictation implies normal/negative (e.g. "See below", "WNL", "None", "No change").
+- For fields the dentist mentioned, capture exact clinical details.
+- Return ONLY valid JSON, no markdown fences.`;
+}
 
-    <!-- HISTORY PANEL -->
-    <div class="card saved-panel" id="savedPanel">
-      <div class="saved-panel-header">
-        <div class="saved-title"><svg class="ico" viewBox="0 0 24 24"><path d="M3 7V5a2 2 0 012-2h4l2 2h8a2 2 0 012 2v10a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg> All Records</div>
-        <button class="btn-close-panel" onclick="closeSaved()"><svg class="ico ico-sm" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
-      </div>
-      <div id="savedList"><div class="saved-empty">Loading notes...</div></div>
-    </div>
+// Fallback SOAP prompt (backward compatibility for notes without template)
+const STRUCTURE_PROMPT = `You are a dental clinical documentation assistant. Given raw dictated notes, return ONLY a JSON object with two keys:
 
-    <!-- PATIENT TIMELINE PANEL -->
-    <div class="card patient-timeline-panel" id="patientTimelinePanel">
-      <div class="timeline-header">
-        <button class="btn-back-timeline" onclick="closeTimeline()">← Back</button>
-        <div>
-          <div class="timeline-patient-name" id="timelinePatientName"></div>
-          <div class="timeline-patient-id" id="timelinePatientId"></div>
-        </div>
-      </div>
-      <div class="timeline-count" id="timelineCount"></div>
-      <div id="timelineList"></div>
-    </div>
+"notes": object with applicable SOAP fields from this list (omit empty ones):
+subjective_chief_complaint, subjective_hpi, subjective_medical_history, subjective_allergies, objective_extraoral, objective_intraoral, objective_teeth_findings, objective_radiographic, assessment_diagnosis, assessment_differential, assessment_cdt_codes, plan_treatment_performed, plan_materials_used, plan_anesthesia, plan_post_op, plan_follow_up, plan_referrals, additional_notes
 
-    <div class="card animate-in">
-      <div class="patient-row">
-        <div class="field"><label class="field-label field-required">Patient Name</label><input class="field-input" id="patientName" placeholder="Enter patient name" oninput="onPatientInfoChange()"></div>
-        <div class="field-small"><label class="field-label field-required">Patient ID</label><input class="field-input" id="patientId" placeholder="ID #" oninput="onPatientInfoChange()"></div>
-        <div class="field-small"><label class="field-label">Visit Date</label><input class="field-input" id="visitDate" type="date"></div>
-      </div>
-      <div class="validation-msg" id="validationMsg">Patient name and ID are required to save a record.</div>
-      <div class="template-selector">
-        <label>Note Template</label>
-        <select class="template-select" id="templateSelect" onchange="onTemplateChange()">
-          <option value="">General SOAP (no template)</option>
-          <optgroup label="New Patient Exams (NPE)">
-            <option value="npe_no_caries">NPE – No Caries / No Treatment</option>
-            <option value="npe_no_caries_simple">NPE – No Caries (Simplified)</option>
-            <option value="npe_caries_ga">NPE – Caries / Recommended GA</option>
-            <option value="npe_caries_n2o">NPE – Caries / Recommended N2O</option>
-            <option value="npe_caries_po">NPE – Caries / Recommended PO Sedation</option>
-          </optgroup>
-          <optgroup label="Treatment">
-            <option value="restorative">Restorative (Standard / No Sedation)</option>
-            <option value="restorative_n2o">Restorative with N2O</option>
-            <option value="po_sedation">Oral Sedation (PO/Midazolam) Restorative</option>
-            <option value="ga_rehab">GA Oral Rehabilitation</option>
-            <option value="combined_n2o_po">Combined N2O + Oral Sedation (Midazolam)</option>
-          </optgroup>
-          <optgroup label="Follow-Up">
-            <option value="recall">Recall Exam</option>
-          </optgroup>
-        </select>
-        <div class="template-hint" id="templateHint">Select a template to structure notes into specific fields</div>
-      </div>
-      <div class="patient-history" id="patientHistory">
-        <div class="patient-history-header">
-          <div class="patient-history-icon"><svg class="ico" viewBox="0 0 24 24"><rect x="6" y="3" width="12" height="18" rx="2"/><path d="M9 3h6v2H9z"/><line x1="9" y1="10" x2="15" y2="10"/><line x1="9" y1="14" x2="13" y2="14"/></svg></div>
-          <div>
-            <div class="patient-history-title">Previous Records</div>
-            <div class="patient-history-count" id="historyCount"></div>
-          </div>
-        </div>
-        <div id="historyList"></div>
-      </div>
-    </div>
+"recommendations": array of 3-6 objects, each: {category: "clinical|followup|medication|preventive|diagnostic|safety", title: "5-8 words", detail: "1-2 sentences", priority: "high|medium|low"}
 
-    <div class="error-box" id="errorBox"><span><svg class="ico" viewBox="0 0 24 24"><path d="M12 2L1 21h22L12 2z" fill="none"/><line x1="12" y1="9" x2="12" y2="13"/><circle cx="12" cy="17" r="0.5" fill="currentColor"/></svg></span><span id="errorText"></span></div>
+Rules: FDI tooth numbering. Proper dental terminology. Concise. Suggest CDT codes when identifiable. Recommendations should be genuinely useful. Return ONLY valid JSON.`;
 
-    <div class="record-view" id="recordView">
-      <div class="card record-card animate-in animate-in-d1">
-        <div class="input-methods">
-          <button class="method-btn" onclick="toggleRecording()">
-            <div class="mic-wrapper">
-              <div class="mic-ring-1"></div>
-              <div class="mic-ring-2"></div>
-              <div class="mic-ring-3"></div>
-              <div class="method-icon mic-style" id="micBtn">
-                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="micIcon"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
-              </div>
-            </div>
-            <span class="method-label" id="micLabel">Dictate</span>
-          </button>
-          <div class="method-divider">or</div>
-          <button class="method-btn" onclick="triggerScan()">
-            <div class="method-icon scan-style">
-              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
-            </div>
-            <span class="method-label">Scan Notes</span>
-          </button>
-        </div>
-        <input type="file" accept="image/*" capture="environment" class="file-input-hidden" id="scanInput" onchange="handleScanInput(event)">
-        <div class="wave-bars"><div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div></div>
-        <div class="mic-status" id="micStatus">Dictate or scan clinical notes</div>
-        <div class="mic-hint" id="micHint">Voice record a patient visit, or photograph handwritten/printed notes</div>
+// OCR prompt
+const OCR_PROMPT = `Extract ALL text from this dental clinical document image. Preserve structure and meaning.
 
-        <div class="ocr-preview" id="ocrPreview">
-          <div class="ocr-preview-header">
-            <div class="ocr-preview-label"><svg class="ico" viewBox="0 0 24 24"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg> Scanned Image</div>
-            <button class="btn-remove-img" onclick="removeScannedImage()"><svg class="ico ico-sm" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg> Remove</button>
-          </div>
-          <img class="ocr-preview-img" id="ocrPreviewImg">
-          <div class="ocr-status" id="ocrStatus" style="display:none;"><div class="spinner"></div> Extracting text from image...</div>
-        </div>
+Return ONLY a JSON object: {"extracted_text":"...","patient_name":"name or null","patient_id":"id or null"}
 
-        <div class="transcript-box">
-          <div class="transcript-label">Live Transcript</div>
-          <div id="transcriptArea"><div class="transcript-placeholder">Your dictation will appear here in real-time...</div></div>
-        </div>
-        <textarea class="manual-input" id="manualInput" placeholder="Or type / paste notes manually here..." oninput="onManualInput()"></textarea>
-        <button class="btn-process" id="btnProcess" onclick="processNotes()"><svg class="ico" viewBox="0 0 24 24"><path d="M12 2l2 7h7l-5.5 4 2 7L12 16l-5.5 4 2-7L3 9h7z"/></svg> Structure with AI</button>
-      </div>
+Rules: Read handwritten text carefully using dental context. Preserve tooth numbers exactly (FDI/Universal). Preserve medication names and dosages exactly. Use [illegible] for unreadable text. Maintain paragraph breaks. Include checkboxes, circled items, annotations. For forms, identify field labels and values. Look for patient name in fields like "Patient","Name". Look for ID in fields like "Chart #","Patient ID","MRN","File #". Return ONLY valid JSON.`;
 
-      <div class="card animate-in animate-in-d2" id="tipsCard">
-        <div class="tips-title"><svg class="ico" viewBox="0 0 24 24"><path d="M9 21h6"/><path d="M12 3a6 6 0 014 10.5V17a1 1 0 01-1 1H9a1 1 0 01-1-1v-3.5A6 6 0 0112 3z"/></svg> Tips for best results</div>
-        <div class="tip-row"><span class="tip-num">1</span>Start with the chief complaint — why the patient came in</div>
-        <div class="tip-row"><span class="tip-num">2</span>Mention relevant medical history or allergies</div>
-        <div class="tip-row"><span class="tip-num">3</span>Describe clinical findings with tooth numbers</div>
-        <div class="tip-row"><span class="tip-num">4</span>State your diagnosis and any differentials</div>
-        <div class="tip-row"><span class="tip-num">5</span>Detail the treatment, materials, and anesthesia</div>
-        <div class="tip-row"><span class="tip-num">6</span>End with post-op instructions and follow-up plan</div>
-      </div>
-    </div>
+// AI Agent knowledge prompt (cacheable)
+const AGENT_KNOWLEDGE_PROMPT = `You are DentaVoice AI, an expert dental clinical assistant for a pediatric dentist in Ontario, Canada.
 
-    <div class="structured-view" id="structuredView">
-      <div class="action-bar">
-        <button class="btn-action" onclick="showRecordView()"><svg class="ico" viewBox="0 0 24 24"><path d="M17 3a2.83 2.83 0 114 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg> Edit</button>
-        <button class="btn-action" id="btnCopy" onclick="copyAll()"><svg class="ico" viewBox="0 0 24 24"><rect x="6" y="3" width="12" height="18" rx="2"/><path d="M9 3h6v2H9z"/><line x1="9" y1="10" x2="15" y2="10"/><line x1="9" y1="14" x2="13" y2="14"/></svg> Copy</button>
-        <button class="btn-action" onclick="exportPDF()"><svg class="ico" viewBox="0 0 24 24"><path d="M6 2h8l6 6v12a2 2 0 01-2 2H6a2 2 0 01-2-2V4a2 2 0 012-2z"/><polyline points="14 2 14 8 20 8"/></svg> PDF</button>
-        <button class="btn-action" onclick="exportCSV()"><svg class="ico" viewBox="0 0 24 24"><rect x="3" y="12" width="4" height="9" rx="1"/><rect x="10" y="6" width="4" height="15" rx="1"/><rect x="17" y="3" width="4" height="18" rx="1"/></svg> CSV</button>
-        <button class="btn-action primary" onclick="saveNote()"><svg class="ico" viewBox="0 0 24 24"><path d="M17 21H7a2 2 0 01-2-2V5a2 2 0 012-2h7l5 5v11a2 2 0 01-2 2z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="12" x2="12" y2="18"/><polyline points="9 15 12 18 15 15"/></svg> Save</button>
-        <button class="btn-action danger" id="btnDeleteNote" style="display:none" onclick="requestDeleteCurrent()"><svg class="ico" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 6V4a2 2 0 012-2h0a2 2 0 012 2v2"/></svg> Delete</button>
-      </div>
-      <div class="patient-header"><div><div class="patient-header-name" id="structPatientName">Patient Notes</div><div class="patient-header-meta" id="structPatientMeta"></div></div><div class="section-count" id="sectionCount"></div></div>
-      <div class="template-badge" id="templateBadge"><svg class="ico" viewBox="0 0 24 24"><path d="M6 2h8l6 6v12a2 2 0 01-2 2H6a2 2 0 01-2-2V4a2 2 0 012-2z"/><polyline points="14 2 14 8 20 8"/></svg> Standard Dental Clinical Note — SOAP Format</div>
-      <div id="sectionsContainer"></div>
-      <div class="recs-panel" id="recsPanel">
-        <div class="recs-header"><div class="recs-icon"><svg class="ico" viewBox="0 0 24 24"><path d="M9 21h6"/><path d="M12 3a6 6 0 014 10.5V17a1 1 0 01-1 1H9a1 1 0 01-1-1v-3.5A6 6 0 0112 3z"/></svg></div><div><div class="recs-title">Clinical Considerations</div><div class="recs-subtitle">AI-generated suggestions for your review</div></div></div>
-        <div id="recsContainer"></div>
-        <div class="recs-disclaimer"><svg class="ico" viewBox="0 0 24 24"><path d="M12 2l8 4v6c0 5.25-3.5 9.74-8 11-4.5-1.26-8-5.75-8-11V6l8-4z"/></svg> AI-generated suggestions only — not clinical directives. Always apply professional judgment.</div>
-      </div>
-      <div class="card raw-details"><details><summary>View Raw Transcript</summary><div class="raw-details-text" id="rawTranscriptText"></div></details></div>
-    </div>
-  </div>
-</div>
+You are a comprehensive dental knowledge assistant covering:
+- Dental materials (composites, cements, impression materials, ceramics, bonding agents)
+- Equipment and instruments (handpieces, curing lights, imaging systems, sterilization)
+- Diagnosis and differential diagnosis for all dental conditions
+- Treatment planning and clinical decision-making
+- Pediatric dentistry considerations (behavior management, growth, primary teeth)
+- CDT codes and documentation best practices
+- Pharmacology (local anesthetics, analgesics, antibiotics for dental infections)
+- Radiology interpretation guidance
+- Infection control and IPAC protocols
+- Evidence-based dentistry and current best practices
+- Canadian dental regulatory considerations (RCDSO, CDHO standards)
 
-<!-- ===== AI AGENT PANEL ===== -->
-<div class="agent-overlay" id="agentOverlay" onclick="closeAgent()"></div>
-<div class="agent-panel" id="agentPanel">
-  <div class="agent-header">
-    <div class="agent-header-left">
-      <div class="agent-avatar">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 8V4H8"/><rect x="4" y="8" width="16" height="12" rx="2"/><circle cx="9" cy="14" r="1.5" fill="currentColor" stroke="none"/><circle cx="15" cy="14" r="1.5" fill="currentColor" stroke="none"/><path d="M9 18h6"/></svg>
-      </div>
-      <div>
-        <div class="agent-title">DentaVoice AI</div>
-        <div class="agent-status" id="agentStatus">Dental Assistant + Data Analyst</div>
-      </div>
-    </div>
-    <div class="agent-header-actions">
-      <button class="agent-clear-btn" onclick="clearAgentChat()" title="Clear chat"><svg class="ico" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 6V4a2 2 0 012-2h0a2 2 0 012 2v2"/></svg></button>
-      <button class="agent-close-btn" onclick="closeAgent()"><svg class="ico ico-sm" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
-    </div>
-  </div>
+Response rules:
+- Be concise but thorough. Use dental terminology appropriately.
+- Include brand names and specifications when discussing materials or techniques.
+- Note when something requires professional judgment vs. has a definitive answer.
+- When analyzing patient data, organize findings clearly with names and dates.
+- Format responses with clear paragraphs. Use numbered lists only when listing distinct items.
+- Keep responses focused. Avoid unnecessary preamble.
+- End clinical guidance with: "This is AI-assisted information — always apply professional judgment."`;
 
-  <div class="agent-messages" id="agentMessages">
-    <div class="agent-welcome">
-      <div class="agent-welcome-icon"><svg class="ico" style="width:48px;height:48px;stroke-width:1.2" viewBox="0 0 24 24"><rect x="4" y="8" width="16" height="12" rx="2"/><path d="M12 8V4H8"/><circle cx="9" cy="14" r="1" fill="currentColor" stroke="none"/><circle cx="15" cy="14" r="1" fill="currentColor" stroke="none"/><path d="M9 18h6"/></svg></div>
-      <div class="agent-welcome-title">Hi Dr. Amira!</div>
-      <div class="agent-welcome-text">I'm your AI dental assistant. Ask me anything about your patient records, dental materials, diagnosis, treatment planning, or clinical best practices.</div>
-      <div class="agent-suggestions" id="agentSuggestions">
-        <button class="agent-chip" onclick="sendAgentChip(this)">How many patients did I see this week?</button>
-        <button class="agent-chip" onclick="sendAgentChip(this)">Which patients need follow-up?</button>
-        <button class="agent-chip" onclick="sendAgentChip(this)">Compare composite resin brands for pediatric restorations</button>
-        <button class="agent-chip" onclick="sendAgentChip(this)">What's the protocol for a pulpotomy on a primary molar?</button>
-        <button class="agent-chip" onclick="sendAgentChip(this)">Summarize all treatments I've done this month</button>
-        <button class="agent-chip" onclick="sendAgentChip(this)">Local anesthesia dosing for pediatric patients</button>
-      </div>
-    </div>
-  </div>
+const CORS_HEADERS = {
+  "Content-Type": "application/json",
+  "Access-Control-Allow-Origin": "*",
+  "Cache-Control": "no-store",
+};
 
-  <div class="agent-input-area">
-    <div class="agent-context-badge" id="agentContextBadge">
-      <span class="agent-context-dot"></span>
-      <span id="agentContextText">Loading patient data...</span>
-    </div>
-    <div class="agent-input-row">
-      <textarea class="agent-input" id="agentInput" placeholder="Ask about patients, materials, diagnosis..." rows="1" onkeydown="onAgentKeydown(event)" oninput="autoResizeAgent()"></textarea>
-      <button class="agent-send-btn" id="agentSendBtn" onclick="sendAgentMessage()">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
-      </button>
-    </div>
-  </div>
-</div>
-
-<div class="loading-overlay" id="loadingOverlay">
-  <div class="loading-card">
-    <div class="loading-dots"><div class="loading-dot"></div><div class="loading-dot"></div><div class="loading-dot"></div></div>
-    <div class="loading-title">Processing Notes</div>
-    <div class="loading-step" id="loadingStep">Analyzing dictation...</div>
-  </div>
-</div>
-
-<div class="toast" id="toast"></div>
-
-<!-- ===== DELETE CONFIRMATION ===== -->
-<div class="confirm-overlay" id="confirmOverlay" onclick="cancelDelete()">
-  <div class="confirm-dialog" onclick="event.stopPropagation()">
-    <div class="confirm-icon"><svg class="ico" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 6V4a2 2 0 012-2h0a2 2 0 012 2v2"/></svg></div>
-    <div class="confirm-title">Delete this record?</div>
-    <div class="confirm-text">This will permanently remove the record for <span class="confirm-name" id="confirmNoteName"></span>. This action cannot be undone.</div>
-    <div class="confirm-actions">
-      <button class="btn-confirm-cancel" onclick="cancelDelete()">Cancel</button>
-      <button class="btn-confirm-delete" id="confirmDeleteBtn" onclick="confirmDelete()">Delete Record</button>
-    </div>
-  </div>
-</div>
-
-<!-- ===== PROFILE MODAL ===== -->
-<div class="profile-overlay" id="profileOverlay" onclick="closeProfile()">
-  <div class="profile-modal" onclick="event.stopPropagation()">
-    <div class="profile-header">
-      <div class="profile-header-info">
-        <div class="profile-header-title" id="profileDisplayName"></div>
-        <div class="profile-header-email" id="profileDisplayEmail"></div>
-      </div>
-      <button class="profile-close" onclick="closeProfile()"><svg class="ico" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
-    </div>
-    <div class="profile-body">
-      <div class="profile-msg" id="profileMsg"></div>
-
-      <div class="profile-section">
-        <div class="profile-section-label">Personal Information</div>
-        <div class="profile-field">
-          <label>Full Name</label>
-          <input id="profileName" type="text" placeholder="Dr. Full Name">
-        </div>
-        <div class="profile-field">
-          <label>Clinic / Practice Name</label>
-          <input id="profileClinic" type="text" placeholder="e.g. Smile Dental Clinic">
-        </div>
-        <div class="profile-actions">
-          <button class="btn-profile-save" id="profileSaveBtn" onclick="saveProfile()">Save Changes</button>
-        </div>
-      </div>
-
-      <div class="profile-divider"></div>
-
-      <div class="profile-section">
-        <div class="profile-section-label">Change Password</div>
-        <div class="profile-field">
-          <label>New Password</label>
-          <input id="profileNewPw" type="password" placeholder="Minimum 8 characters">
-        </div>
-        <div class="profile-field">
-          <label>Confirm New Password</label>
-          <input id="profileConfirmPw" type="password" placeholder="Re-enter new password">
-        </div>
-        <div class="profile-actions">
-          <button class="btn-profile-secondary" onclick="changePassword()">Update Password</button>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<script>
-// ===== PARTICLES =====
-(function(){
-  const c = document.getElementById("authParticles");
-  for(let i=0; i<20; i++){
-    const p = document.createElement("div");
-    p.className = "particle";
-    p.style.left = Math.random()*100+"%";
-    p.style.animationDuration = (8+Math.random()*12)+"s";
-    p.style.animationDelay = Math.random()*10+"s";
-    p.style.width = p.style.height = (2+Math.random()*4)+"px";
-    p.style.opacity = 0.2+Math.random()*0.3;
-    c.appendChild(p);
+exports.handler = async function (event) {
+  if (event.httpMethod === "OPTIONS") {
+    return {
+      statusCode: 200,
+      headers: {
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Headers": "Content-Type",
+        "Access-Control-Allow-Methods": "POST, OPTIONS",
+      },
+      body: "",
+    };
   }
-})();
 
-// ===== SVG ICON SYSTEM =====
-const _I = {
-  search:'<svg class="ico" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="21" y2="21"/></svg>',
-  folder:'<svg class="ico" viewBox="0 0 24 24"><path d="M3 7V5a2 2 0 012-2h4l2 2h8a2 2 0 012 2v10a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>',
-  x:'<svg class="ico ico-sm" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>',
-  lock:'<svg class="ico ico-sm" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 018 0v4"/></svg>',
-  ai:'<svg class="ico" viewBox="0 0 24 24"><rect x="4" y="8" width="16" height="12" rx="2"/><path d="M12 8V4H8"/><circle cx="9" cy="14" r="1" fill="currentColor" stroke="none"/><circle cx="15" cy="14" r="1" fill="currentColor" stroke="none"/><path d="M9 18h6"/></svg>',
-  mic:'<svg class="ico" viewBox="0 0 24 24"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0014 0"/><line x1="12" y1="17" x2="12" y2="21"/></svg>',
-  clipboard:'<svg class="ico" viewBox="0 0 24 24"><rect x="6" y="3" width="12" height="18" rx="2"/><path d="M9 3h6v2H9z"/><line x1="9" y1="10" x2="15" y2="10"/><line x1="9" y1="14" x2="13" y2="14"/></svg>',
-  file:'<svg class="ico" viewBox="0 0 24 24"><path d="M6 2h8l6 6v12a2 2 0 01-2 2H6a2 2 0 01-2-2V4a2 2 0 012-2z"/><polyline points="14 2 14 8 20 8"/></svg>',
-  chart:'<svg class="ico" viewBox="0 0 24 24"><rect x="3" y="12" width="4" height="9" rx="1"/><rect x="10" y="6" width="4" height="15" rx="1"/><rect x="17" y="3" width="4" height="18" rx="1"/></svg>',
-  save:'<svg class="ico" viewBox="0 0 24 24"><path d="M17 21H7a2 2 0 01-2-2V5a2 2 0 012-2h7l5 5v11a2 2 0 01-2 2z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="12" x2="12" y2="18"/><polyline points="9 15 12 18 15 15"/></svg>',
-  sparkle:'<svg class="ico" viewBox="0 0 24 24"><path d="M12 2l2 7h7l-5.5 4 2 7L12 16l-5.5 4 2-7L3 9h7z"/></svg>',
-  bulb:'<svg class="ico" viewBox="0 0 24 24"><path d="M9 21h6"/><path d="M12 3a6 6 0 014 10.5V17a1 1 0 01-1 1H9a1 1 0 01-1-1v-3.5A6 6 0 0112 3z"/></svg>',
-  camera:'<svg class="ico" viewBox="0 0 24 24"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>',
-  alert:'<svg class="ico" viewBox="0 0 24 24"><path d="M12 2L1 21h22L12 2z" fill="none"/><line x1="12" y1="9" x2="12" y2="13"/><circle cx="12" cy="17" r="0.5" fill="currentColor"/></svg>',
-  shield:'<svg class="ico" viewBox="0 0 24 24"><path d="M12 2l8 4v6c0 5.25-3.5 9.74-8 11-4.5-1.26-8-5.75-8-11V6l8-4z"/></svg>',
-  trash:'<svg class="ico" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 6V4a2 2 0 012-2h0a2 2 0 012 2v2"/></svg>',
-  check:'<svg class="ico ico-sm" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>',
-  plus:'<svg class="ico" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>',
-  pencil:'<svg class="ico" viewBox="0 0 24 24"><path d="M17 3a2.83 2.83 0 114 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>',
-  // SOAP section icons
-  chat:'<svg class="ico" viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 01-.9 3.8A8.5 8.5 0 013 11.5a8.5 8.5 0 018.5-8.5 8.38 8.38 0 013.8.9"/><path d="M21 3l-6 6"/></svg>',
-  cliplist:'<svg class="ico" viewBox="0 0 24 24"><rect x="6" y="3" width="12" height="18" rx="2"/><path d="M9 3h6v2H9z"/><line x1="9" y1="10" x2="15" y2="10"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="16" x2="13" y2="16"/></svg>',
-  building:'<svg class="ico" viewBox="0 0 24 24"><rect x="4" y="2" width="16" height="20" rx="1"/><rect x="8" y="6" width="3" height="3" rx="0.5"/><rect x="13" y="6" width="3" height="3" rx="0.5"/><rect x="8" y="12" width="3" height="3" rx="0.5"/><rect x="13" y="12" width="3" height="3" rx="0.5"/><rect x="10" y="18" width="4" height="4"/></svg>',
-  user:'<svg class="ico" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a6 6 0 0112 0v1"/></svg>',
-  scan:'<svg class="ico" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="12" y1="8" x2="12" y2="16"/></svg>',
-  tooth:'<svg class="ico" viewBox="0 0 24 24"><path d="M12 3c-2 0-3.5.7-4.5 2S6 8.5 6 10.5c0 1.5.3 3 .7 4.3.6 1.7 1.2 3.5 1.7 5.5.3 1.3.7 2.2 1.1 2.2s.9-1 1.1-2.2l.4-2h2l.4 2c.3 1.3.6 2.2 1.1 2.2s.8-.8 1.1-2.2c.5-2 1.1-3.8 1.7-5.5.4-1.4.7-2.8.7-4.3 0-2-.5-4-1.5-5.5S14 3 12 3z"/></svg>',
-  film:'<svg class="ico" viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="2"/><line x1="2" y1="9" x2="22" y2="9"/><line x1="6" y1="4" x2="6" y2="9"/><line x1="10" y1="4" x2="10" y2="9"/><line x1="14" y1="4" x2="14" y2="9"/><line x1="18" y1="4" x2="18" y2="9"/></svg>',
-  steth:'<svg class="ico" viewBox="0 0 24 24"><path d="M4 12a8 8 0 008 8h1a3 3 0 003-3v-2"/><path d="M4 12V7a4 4 0 014-4h0"/><path d="M12 7V4a4 4 0 014 0v3"/><circle cx="18" cy="14" r="2"/></svg>',
-  micro:'<svg class="ico" viewBox="0 0 24 24"><circle cx="12" cy="8" r="5"/><path d="M12 13v4"/><line x1="9" y1="21" x2="15" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/><path d="M7 3l10 10"/></svg>',
-  tag:'<svg class="ico" viewBox="0 0 24 24"><path d="M4 4h6l10 10-6 6L4 10z"/><circle cx="8.5" cy="8.5" r="1.5" fill="currentColor" stroke="none"/></svg>',
-  activity:'<svg class="ico" viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>',
-  pill:'<svg class="ico" viewBox="0 0 24 24"><path d="M8.5 2.5a4.95 4.95 0 017 7l-7 7a4.95 4.95 0 01-7-7l7-7z"/><line x1="12" y1="6" x2="6" y2="12"/></svg>',
-  syringe:'<svg class="ico" viewBox="0 0 24 24"><path d="M18 2l4 4-1 1-4-4 1-1z"/><path d="M17 7l-9 9-4 1 1-4 9-9z"/><line x1="2" y1="22" x2="6" y2="18"/></svg>',
-  filetext:'<svg class="ico" viewBox="0 0 24 24"><path d="M6 2h8l6 6v12a2 2 0 01-2 2H6a2 2 0 01-2-2V4a2 2 0 012-2z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="13" y2="17"/></svg>',
-  calendar:'<svg class="ico" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>',
-  link:'<svg class="ico" viewBox="0 0 24 24"><path d="M10 13a5 5 0 007.5.5l3-3a5 5 0 00-7-7l-1.5 1.5"/><path d="M14 11a5 5 0 00-7.5-.5l-3 3a5 5 0 007 7l1.5-1.5"/></svg>',
-  bookmark:'<svg class="ico" viewBox="0 0 24 24"><path d="M5 3h14a1 1 0 011 1v17l-8-4-8 4V4a1 1 0 011-1z"/></svg>',
-};
-function ico(name, cls){return _I[name] ? _I[name].replace('class="ico"', 'class="ico'+(cls?' '+cls:'')+'"') : '';}
+  if (event.httpMethod !== "POST") {
+    return { statusCode: 405, body: JSON.stringify({ error: "Method not allowed" }) };
+  }
 
-// ===== SUPABASE CONFIG =====
-const SUPABASE_URL = "https://nzurgcoyjebxswkffduy.supabase.co";
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im56dXJnY295amVieHN3a2ZmZHV5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE1Njc3NDMsImV4cCI6MjA4NzE0Mzc0M30.yFxmvYYw2Uwgvb_TLrlOZn1IunDPZV80ejfY0gVbOAM";
-const API_URL = "/api/claude-proxy";
-const { createClient } = supabase;
-const db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  const clientIP = event.headers["x-forwarded-for"] || event.headers["client-ip"] || "unknown";
+  if (!checkRateLimit(clientIP)) {
+    return {
+      statusCode: 429,
+      headers: CORS_HEADERS,
+      body: JSON.stringify({ error: "Too many requests. Please wait a few minutes." }),
+    };
+  }
 
-// ===== STATE =====
-let currentUser = null, isRecording = false, recognition = null;
-let rawTranscript = "", structuredNotes = null, recommendations = null;
-let savedNotes = [], currentNoteId = null;
-let selectedTemplateId = null, currentTemplateMeta = null;
+  const apiKey = process.env.ANTHROPIC_API_KEY;
+  if (!apiKey) {
+    return {
+      statusCode: 500,
+      headers: CORS_HEADERS,
+      body: JSON.stringify({ error: "API key not configured. Add ANTHROPIC_API_KEY in Netlify environment variables." }),
+    };
+  }
 
-const LABELS = {
-  subjective_chief_complaint:"S — Chief Complaint", subjective_hpi:"S — History of Present Illness",
-  subjective_medical_history:"S — Medical / Dental History", subjective_allergies:"S — Allergies & Medications",
-  objective_extraoral:"O — Extraoral Examination", objective_intraoral:"O — Intraoral Examination",
-  objective_teeth_findings:"O — Teeth & Periodontal Findings", objective_radiographic:"O — Radiographic Findings",
-  assessment_diagnosis:"A — Diagnosis", assessment_differential:"A — Differential Diagnosis",
-  assessment_cdt_codes:"A — CDT / Procedure Codes", plan_treatment_performed:"P — Treatment Performed",
-  plan_materials_used:"P — Materials & Medications", plan_anesthesia:"P — Anesthesia Details",
-  plan_post_op:"P — Post-Op Instructions", plan_follow_up:"P — Follow-Up Plan",
-  plan_referrals:"P — Referrals", additional_notes:"Additional Notes"
-};
-const ICONS = {
-  subjective_chief_complaint:_I.chat,subjective_hpi:_I.cliplist,subjective_medical_history:_I.building,subjective_allergies:_I.alert,
-  objective_extraoral:_I.user,objective_intraoral:_I.scan,objective_teeth_findings:_I.tooth,objective_radiographic:_I.film,
-  assessment_diagnosis:_I.steth,assessment_differential:_I.micro,assessment_cdt_codes:_I.tag,plan_treatment_performed:_I.activity,
-  plan_materials_used:_I.pill,plan_anesthesia:_I.syringe,plan_post_op:_I.filetext,plan_follow_up:_I.calendar,
-  plan_referrals:_I.link,additional_notes:_I.bookmark
-};
-const SECTION_GROUPS = {
-  "Subjective":["subjective_chief_complaint","subjective_hpi","subjective_medical_history","subjective_allergies"],
-  "Objective":["objective_extraoral","objective_intraoral","objective_teeth_findings","objective_radiographic"],
-  "Assessment":["assessment_diagnosis","assessment_differential","assessment_cdt_codes"],
-  "Plan":["plan_treatment_performed","plan_materials_used","plan_anesthesia","plan_post_op","plan_follow_up","plan_referrals"],
-  "Other":["additional_notes"]
-};
+  try {
+    const body = JSON.parse(event.body);
+    const mode = body.mode || "structure";
 
-// ===== AUTH =====
-function switchAuthTab(tab) {
-  document.getElementById("tabLogin").classList.toggle("active", tab==="login");
-  document.getElementById("tabSignup").classList.toggle("active", tab==="signup");
-  document.getElementById("loginForm").style.display = tab==="login"?"block":"none";
-  document.getElementById("signupForm").style.display = tab==="signup"?"block":"none";
-  document.getElementById("authError").classList.remove("visible");
-}
+    // ===== MODE: OCR =====
+    if (mode === "ocr") {
+      const imageData = body.image;
+      const mediaType = body.media_type || "image/jpeg";
 
-async function handleLogin() {
-  const email=document.getElementById("loginEmail").value.trim(), pw=document.getElementById("loginPassword").value;
-  if(!email||!pw){showAuthError("Please enter email and password.");return;}
-  const btn=document.getElementById("loginBtn"); btn.disabled=true; btn.textContent="Logging in...";
-  const{data,error}=await db.auth.signInWithPassword({email,password:pw});
-  if(error){showAuthError(error.message);btn.disabled=false;btn.textContent="Log In";return;}
-  currentUser=data.user; await logAudit("login","session",null,{method:"email"}); showApp();
-}
-
-async function handleSignup() {
-  const name=document.getElementById("signupName").value.trim(), email=document.getElementById("signupEmail").value.trim(), pw=document.getElementById("signupPassword").value;
-  if(!name||!email||!pw){showAuthError("Please fill in all fields.");return;}
-  if(pw.length<8){showAuthError("Password must be at least 8 characters.");return;}
-  const btn=document.getElementById("signupBtn"); btn.disabled=true; btn.textContent="Creating account...";
-  const{data,error}=await db.auth.signUp({email,password:pw,options:{data:{full_name:name}}});
-  if(error){showAuthError(error.message);btn.disabled=false;btn.textContent="Create Account";return;}
-  if(data.user&&!data.user.confirmed_at){showAuthError("Check your email to confirm your account, then log in.");switchAuthTab("login");btn.disabled=false;btn.textContent="Create Account";return;}
-  currentUser=data.user; showApp();
-}
-
-async function handleLogout() {
-  await logAudit("logout","session",null,{});
-  await db.auth.signOut(); currentUser=null;
-  closeAgent(); agentMessages = []; agentApiMessages = []; agentContextReady = false; agentPatientContext = ""; agentConvSummary = ""; agentTurnCount = 0; agentRecordCount = 0; agentPatientNames = [];
-  closeProfile(); cancelDelete();
-  document.getElementById("appScreen").classList.remove("visible");
-  document.getElementById("authScreen").style.display="flex";
-  document.getElementById("loginBtn").disabled=false;
-  document.getElementById("loginBtn").textContent="Log In";
-}
-
-function showAuthError(msg){const el=document.getElementById("authError");el.textContent=msg;el.classList.add("visible");}
-
-async function initApp(){
-  const{data:{session}}=await db.auth.getSession();
-  if(session){currentUser=session.user;showApp();}
-}
-
-function showApp(){
-  document.getElementById("authScreen").style.display="none";
-  document.getElementById("appScreen").classList.add("visible");
-  const name=currentUser.user_metadata?.full_name||currentUser.email;
-  document.getElementById("headerUser").textContent=name;
-  document.getElementById("visitDate").value=new Date().toISOString().split("T")[0];
-  loadSavedNotes();
-}
-
-initApp();
-
-// ===== AUDIT =====
-async function logAudit(action,rType,rId,details){
-  if(!currentUser)return;
-  try{await db.from("audit_log").insert({user_id:currentUser.id,action,resource_type:rType,resource_id:rId,details});}catch(e){}
-}
-
-// ===== RECORDING =====
-let pendingInterim = "";
-function toggleRecording(){isRecording?stopRecording():startRecording();}
-
-function startRecording(){
-  hideError();
-  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
-  if(!SR){showError("Speech recognition not supported. Please use Chrome.");return;}
-  recognition=new SR();
-  recognition.continuous=true;
-  recognition.interimResults=true;
-  recognition.lang="en-US";
-  recognition.maxAlternatives=1;
-  pendingInterim="";
-
-  recognition.onresult=function(e){
-    let interim="",final="";
-    for(let i=e.resultIndex;i<e.results.length;i++){
-      const t=e.results[i][0].transcript;
-      if(e.results[i].isFinal){ final+=t+" "; }
-      else { interim+=t; }
-    }
-    if(final){
-      rawTranscript+=final;
-      pendingInterim=""; // Clear interim since it's now finalized
-    } else {
-      pendingInterim=interim; // Track latest interim text
-    }
-    // Always sync textarea so user can see what's captured
-    document.getElementById("manualInput").value=rawTranscript+pendingInterim;
-    updateTranscriptDisplay(interim);
-  };
-
-  recognition.onerror=function(e){
-    if(e.error==="not-allowed"){showError("Microphone access denied.");stopRecording();}
-    else if(e.error==="network"){showError("Network error — check your connection.");stopRecording();}
-    else if(e.error!=="no-speech"&&e.error!=="aborted")showError("Speech error: "+e.error);
-  };
-
-  // Auto-restart on end (mobile browsers stop after silence)
-  recognition.onend=function(){
-    if(isRecording){
-      // Capture any remaining interim text before restart
-      if(pendingInterim.trim()){
-        rawTranscript+=pendingInterim+" ";
-        pendingInterim="";
-        document.getElementById("manualInput").value=rawTranscript;
-        updateTranscriptDisplay("");
+      if (!imageData) {
+        return { statusCode: 400, headers: CORS_HEADERS, body: JSON.stringify({ error: "No image provided." }) };
       }
-      try{recognition.start();}catch(e){}
-    }
-  };
+      if (imageData.length > 14000000) {
+        return { statusCode: 400, headers: CORS_HEADERS, body: JSON.stringify({ error: "Image too large (max 10MB)." }) };
+      }
 
-  try{
-    recognition.start();isRecording=true;document.body.classList.add("recording");
-    document.getElementById("micIcon").innerHTML='<rect x="6" y="4" width="12" height="16" rx="2" fill="currentColor"/>';
-    document.getElementById("micLabel").textContent="Stop";
-    document.getElementById("micStatus").textContent="Listening... Tap mic to stop";
-    document.getElementById("micHint").textContent="Speak naturally — describe the patient visit";
-    // Keep textarea visible but readonly during recording so user sees live text
-    const mi=document.getElementById("manualInput");
-    mi.style.display="block";mi.readOnly=true;mi.style.opacity="0.7";
-    updateProcessBtn();
-  }catch(e){showError("Could not start recording.");}
-}
-
-function stopRecording(){
-  // Capture any final interim text before stopping
-  if(pendingInterim.trim()){
-    rawTranscript+=pendingInterim+" ";
-    pendingInterim="";
-  }
-  if(recognition){recognition.onend=null;recognition.stop();recognition=null;}
-  isRecording=false;document.body.classList.remove("recording");
-  document.getElementById("micIcon").innerHTML='<path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/>';
-  document.getElementById("micLabel").textContent="Dictate";
-  document.getElementById("micStatus").textContent="Dictate or scan clinical notes";
-  document.getElementById("micHint").textContent="Voice record a patient visit, or photograph handwritten/printed notes";
-  // Restore textarea to editable
-  const mi=document.getElementById("manualInput");
-  mi.style.display="block";mi.readOnly=false;mi.style.opacity="1";
-  mi.value=rawTranscript; // Sync final text
-  updateTranscriptDisplay("");
-  updateProcessBtn();
-}
-
-function updateTranscriptDisplay(interim){
-  const area=document.getElementById("transcriptArea");
-  if(rawTranscript||interim)area.innerHTML='<span class="transcript-text">'+esc(rawTranscript)+'</span>'+(interim?'<span class="transcript-interim">'+esc(interim)+'</span>':'');
-  else area.innerHTML='<div class="transcript-placeholder">Your dictation will appear here...</div>';
-}
-
-function onManualInput(){rawTranscript=document.getElementById("manualInput").value;updateTranscriptDisplay("");updateProcessBtn();}
-
-// ===== OCR / SCAN =====
-function triggerScan() {
-  document.getElementById("scanInput").click();
-}
-
-async function handleScanInput(event) {
-  const file = event.target.files[0];
-  if (!file) return;
-
-  // Validate file type
-  if (!file.type.startsWith("image/")) {
-    showError("Please select an image file (photo of notes).");
-    return;
-  }
-
-  // Validate file size (max 10MB)
-  if (file.size > 10 * 1024 * 1024) {
-    showError("Image is too large. Please use a smaller photo (under 10MB).");
-    return;
-  }
-
-  hideError();
-
-  // Show image preview
-  const preview = document.getElementById("ocrPreview");
-  const previewImg = document.getElementById("ocrPreviewImg");
-  const reader = new FileReader();
-
-  reader.onload = async function(e) {
-    const dataUrl = e.target.result;
-    previewImg.src = dataUrl;
-    preview.classList.add("visible");
-
-    // Extract base64 data and media type
-    const base64 = dataUrl.split(",")[1];
-    const mediaType = file.type; // image/jpeg, image/png, etc.
-
-    // Show extracting status
-    document.getElementById("ocrStatus").style.display = "flex";
-
-    try {
-      const response = await fetch(API_URL, {
+      const response = await fetch("https://api.anthropic.com/v1/messages", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", "x-api-key": apiKey, "anthropic-version": "2023-06-01" },
         body: JSON.stringify({
-          mode: "ocr",
-          image: base64,
-          media_type: mediaType,
+          model: "claude-haiku-4-5-20251001",
+          max_tokens: 3000,
+          system: [{ type: "text", text: OCR_PROMPT, cache_control: { type: "ephemeral" } }],
+          messages: [{
+            role: "user",
+            content: [
+              { type: "image", source: { type: "base64", media_type: mediaType, data: imageData } },
+              { type: "text", text: "Extract all text from this dental clinical document. Preserve all details accurately." },
+            ],
+          }],
         }),
       });
 
       const data = await response.json();
-      document.getElementById("ocrStatus").style.display = "none";
-
       if (data.error) {
-        showError("OCR failed: " + data.error);
-        return;
+        return { statusCode: response.status, headers: CORS_HEADERS, body: JSON.stringify({ error: data.error.message || "AI service error" }) };
       }
 
-      if (data.extracted_text) {
-        // Auto-fill patient name and ID if extracted from scan
-        if (data.patient_name && !document.getElementById("patientName").value.trim()) {
-          document.getElementById("patientName").value = data.patient_name;
-        }
-        if (data.patient_id && !document.getElementById("patientId").value.trim()) {
-          document.getElementById("patientId").value = data.patient_id;
-        }
+      const extractedRaw = data.content[0].text.replace(/```json|```/g, "").trim();
+      let ocrResult;
+      try { ocrResult = JSON.parse(extractedRaw); } catch (e) { ocrResult = { extracted_text: extractedRaw, patient_name: null, patient_id: null }; }
 
-        // Look up previous records for this patient
-        if (data.patient_name || data.patient_id) {
-          lookupPatientHistory();
-        }
+      return {
+        statusCode: 200,
+        headers: CORS_HEADERS,
+        body: JSON.stringify({
+          extracted_text: ocrResult.extracted_text || extractedRaw,
+          patient_name: ocrResult.patient_name || null,
+          patient_id: ocrResult.patient_id || null,
+          usage: { input_tokens: data.usage?.input_tokens || 0, output_tokens: data.usage?.output_tokens || 0, cache_read: data.usage?.cache_read_input_tokens || 0, cache_creation: data.usage?.cache_creation_input_tokens || 0 },
+        }),
+      };
+    }
 
-        // Append extracted text to existing transcript
-        const separator = rawTranscript.trim() ? "\n\n--- Scanned Notes ---\n" : "";
-        rawTranscript += separator + data.extracted_text;
-        document.getElementById("manualInput").value = rawTranscript;
-        updateTranscriptDisplay("");
-        updateProcessBtn();
+    // ===== MODE: AGENT =====
+    if (mode === "agent") {
+      const messages = body.messages;
+      const patientContext = body.patient_context || "";
+      const needsPatientData = body.needs_patient_data !== false;
+      const conversationSummary = body.conversation_summary || "";
 
-        if (data.usage) console.log("OCR usage:", data.usage);
-
-        const autoFilled = [];
-        if (data.patient_name) autoFilled.push("name");
-        if (data.patient_id) autoFilled.push("ID");
-        const extra = autoFilled.length ? " · Patient " + autoFilled.join(" & ") + " detected" : "";
-        showToast("Text extracted" + extra);
-        await logAudit("ocr_scan", "patient_notes", null, { file_type: mediaType, file_size: file.size, patient_detected: !!data.patient_name });
+      if (!messages || !messages.length) {
+        return { statusCode: 400, headers: CORS_HEADERS, body: JSON.stringify({ error: "No messages provided." }) };
       }
-    } catch (err) {
-      document.getElementById("ocrStatus").style.display = "none";
-      showError("Failed to extract text: " + err.message);
-    }
-  };
 
-  reader.readAsDataURL(file);
+      const systemBlocks = [{ type: "text", text: AGENT_KNOWLEDGE_PROMPT, cache_control: { type: "ephemeral" } }];
 
-  // Reset file input so same file can be selected again
-  event.target.value = "";
-}
-
-function removeScannedImage() {
-  document.getElementById("ocrPreview").classList.remove("visible");
-  document.getElementById("ocrPreviewImg").src = "";
-  document.getElementById("ocrStatus").style.display = "none";
-}
-
-// ===== PATIENT HISTORY LOOKUP =====
-let historyLookupTimer = null;
-
-function onPatientInfoChange() {
-  // Hide validation message when user starts typing
-  document.getElementById("validationMsg").classList.remove("visible");
-
-  // Debounce: wait 600ms after user stops typing before searching
-  clearTimeout(historyLookupTimer);
-  historyLookupTimer = setTimeout(() => lookupPatientHistory(), 600);
-}
-
-async function lookupPatientHistory() {
-  if (!currentUser) return;
-  const name = document.getElementById("patientName").value.trim();
-  const pid = document.getElementById("patientId").value.trim();
-
-  if (!name && !pid) {
-    document.getElementById("patientHistory").classList.remove("visible");
-    return;
-  }
-
-  try {
-    let query = db.from("patient_notes")
-      .select("id, patient_name, patient_id, visit_date, structured_notes")
-      .eq("status", "active")
-      .order("visit_date", { ascending: false })
-      .limit(10);
-
-    // Search by patient ID first (most specific), otherwise by name
-    if (pid) {
-      query = query.eq("patient_id", pid);
-    } else if (name) {
-      query = query.ilike("patient_name", "%" + name + "%");
-    }
-
-    const { data, error } = await query;
-    if (error) throw error;
-
-    // Exclude the current note from results
-    const records = (data || []).filter(n => n.id !== currentNoteId);
-
-    const panel = document.getElementById("patientHistory");
-    const list = document.getElementById("historyList");
-    const count = document.getElementById("historyCount");
-
-    if (records.length === 0) {
-      panel.classList.remove("visible");
-      return;
-    }
-
-    panel.classList.add("visible");
-    count.textContent = records.length + " previous visit" + (records.length > 1 ? "s" : "");
-
-    list.innerHTML = records.map(n => {
-      let preview = "";
-      if (n.structured_notes) {
-        const notes = n.structured_notes;
-        preview = notes.subjective_chief_complaint || notes.assessment_diagnosis || notes.plan_treatment_performed || "";
-        if (preview.length > 60) preview = preview.substring(0, 60) + "...";
+      if (needsPatientData && patientContext) {
+        systemBlocks.push({
+          type: "text",
+          text: "## PATIENT RECORDS\nBelow is a compact index of the dentist's patient records.\n\n" + patientContext,
+          cache_control: { type: "ephemeral" },
+        });
       }
-      return '<button class="history-item" onclick="loadNote(\'' + n.id + '\')">' +
-        '<div><div class="history-item-date">' + n.visit_date + '</div>' +
-        (preview ? '<div class="history-item-preview">' + esc(preview) + '</div>' : '') +
-        '</div><div class="history-item-arrow">→</div></button>';
-    }).join("");
 
-    // Add "View full timeline" link
-    const viewAllName = document.getElementById("patientName").value.trim();
-    const viewAllId = document.getElementById("patientId").value.trim();
-    list.innerHTML += '<button class="history-item" style="justify-content:center;color:var(--blue-500);font-weight:600;font-size:12px;" onclick="showPatientTimeline(\''+esc(viewAllName)+'\',\''+esc(viewAllId)+'\')">View full patient timeline →</button>';
-  } catch (e) {
-    console.warn("History lookup failed:", e);
-  }
-}
+      const efficientMessages = [];
+      if (conversationSummary) {
+        efficientMessages.push({ role: "user", content: "[Previous conversation summary: " + conversationSummary + "]" });
+        efficientMessages.push({ role: "assistant", content: "Understood, I have the context from our earlier discussion. How can I help?" });
+      }
+      efficientMessages.push(...messages.slice(-8));
 
-function updateProcessBtn(){
-  const has=rawTranscript.trim().length>0;
-  document.getElementById("btnProcess").classList.toggle("visible",has&&!isRecording);
-  document.getElementById("tipsCard").style.display=(has||isRecording)?"none":"block";
-  document.getElementById("btnNew").classList.toggle("visible",has||!!structuredNotes);
-}
-
-// ===== AI =====
-function onTemplateChange(){
-  selectedTemplateId=document.getElementById("templateSelect").value||null;
-  const hint=document.getElementById("templateHint");
-  if(selectedTemplateId){
-    const opt=document.getElementById("templateSelect").selectedOptions[0];
-    hint.textContent="AI will structure notes using: "+opt.textContent;
-    hint.style.color="var(--blue-600)";
-  }else{
-    hint.textContent="Select a template to structure notes into specific fields";
-    hint.style.color="var(--slate-400)";
-  }
-}
-
-async function processNotes(){
-  rawTranscript=document.getElementById("manualInput").value||rawTranscript;
-  if(!rawTranscript.trim()){showError("No notes to process.");return;}
-  showLoading("Analyzing dictation...");hideError();
-  try{
-    updateLoadingStep("Structuring notes & generating insights...");
-    const payload={transcript:rawTranscript.trim()};
-    if(selectedTemplateId) payload.template_id=selectedTemplateId;
-    const r=await fetch(API_URL,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)});
-    const data=await r.json();if(data.error)throw new Error(data.error);
-    structuredNotes=data.notes||{};recommendations=data.recommendations||[];
-    currentTemplateMeta=data.template_meta||null;
-    if(data.usage)console.log("Usage:",data.usage);
-    await logAudit("process_notes","patient_notes",null,{patient_name:document.getElementById("patientName").value,template:selectedTemplateId||"soap"});
-    hideLoading();showStructuredView();
-  }catch(err){hideLoading();showError("Failed: "+err.message);}
-}
-
-// ===== STRUCTURED VIEW =====
-function showStructuredView(){
-  document.getElementById("recordView").classList.add("hidden");
-  document.getElementById("structuredView").classList.add("visible");
-  const name=document.getElementById("patientName").value||"Patient Notes";
-  const id=document.getElementById("patientId").value;
-  const date=document.getElementById("visitDate").value;
-  document.getElementById("structPatientName").textContent=name;
-  document.getElementById("structPatientMeta").textContent=date+(id?" · ID: "+id:"");
-  const container=document.getElementById("sectionsContainer");container.innerHTML="";
-  const badge=document.getElementById("templateBadge");
-  let idx=0;
-
-  if(currentTemplateMeta){
-    // ===== TEMPLATE MODE =====
-    badge.textContent="";badge.innerHTML=ico("filetext")+" "+esc(currentTemplateMeta.name);
-    let totalFields=0;
-    currentTemplateMeta.sections.forEach(sec=>{
-      const secData=structuredNotes[sec.key]||{};
-      const s=document.createElement("div");s.className="note-section";s.id="section-"+sec.key;
-      s.style.animationDelay=(0.1+idx*0.06)+"s";
-      // Section icon mapping
-      const secIcons={presentation:_I.chat,health:_I.building,dental_history:_I.tooth,treatment:_I.activity,evaluation:_I.steth,plan:_I.calendar,operative_team:_I.user,reasons:_I.cliplist,sedation_record:_I.pill,sedation_assessment:_I.pill,preop_vitals:_I.activity,n2o_sedation:_I.micro,postoperative:_I.syringe};
-      const secIcon=secIcons[sec.key]||_I.filetext;
-      let fieldsHtml="";
-      sec.fields.forEach(f=>{
-        const val=secData[f.key]||"[blank]";
-        const isBlank=val==="[blank]"||!val.trim();
-        fieldsHtml+='<div class="template-field"><div class="template-field-label">'+esc(f.label)+'</div><div class="template-field-value'+(isBlank?" blank":"")+'">'+esc(val)+'</div></div>';
-        totalFields++;
+      const response = await fetch("https://api.anthropic.com/v1/messages", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "x-api-key": apiKey, "anthropic-version": "2023-06-01" },
+        body: JSON.stringify({
+          model: "claude-haiku-4-5-20251001",
+          max_tokens: needsPatientData ? 2000 : 1500,
+          system: systemBlocks,
+          messages: efficientMessages,
+        }),
       });
-      s.innerHTML='<div class="section-header"><div class="section-title">'+secIcon+" "+esc(sec.title)+'</div><button class="btn-edit" onclick="toggleEditSection(\''+sec.key+'\')">Edit</button></div><div class="section-content" id="content-'+sec.key+'">'+fieldsHtml+'</div><textarea class="section-edit" id="edit-'+sec.key+'" style="display:none"></textarea>';
-      container.appendChild(s);idx++;
-    });
-    document.getElementById("sectionCount").textContent=currentTemplateMeta.sections.length+" sections · "+totalFields+" fields";
-  }else{
-    // ===== LEGACY SOAP MODE =====
-    badge.innerHTML=ico("filetext")+" Standard Dental Clinical Note — SOAP Format";
-    const entries=Object.entries(structuredNotes).filter(([k,v])=>v&&LABELS[k]);
-    document.getElementById("sectionCount").textContent=entries.length+" sections";
-    Object.entries(SECTION_GROUPS).forEach(([g,keys])=>{
-      keys.filter(k=>structuredNotes[k]&&String(structuredNotes[k]).trim()).forEach(key=>{
-        const s=document.createElement("div");s.className="note-section";s.id="section-"+key;
-        s.style.animationDelay=(0.1+idx*0.06)+"s";
-        s.innerHTML='<div class="section-header"><div class="section-title">'+(ICONS[key]||_I.filetext)+" "+LABELS[key]+'</div><button class="btn-edit" onclick="toggleEdit(\''+key+'\')">Edit</button></div><div class="section-content" id="content-'+key+'">'+esc(String(structuredNotes[key]))+'</div><textarea class="section-edit" id="edit-'+key+'">'+esc(String(structuredNotes[key]))+'</textarea>';
-        container.appendChild(s);idx++;
-      });
-    });
-  }
-  renderRecommendations();
-  document.getElementById("rawTranscriptText").textContent=rawTranscript;
-  document.getElementById("btnNew").classList.add("visible");
-  document.getElementById("btnDeleteNote").style.display=currentNoteId?"flex":"none";
-}
 
-function renderRecommendations(){
-  const panel=document.getElementById("recsPanel"),container=document.getElementById("recsContainer");
-  if(!recommendations||!recommendations.length){panel.classList.remove("visible");return;}
-  panel.classList.add("visible");container.innerHTML="";
-  const order={high:0,medium:1,low:2};
-  [...recommendations].sort((a,b)=>(order[a.priority]||2)-(order[b.priority]||2)).forEach((rec,i)=>{
-    const item=document.createElement("div");item.className="rec-item";item.id="rec-"+i;
-    item.innerHTML='<span class="rec-category '+(rec.category||"clinical")+'">'+(rec.category||"").toUpperCase()+(rec.priority==="high"?" ●":"")+'</span><div style="font-size:14px;font-weight:700;color:var(--navy);margin-bottom:4px;">'+esc(rec.title)+'</div><div class="rec-text">'+esc(rec.detail)+'</div><div class="rec-actions"><button class="btn-rec accept" onclick="acceptRec('+i+')">Noted</button><button class="btn-rec dismiss" onclick="dismissRec('+i+')">Dismiss</button></div>';
-    container.appendChild(item);
-  });
-}
-
-function acceptRec(i){const el=document.getElementById("rec-"+i);if(el){el.style.borderColor="#86EFAC";el.style.background="#F0FDF4";el.querySelector(".rec-actions").innerHTML='<span style="font-size:11px;color:#16A34A;font-weight:600;">Noted</span>';}}
-function dismissRec(i){const el=document.getElementById("rec-"+i);if(el){el.classList.add("dismissed");el.querySelector(".rec-actions").innerHTML='<span style="font-size:11px;color:#999;">Dismissed</span>';}}
-function showRecordView(){document.getElementById("structuredView").classList.remove("visible");document.getElementById("recordView").classList.remove("hidden");}
-
-function toggleEdit(key){
-  const c=document.getElementById("content-"+key),e=document.getElementById("edit-"+key),b=document.querySelector("#section-"+key+" .btn-edit");
-  if(e.style.display==="block"){structuredNotes[key]=e.value;c.textContent=e.value;c.style.display="block";e.style.display="none";b.textContent="Edit";b.classList.remove("saving");}
-  else{c.style.display="none";e.style.display="block";e.focus();b.textContent="Save";b.classList.add("saving");}
-}
-
-function toggleEditSection(secKey){
-  const c=document.getElementById("content-"+secKey),e=document.getElementById("edit-"+secKey),b=document.querySelector("#section-"+secKey+" .btn-edit");
-  if(!currentTemplateMeta)return;
-  const sec=currentTemplateMeta.sections.find(s=>s.key===secKey);if(!sec)return;
-  if(e.style.display==="block"){
-    // Save: parse textarea back into structured fields
-    const lines=e.value.split("\n");
-    if(!structuredNotes[secKey])structuredNotes[secKey]={};
-    lines.forEach(line=>{
-      const colonIdx=line.indexOf(":");
-      if(colonIdx>0){
-        const label=line.substring(0,colonIdx).trim();
-        const val=line.substring(colonIdx+1).trim();
-        const field=sec.fields.find(f=>f.label===label);
-        if(field)structuredNotes[secKey][field.key]=val;
+      const data = await response.json();
+      if (data.error) {
+        return { statusCode: response.status, headers: CORS_HEADERS, body: JSON.stringify({ error: data.error.message || "AI service error" }) };
       }
-    });
-    // Re-render the field rows
-    let fieldsHtml="";
-    sec.fields.forEach(f=>{
-      const val=(structuredNotes[secKey]||{})[f.key]||"[blank]";
-      const isBlank=val==="[blank]"||!val.trim();
-      fieldsHtml+='<div class="template-field"><div class="template-field-label">'+esc(f.label)+'</div><div class="template-field-value'+(isBlank?" blank":"")+'">'+esc(val)+'</div></div>';
-    });
-    c.innerHTML=fieldsHtml;c.style.display="block";e.style.display="none";b.textContent="Edit";b.classList.remove("saving");
-  }else{
-    // Enter edit: build editable text from fields
-    const secData=structuredNotes[secKey]||{};
-    let text=sec.fields.map(f=>f.label+": "+(secData[f.key]||"[blank]")).join("\n");
-    e.value=text;e.rows=sec.fields.length+1;
-    c.style.display="none";e.style.display="block";e.focus();b.textContent="Save";b.classList.add("saving");
-  }
-}
 
-// ===== DATABASE =====
-async function saveNote(){
-  // Validate required fields
-  const patientName = document.getElementById("patientName").value.trim();
-  const patientId = document.getElementById("patientId").value.trim();
-
-  if (!patientName || !patientId) {
-    document.getElementById("validationMsg").classList.add("visible");
-    // Highlight empty fields
-    if (!patientName) {
-      const el = document.getElementById("patientName");
-      el.style.borderBottomColor = "var(--red-500)";
-      el.focus();
-      setTimeout(() => el.style.borderBottomColor = "", 3000);
-    }
-    if (!patientId) {
-      const el = document.getElementById("patientId");
-      el.style.borderBottomColor = "var(--red-500)";
-      if (patientName) el.focus();
-      setTimeout(() => el.style.borderBottomColor = "", 3000);
-    }
-    showToast("Patient name and ID required");
-    return;
-  }
-
-  const noteData={user_id:currentUser.id,patient_name:patientName,patient_id:patientId,visit_date:document.getElementById("visitDate").value||new Date().toISOString().split("T")[0],raw_transcript:rawTranscript,structured_notes:structuredNotes,recommendations,status:"active",template_id:selectedTemplateId||null,template_meta:currentTemplateMeta||null};
-  try{
-    let result;
-    if(currentNoteId){result=await db.from("patient_notes").update(noteData).eq("id",currentNoteId).select();await logAudit("update_note","patient_notes",currentNoteId,{patient_name:noteData.patient_name});}
-    else{result=await db.from("patient_notes").insert(noteData).select();if(result.data&&result.data[0])currentNoteId=result.data[0].id;await logAudit("create_note","patient_notes",currentNoteId,{patient_name:noteData.patient_name});}
-    if(result.error)throw result.error;
-    if(!result.data||!result.data.length)throw new Error("No data returned — check database permissions (RLS).");
-    showToast("Saved to secure database");loadSavedNotes();
-  }catch(e){showError("Failed to save: "+e.message);console.error("Save error:",e);}
-}
-
-async function loadSavedNotes(){
-  try{
-    const{data,error}=await db.from("patient_notes").select("id,patient_name,patient_id,visit_date,created_at").eq("status","active").order("visit_date",{ascending:false}).limit(50);
-    if(error)throw error;savedNotes=data||[];renderSavedList();
-  }catch(e){console.warn("Load failed:",e);}
-}
-
-function renderSavedList(){
-  const list=document.getElementById("savedList");
-  document.getElementById("btnHistory").innerHTML=ico("folder")+" History"+(savedNotes.length>0?" ("+savedNotes.length+")":"");
-  if(!savedNotes.length){list.innerHTML='<div class="saved-empty">No saved notes yet. Create your first note above.</div>';return;}
-
-  // Group notes by relative date
-  const groups = {};
-  const now = new Date();
-  const today = now.toISOString().split("T")[0];
-  const yesterday = new Date(now - 86400000).toISOString().split("T")[0];
-  const weekAgo = new Date(now - 7*86400000).toISOString().split("T")[0];
-
-  savedNotes.forEach(n => {
-    let label;
-    if(n.visit_date === today) label = "Today";
-    else if(n.visit_date === yesterday) label = "Yesterday";
-    else if(n.visit_date >= weekAgo) label = "This Week";
-    else label = "Older";
-    if(!groups[label]) groups[label] = [];
-    groups[label].push(n);
-  });
-
-  let html = "";
-  ["Today","Yesterday","This Week","Older"].forEach(label => {
-    if(!groups[label]) return;
-    html += '<div class="saved-group"><div class="saved-group-label">'+label+'</div>';
-    html += groups[label].map(n => {
-      const initials = (n.patient_name||"?").split(" ").map(w=>w[0]).join("").substring(0,2).toUpperCase();
-      return '<div class="saved-item" style="position:relative">'+
-        '<div class="saved-item-left" onclick="loadNote(\''+n.id+'\')" style="flex:1;cursor:pointer">'+
-        '<div class="saved-item-avatar">'+initials+'</div><div><div class="saved-item-name">'+esc(n.patient_name)+'</div>'+
-        '<div class="saved-item-meta">'+n.visit_date+(n.patient_id?" · ID: "+n.patient_id:"")+'</div></div></div>'+
-        '<div class="saved-item-actions">'+
-        '<button class="btn-delete-item" onclick="requestDeleteNote(\''+n.id+'\',\''+esc(n.patient_name).replace(/'/g,"\\'")+'\',event)" title="Delete record">'+
-        '<svg class="ico" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 6V4a2 2 0 012-2h0a2 2 0 012 2v2"/></svg></button>'+
-        '<div class="saved-item-arrow" onclick="loadNote(\''+n.id+'\')" style="cursor:pointer">&rarr;</div>'+
-        '</div></div>';
-    }).join("");
-    html += '</div>';
-  });
-  list.innerHTML = html;
-}
-
-async function loadNote(id){
-  try{
-    const{data,error}=await db.from("patient_notes").select("*").eq("id",id).single();if(error)throw error;
-    currentNoteId=data.id;document.getElementById("patientName").value=data.patient_name||"";
-    document.getElementById("patientId").value=data.patient_id||"";document.getElementById("visitDate").value=data.visit_date||"";
-    rawTranscript=data.raw_transcript||"";document.getElementById("manualInput").value=rawTranscript;
-    structuredNotes=data.structured_notes;recommendations=data.recommendations||[];
-    currentTemplateMeta=data.template_meta||null;selectedTemplateId=data.template_id||null;
-    document.getElementById("templateSelect").value=selectedTemplateId||"";onTemplateChange();
-    await logAudit("view_note","patient_notes",id,{patient_name:data.patient_name});
-    if(structuredNotes)showStructuredView();else{showRecordView();updateTranscriptDisplay("");updateProcessBtn();}
-    closeSaved(); closeSearch(); closeTimeline();
-  }catch(e){showError("Failed to load: "+e.message);}
-}
-
-function toggleSaved(){
-  closeSearch(); closeTimeline();
-  document.getElementById("savedPanel").classList.toggle("visible");
-}
-function closeSaved(){ document.getElementById("savedPanel").classList.remove("visible"); }
-
-function goHome(){
-  closeSaved(); closeSearch(); closeTimeline();
-  // If viewing a structured note, go back to record view
-  if(document.getElementById("structuredView").classList.contains("visible")){
-    // Keep the note loaded, just scroll up
-  }
-  // Scroll to top
-  window.scrollTo({ top: 0, behavior: "smooth" });
-}
-
-// ===== SEARCH =====
-let searchTimer = null;
-
-function toggleSearch(){
-  closeSaved(); closeTimeline();
-  const panel = document.getElementById("searchPanel");
-  panel.classList.toggle("visible");
-  if(panel.classList.contains("visible")){
-    setTimeout(() => document.getElementById("searchInput").focus(), 100);
-  }
-}
-function closeSearch(){
-  document.getElementById("searchPanel").classList.remove("visible");
-  document.getElementById("searchInput").value = "";
-  document.getElementById("searchClear").classList.remove("visible");
-}
-
-function clearSearch(){
-  document.getElementById("searchInput").value = "";
-  document.getElementById("searchClear").classList.remove("visible");
-  document.getElementById("searchResults").innerHTML = '<div class="saved-empty">Type a name or ID to search</div>';
-  document.getElementById("searchInput").focus();
-}
-
-function onSearchInput(){
-  const q = document.getElementById("searchInput").value.trim();
-  document.getElementById("searchClear").classList.toggle("visible", q.length > 0);
-  clearTimeout(searchTimer);
-  if(q.length < 2){
-    document.getElementById("searchResults").innerHTML = '<div class="saved-empty">Type at least 2 characters to search</div>';
-    return;
-  }
-  searchTimer = setTimeout(() => performSearch(q), 300);
-}
-
-async function performSearch(query){
-  if(!currentUser) return;
-  document.getElementById("searchResults").innerHTML = '<div class="saved-empty">Searching...</div>';
-  try{
-    // Search by name OR by patient ID
-    const { data: byName } = await db.from("patient_notes")
-      .select("id, patient_name, patient_id, visit_date, structured_notes")
-      .eq("status","active").ilike("patient_name", "%"+query+"%")
-      .order("visit_date",{ascending:false}).limit(50);
-
-    const { data: byId } = await db.from("patient_notes")
-      .select("id, patient_name, patient_id, visit_date, structured_notes")
-      .eq("status","active").ilike("patient_id", "%"+query+"%")
-      .order("visit_date",{ascending:false}).limit(50);
-
-    // Merge and deduplicate
-    const allResults = [...(byName||[]), ...(byId||[])];
-    const seen = new Set();
-    const unique = allResults.filter(n => {
-      if(seen.has(n.id)) return false;
-      seen.add(n.id); return true;
-    });
-
-    // Group by patient (using patient_id as key, fallback to name)
-    const patients = {};
-    unique.forEach(n => {
-      const key = (n.patient_id || n.patient_name || "unknown").toLowerCase();
-      if(!patients[key]) patients[key] = { name: n.patient_name, id: n.patient_id, visits: [] };
-      patients[key].visits.push(n);
-    });
-
-    renderSearchResults(patients);
-  }catch(e){
-    document.getElementById("searchResults").innerHTML = '<div class="saved-empty">Search failed. Try again.</div>';
-  }
-}
-
-function renderSearchResults(patients){
-  const container = document.getElementById("searchResults");
-  const keys = Object.keys(patients);
-  if(!keys.length){
-    container.innerHTML = '<div class="saved-empty">No patients found</div>';
-    return;
-  }
-  container.innerHTML = keys.map((key,i) => {
-    const p = patients[key];
-    const initials = (p.name || "?").split(" ").map(w=>w[0]).join("").substring(0,2).toUpperCase();
-    const visitText = p.visits.length + " visit" + (p.visits.length > 1 ? "s" : "");
-    const lastDate = p.visits[0]?.visit_date || "";
-    return '<div class="search-result-group" style="animation-delay:'+(i*0.06)+'s">' +
-      '<button class="search-result-patient" onclick="showPatientTimeline(\''+esc(p.name)+'\',\''+esc(p.id||"")+'\')">'+
-      '<div class="search-result-info"><div class="search-result-avatar">'+initials+'</div><div><div class="search-result-name">'+esc(p.name)+'</div><div class="search-result-meta">'+(p.id?"ID: "+esc(p.id)+" · ":"")+'Last visit: '+lastDate+'</div></div></div>'+
-      '<div class="search-result-visits">'+visitText+'</div></button></div>';
-  }).join("");
-}
-
-// ===== PATIENT TIMELINE =====
-async function showPatientTimeline(name, patientId){
-  closeSearch(); closeSaved();
-  const panel = document.getElementById("patientTimelinePanel");
-  document.getElementById("timelinePatientName").textContent = name;
-  document.getElementById("timelinePatientId").textContent = patientId ? "ID: " + patientId : "";
-  document.getElementById("timelineList").innerHTML = '<div class="saved-empty">Loading records...</div>';
-  panel.classList.add("visible");
-
-  try{
-    let query = db.from("patient_notes")
-      .select("id, patient_name, patient_id, visit_date, structured_notes, recommendations, created_at")
-      .eq("status","active")
-      .order("visit_date",{ascending:false});
-
-    if(patientId) query = query.eq("patient_id", patientId);
-    else query = query.ilike("patient_name", "%"+name+"%");
-
-    const { data, error } = await query.limit(50);
-    if(error) throw error;
-
-    const records = data || [];
-    document.getElementById("timelineCount").innerHTML = records.length + " record" + (records.length !== 1 ? "s" : "") + " found";
-
-    if(!records.length){
-      document.getElementById("timelineList").innerHTML = '<div class="saved-empty">No records found for this patient.</div>';
-      return;
+      return {
+        statusCode: 200,
+        headers: CORS_HEADERS,
+        body: JSON.stringify({
+          reply: data.content[0].text,
+          usage: { input_tokens: data.usage?.input_tokens || 0, output_tokens: data.usage?.output_tokens || 0, cache_read: data.usage?.cache_read_input_tokens || 0, cache_creation: data.usage?.cache_creation_input_tokens || 0 },
+        }),
+      };
     }
 
-    document.getElementById("timelineList").innerHTML = records.map((n, i) => {
-      const notes = n.structured_notes || {};
-      const diagnosis = notes.assessment_diagnosis || notes.subjective_chief_complaint || "";
-      const treatment = notes.plan_treatment_performed || "";
-      const hasRecs = n.recommendations && n.recommendations.length > 0;
-      const isLast = i === records.length - 1;
+    // ===== MODE: STRUCTURE (with optional template) =====
+    const transcript = body.transcript;
+    const templateId = body.template_id || null;
 
-      return '<button class="timeline-item" onclick="loadNote(\''+n.id+'\')" style="animation:fadeInUp 0.4s '+(i*0.08)+'s both cubic-bezier(0.16,1,0.3,1);">'+
-        '<div class="timeline-line"><div class="timeline-dot"></div>'+(isLast?'':'<div class="timeline-connector"></div>')+'</div>'+
-        '<div class="timeline-content"><div class="timeline-date">'+n.visit_date+'</div>'+
-        (diagnosis ? '<div class="timeline-diagnosis">'+esc(diagnosis.substring(0,80))+(diagnosis.length>80?'...':'')+'</div>':'')+
-        (treatment ? '<div class="timeline-treatment">'+esc(treatment.substring(0,100))+(treatment.length>100?'...':'')+'</div>':'')+
-        '<div class="timeline-badges">'+(hasRecs?'<span class="timeline-badge has-recs">'+n.recommendations.length+' recommendations</span>':'')+'</div>'+
-        '</div></button>';
-    }).join("");
-
-    await logAudit("view_patient_history","patient_notes",null,{patient_name:name, patient_id:patientId, record_count:records.length});
-  }catch(e){
-    document.getElementById("timelineList").innerHTML = '<div class="saved-empty">Failed to load records.</div>';
-  }
-}
-
-function closeTimeline(){ document.getElementById("patientTimelinePanel").classList.remove("visible"); }
-
-// ===== DELETE NOTE =====
-let pendingDeleteId = null;
-let pendingDeleteName = "";
-
-function requestDeleteNote(id, name, event){
-  event.stopPropagation();
-  pendingDeleteId = id;
-  pendingDeleteName = name;
-  document.getElementById("confirmNoteName").textContent = name;
-  document.getElementById("confirmOverlay").classList.add("visible");
-}
-
-function requestDeleteCurrent(){
-  if(!currentNoteId) return;
-  const name = document.getElementById("patientName").value || "this patient";
-  pendingDeleteId = currentNoteId;
-  pendingDeleteName = name;
-  document.getElementById("confirmNoteName").textContent = name;
-  document.getElementById("confirmOverlay").classList.add("visible");
-}
-
-function cancelDelete(){
-  pendingDeleteId = null;
-  pendingDeleteName = "";
-  document.getElementById("confirmOverlay").classList.remove("visible");
-}
-
-async function confirmDelete(){
-  if(!pendingDeleteId) return;
-  const btn = document.getElementById("confirmDeleteBtn");
-  btn.disabled = true; btn.textContent = "Deleting...";
-  try{
-    // Soft-delete: set status to 'deleted'
-    const{error} = await db.from("patient_notes")
-      .update({status:"deleted"})
-      .eq("id", pendingDeleteId)
-      .eq("user_id", currentUser.id); // Ensure only owner can delete
-    if(error) throw error;
-    await logAudit("delete_note","patient_notes",pendingDeleteId,{patient_name:pendingDeleteName});
-
-    // If we deleted the currently viewed note, go back to home
-    if(currentNoteId === pendingDeleteId){
-      currentNoteId = null;
-      structuredNotes = null;
-      recommendations = null;
-      rawTranscript = "";
-      document.getElementById("structuredView").classList.remove("visible");
-      document.getElementById("recordView").classList.remove("hidden");
-      document.getElementById("patientName").value = "";
-      document.getElementById("patientId").value = "";
-      document.getElementById("manualInput").value = "";
-      updateTranscriptDisplay("");
-      updateProcessBtn();
+    if (!transcript || typeof transcript !== "string" || transcript.trim().length < 10) {
+      return { statusCode: 400, headers: CORS_HEADERS, body: JSON.stringify({ error: "Please provide a longer dictation (at least a few words)." }) };
     }
 
-    showToast("Record deleted");
-    loadSavedNotes();
-  }catch(e){
-    showError("Failed to delete: "+e.message);
-    console.error("Delete error:",e);
-  }finally{
-    btn.disabled = false; btn.textContent = "Delete Record";
-    cancelDelete();
-  }
-}
+    const trimmed = transcript.trim().slice(0, 15000);
 
-// ===== PROFILE =====
-function openProfile(){
-  if(!currentUser) return;
-  const meta = currentUser.user_metadata || {};
-  document.getElementById("profileDisplayName").textContent = meta.full_name || "My Profile";
-  document.getElementById("profileDisplayEmail").textContent = currentUser.email || "";
-  document.getElementById("profileName").value = meta.full_name || "";
-  document.getElementById("profileClinic").value = meta.clinic_name || "";
-  document.getElementById("profileNewPw").value = "";
-  document.getElementById("profileConfirmPw").value = "";
-  hideProfileMsg();
-  document.getElementById("profileOverlay").classList.add("visible");
-}
+    // Choose prompt: template-specific or generic SOAP
+    let systemPrompt;
+    let templateMeta = null;
 
-function closeProfile(){
-  document.getElementById("profileOverlay").classList.remove("visible");
-}
-
-function showProfileMsg(msg, type){
-  const el = document.getElementById("profileMsg");
-  el.textContent = msg;
-  el.className = "profile-msg " + type;
-}
-function hideProfileMsg(){
-  const el = document.getElementById("profileMsg");
-  el.className = "profile-msg";
-  el.textContent = "";
-}
-
-async function saveProfile(){
-  const name = document.getElementById("profileName").value.trim();
-  const clinic = document.getElementById("profileClinic").value.trim();
-  if(!name){ showProfileMsg("Name is required.", "error"); return; }
-
-  const btn = document.getElementById("profileSaveBtn");
-  btn.disabled = true; btn.textContent = "Saving...";
-  hideProfileMsg();
-
-  try{
-    const{data, error} = await db.auth.updateUser({
-      data: { full_name: name, clinic_name: clinic }
-    });
-    if(error) throw error;
-
-    // Update currentUser reference
-    currentUser = data.user;
-    // Update header display
-    document.getElementById("headerUser").textContent = name;
-    document.getElementById("profileDisplayName").textContent = name;
-
-    showProfileMsg("Profile updated successfully.", "success");
-    await logAudit("update_profile","user",currentUser.id,{full_name:name,clinic_name:clinic});
-  }catch(e){
-    showProfileMsg("Failed to update: "+e.message, "error");
-    console.error("Profile update error:",e);
-  }finally{
-    btn.disabled = false; btn.textContent = "Save Changes";
-  }
-}
-
-async function changePassword(){
-  const newPw = document.getElementById("profileNewPw").value;
-  const confirmPw = document.getElementById("profileConfirmPw").value;
-  hideProfileMsg();
-
-  if(!newPw || newPw.length < 8){
-    showProfileMsg("Password must be at least 8 characters.", "error"); return;
-  }
-  if(newPw !== confirmPw){
-    showProfileMsg("Passwords do not match.", "error"); return;
-  }
-
-  try{
-    const{error} = await db.auth.updateUser({ password: newPw });
-    if(error) throw error;
-
-    document.getElementById("profileNewPw").value = "";
-    document.getElementById("profileConfirmPw").value = "";
-    showProfileMsg("Password updated successfully.", "success");
-    await logAudit("change_password","user",currentUser.id,{});
-  }catch(e){
-    showProfileMsg("Failed to change password: "+e.message, "error");
-    console.error("Password change error:",e);
-  }
-}
-
-// ===== AI AGENT (OPTIMIZED) =====
-let agentMessages = [];       // Raw messages for display
-let agentApiMessages = [];    // Messages sent to API (trimmed)
-let agentPatientContext = "";  // Compact patient index
-let agentContextReady = false;
-let agentConvSummary = "";     // Running summary of older turns
-let agentTurnCount = 0;
-let agentRecordCount = 0;
-let agentPatientNames = [];    // Dynamic name index from loaded records
-
-// Structural keywords that ALWAYS indicate a data query
-const DATA_KEYWORDS = [
-  "patient","patients","record","records","history","visit","visits",
-  "follow-up","follow up","followup","schedule","scheduled",
-  "this week","this month","last week","last month","today","yesterday",
-  "how many","total","count","summary","summarize","statistics","stats",
-  "diagnosis","diagnosed","treatment","treated","prescribed","medication",
-  "who","which","all patients","list of","case","cases","chart","charts",
-  "appointments","recall","overdue","pending","recent","last visit",
-];
-
-// Keywords that clearly indicate a KNOWLEDGE-ONLY query (no patient data needed)
-const KNOWLEDGE_ONLY_KEYWORDS = [
-  "what is","what are","how to","how do","explain","define","definition",
-  "compare","difference between","protocol for","guidelines for",
-  "best practice","evidence","recommendation for","dosing","dosage",
-  "technique","procedure for","material","materials","equipment",
-  "instrument","brand","manufacturer","curing","bonding","cement",
-  "infection control","sterilization","pharmacology","radiology",
-  "cdt code for","billing","insurance",
-];
-
-function needsPatientData(query){
-  const q = query.toLowerCase();
-
-  // 1. Check if query mentions any known patient name (dynamic index)
-  if(agentPatientNames.some(name => q.includes(name))) return true;
-
-  // 2. Check structural data keywords
-  if(DATA_KEYWORDS.some(kw => q.includes(kw))) return true;
-
-  // 3. Check if it's clearly a knowledge-only question
-  if(KNOWLEDGE_ONLY_KEYWORDS.some(kw => q.includes(kw))) return false;
-
-  // 4. DEFAULT: include patient data when uncertain
-  //    Better to send data and not need it than miss a valid patient query
-  //    Cost impact is minimal with prompt caching
-  return true;
-}
-
-function toggleAgent(){
-  const panel = document.getElementById("agentPanel");
-  const overlay = document.getElementById("agentOverlay");
-  const isOpen = panel.classList.contains("visible");
-  if(isOpen){ closeAgent(); }
-  else {
-    panel.classList.add("visible");
-    overlay.classList.add("visible");
-    document.body.style.overflow = "hidden";
-    if(!agentContextReady) loadAgentContext();
-    setTimeout(() => document.getElementById("agentInput").focus(), 400);
-  }
-}
-
-function closeAgent(){
-  document.getElementById("agentPanel").classList.remove("visible");
-  document.getElementById("agentOverlay").classList.remove("visible");
-  document.body.style.overflow = "";
-}
-
-// OPTIMIZATION: Build compact patient index (~80% fewer tokens than raw dump)
-async function loadAgentContext(){
-  try{
-    document.getElementById("agentContextText").textContent = "Indexing patient records...";
-    document.querySelector(".agent-context-dot").classList.remove("ready");
-
-    const { data, error } = await db.from("patient_notes")
-      .select("patient_name, patient_id, visit_date, structured_notes, recommendations")
-      .eq("status","active")
-      .order("visit_date",{ascending:false})
-      .limit(200);
-
-    if(error) throw error;
-
-    if(!data || data.length === 0){
-      agentPatientContext = "";
-      agentRecordCount = 0;
-      document.getElementById("agentContextText").textContent = "No records yet";
+    if (templateId && TEMPLATES[templateId]) {
+      systemPrompt = buildTemplatePrompt(templateId);
+      const tmpl = TEMPLATES[templateId];
+      templateMeta = {
+        id: templateId,
+        name: tmpl.name,
+        sections: tmpl.sections.map((s) => ({
+          key: s.key,
+          title: s.title,
+          fields: s.fields.split("|").map((f) => { const [k, l] = f.split(":"); return { key: k, label: l }; }),
+        })),
+      };
     } else {
-      agentRecordCount = data.length;
-
-      // Build COMPACT index — one line per visit, essential fields only
-      // This reduces ~150 tokens/record to ~40 tokens/record = 73% savings
-      let lines = [];
-      let diagnosisCounts = {};
-      let treatmentCounts = {};
-      let patientSet = new Set();
-      let dateMin = data[data.length-1].visit_date;
-      let dateMax = data[0].visit_date;
-
-      data.forEach(n => {
-        patientSet.add((n.patient_name||"") + "|" + (n.patient_id||""));
-        const sn = n.structured_notes || {};
-        const dx = sn.assessment_diagnosis || "";
-        const tx = sn.plan_treatment_performed || "";
-        const cc = sn.subjective_chief_complaint || "";
-
-        // Count for statistics
-        if(dx){ const k=dx.substring(0,40); diagnosisCounts[k]=(diagnosisCounts[k]||0)+1; }
-        if(tx){ const k=tx.substring(0,40); treatmentCounts[k]=(treatmentCounts[k]||0)+1; }
-
-        // Compact line: Name|ID|Date|CC|Dx|Tx|Materials|Follow-up
-        lines.push([
-          n.patient_name||"?",
-          n.patient_id||"",
-          n.visit_date||"",
-          cc.substring(0,60),
-          dx.substring(0,60),
-          tx.substring(0,80),
-          (sn.plan_materials_used||"").substring(0,40),
-          (sn.plan_follow_up||"").substring(0,40),
-          (sn.subjective_allergies||"").substring(0,30),
-        ].join(" | "));
-      });
-
-      // Build statistical header
-      let header = "PRACTICE STATS: " + data.length + " records, " + patientSet.size + " unique patients, date range " + dateMin + " to " + dateMax + "\n";
-
-      // Top diagnoses
-      const topDx = Object.entries(diagnosisCounts).sort((a,b)=>b[1]-a[1]).slice(0,5);
-      if(topDx.length) header += "TOP DIAGNOSES: " + topDx.map(([k,v])=>k+"("+v+")").join(", ") + "\n";
-
-      // Top treatments
-      const topTx = Object.entries(treatmentCounts).sort((a,b)=>b[1]-a[1]).slice(0,5);
-      if(topTx.length) header += "TOP TREATMENTS: " + topTx.map(([k,v])=>k+"("+v+")").join(", ") + "\n";
-
-      header += "\nRECORDS (Name|ID|Date|Chief Complaint|Diagnosis|Treatment|Materials|Follow-up|Allergies):\n";
-
-      agentPatientContext = header + lines.join("\n");
-      document.getElementById("agentContextText").textContent = data.length + " records indexed";
-
-      // Build dynamic name index for query classification
-      // Extract all unique patient names and split into individual words
-      const nameSet = new Set();
-      data.forEach(n => {
-        if(n.patient_name){
-          // Add full name and each word (lowercased)
-          nameSet.add(n.patient_name.toLowerCase().trim());
-          n.patient_name.toLowerCase().trim().split(/\s+/).forEach(word => {
-            if(word.length > 2) nameSet.add(word); // skip very short words like "al"
-          });
-        }
-        // Also index patient IDs
-        if(n.patient_id) nameSet.add(n.patient_id.toLowerCase().trim());
-      });
-      agentPatientNames = [...nameSet];
+      systemPrompt = STRUCTURE_PROMPT;
     }
 
-    document.querySelector(".agent-context-dot").classList.add("ready");
-    agentContextReady = true;
-  } catch(e){
-    console.warn("Agent context load failed:", e);
-    document.getElementById("agentContextText").textContent = "Failed to load records";
-    agentPatientContext = "";
-  }
-}
-
-function sendAgentChip(btn){
-  document.getElementById("agentInput").value = btn.textContent;
-  sendAgentMessage();
-}
-
-async function sendAgentMessage(){
-  const input = document.getElementById("agentInput");
-  const msg = input.value.trim();
-  if(!msg) return;
-
-  input.value = "";
-  input.style.height = "auto";
-
-  // Hide welcome
-  const welcome = document.querySelector(".agent-welcome");
-  if(welcome) welcome.style.display = "none";
-
-  // Add user message to display
-  agentMessages.push({ role: "user", content: msg });
-  agentApiMessages.push({ role: "user", content: msg });
-  appendAgentBubble("user", msg);
-
-  // Show typing
-  const typingEl = showAgentTyping();
-  document.getElementById("agentSendBtn").disabled = true;
-  document.getElementById("agentStatus").textContent = "Thinking...";
-
-  // OPTIMIZATION: Classify query — does it need patient data?
-  const queryNeedsData = needsPatientData(msg);
-
-  // OPTIMIZATION: Conversation summarization after 6 turns
-  // Summarize older messages client-side to keep API payload small
-  let summaryToSend = agentConvSummary;
-  let messagesToSend = [...agentApiMessages];
-
-  if(agentApiMessages.length > 12) { // 6 turns = 12 messages (user+assistant)
-    // Build summary from older messages
-    const olderMsgs = agentApiMessages.slice(0, -8);
-    const recentMsgs = agentApiMessages.slice(-8);
-
-    // Simple client-side summary: extract key topics
-    const topics = olderMsgs.map(m => {
-      const t = m.content.substring(0, 80);
-      return m.role === "user" ? "Q: " + t : "A: " + t;
-    }).join(" | ");
-
-    summaryToSend = (agentConvSummary ? agentConvSummary + " | " : "") + topics;
-    // Cap summary length
-    if(summaryToSend.length > 600) summaryToSend = summaryToSend.substring(summaryToSend.length - 600);
-    messagesToSend = recentMsgs;
-  }
-
-  try{
-    const r = await fetch(API_URL, {
+    const response = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json", "x-api-key": apiKey, "anthropic-version": "2023-06-01" },
       body: JSON.stringify({
-        mode: "agent",
-        messages: messagesToSend,
-        patient_context: queryNeedsData ? agentPatientContext : "",
-        needs_patient_data: queryNeedsData,
-        conversation_summary: summaryToSend,
-      })
+        model: "claude-haiku-4-5-20251001",
+        max_tokens: 2500,
+        system: [{ type: "text", text: systemPrompt, cache_control: { type: "ephemeral" } }],
+        messages: [{ role: "user", content: 'Dictated dental notes:\n\n"' + trimmed + '"' }],
+      }),
     });
-    const data = await r.json();
-    if(data.error) throw new Error(data.error);
 
-    const reply = data.reply || "I couldn't generate a response. Please try again.";
-    agentMessages.push({ role: "assistant", content: reply });
-    agentApiMessages.push({ role: "assistant", content: reply });
-    agentTurnCount++;
-
-    // OPTIMIZATION: Trim API messages and persist summary after successful response
-    if(agentApiMessages.length > 12) {
-      agentConvSummary = summaryToSend;
-      agentApiMessages = agentApiMessages.slice(-8);
+    const data = await response.json();
+    if (data.error) {
+      return { statusCode: response.status, headers: CORS_HEADERS, body: JSON.stringify({ error: data.error.message || "AI service error" }) };
     }
 
-    if(typingEl) typingEl.remove();
-    appendAgentBubble("assistant", reply);
-
-    // Log usage for monitoring
-    if(data.usage){
-      const u = data.usage;
-      const cachedPct = u.cache_read > 0 ? Math.round(u.cache_read / (u.input_tokens + u.cache_read) * 100) : 0;
-      console.log(
-        "Agent:", queryNeedsData ? "DATA" : "KNOWLEDGE",
-        "| In:", u.input_tokens, "Out:", u.output_tokens,
-        "| Cache:", u.cache_read, "(" + cachedPct + "%)",
-        "| Msgs sent:", messagesToSend.length
-      );
+    const rawText = data.content[0].text.replace(/```json|```/g, "").trim();
+    let parsed;
+    try { parsed = JSON.parse(rawText); } catch (e) {
+      return { statusCode: 500, headers: CORS_HEADERS, body: JSON.stringify({ error: "AI returned invalid format. Please try again." }) };
     }
-    await logAudit("agent_query","patient_notes",null,{ query: msg.substring(0,100), needs_data: queryNeedsData });
 
-  } catch(err){
-    if(typingEl) typingEl.remove();
-    appendAgentBubble("assistant", "Sorry, something went wrong: " + err.message + ". Please try again.");
+    return {
+      statusCode: 200,
+      headers: CORS_HEADERS,
+      body: JSON.stringify({
+        notes: parsed.notes || {},
+        recommendations: parsed.recommendations || [],
+        template_meta: templateMeta,
+        usage: { input_tokens: data.usage?.input_tokens || 0, output_tokens: data.usage?.output_tokens || 0, cache_read: data.usage?.cache_read_input_tokens || 0, cache_creation: data.usage?.cache_creation_input_tokens || 0 },
+      }),
+    };
+  } catch (error) {
+    return { statusCode: 500, headers: CORS_HEADERS, body: JSON.stringify({ error: "Server error: " + error.message }) };
   }
-
-  document.getElementById("agentSendBtn").disabled = false;
-  document.getElementById("agentStatus").textContent = agentRecordCount > 0
-    ? agentRecordCount + " records · Haiku 4.5"
-    : "Dental Assistant";
-}
-
-function appendAgentBubble(role, text){
-  const container = document.getElementById("agentMessages");
-  const div = document.createElement("div");
-  div.className = "agent-msg " + role;
-
-  const avatar = document.createElement("div");
-  avatar.className = "agent-msg-avatar";
-  avatar.textContent = role === "user" ? "Dr" : "AI";
-
-  const bubble = document.createElement("div");
-  bubble.className = "agent-msg-bubble";
-  bubble.innerHTML = formatAgentText(text);
-
-  div.appendChild(avatar);
-  div.appendChild(bubble);
-  container.appendChild(div);
-  container.scrollTop = container.scrollHeight;
-}
-
-function formatAgentText(text){
-  let html = esc(text);
-  html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
-  html = html.replace(/`(.+?)`/g, '<code>$1</code>');
-  html = html.replace(/^(\d+)\.\s+(.+)$/gm, '<li>$2</li>');
-  html = html.replace(/(<li>.*<\/li>\n?)+/g, '<ol>$&</ol>');
-  html = html.replace(/^- (.+)$/gm, '<li>$1</li>');
-  html = html.replace(/(<li>.*<\/li>\n?)+/g, function(match){
-    if(match.includes('<ol>')) return match;
-    return '<ul>' + match + '</ul>';
-  });
-  html = html.replace(/\n\n/g, '</p><p>');
-  html = '<p>' + html + '</p>';
-  html = html.replace(/\n/g, '<br>');
-  html = html.replace(/<p><\/p>/g, '');
-  html = html.replace(/<p><br><\/p>/g, '');
-  return html;
-}
-
-function showAgentTyping(){
-  const container = document.getElementById("agentMessages");
-  const div = document.createElement("div");
-  div.className = "agent-typing";
-  div.innerHTML = '<div class="agent-msg-avatar" style="background:linear-gradient(135deg,var(--purple-500),var(--blue-500));color:white;font-size:12px;font-weight:700;width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;">AI</div><div class="agent-typing-dots"><div class="agent-typing-dot"></div><div class="agent-typing-dot"></div><div class="agent-typing-dot"></div></div>';
-  container.appendChild(div);
-  container.scrollTop = container.scrollHeight;
-  return div;
-}
-
-function clearAgentChat(){
-  agentMessages = []; agentApiMessages = []; agentConvSummary = ""; agentTurnCount = 0;
-  const container = document.getElementById("agentMessages");
-  container.innerHTML = '<div class="agent-welcome"><div class="agent-welcome-icon"><svg class="ico" style="width:48px;height:48px;stroke-width:1.2" viewBox="0 0 24 24"><rect x="4" y="8" width="16" height="12" rx="2"/><path d="M12 8V4H8"/><circle cx="9" cy="14" r="1" fill="currentColor" stroke="none"/><circle cx="15" cy="14" r="1" fill="currentColor" stroke="none"/><path d="M9 18h6"/></svg></div><div class="agent-welcome-title">Chat cleared</div><div class="agent-welcome-text">Ask me anything about your patient records, dental materials, diagnosis, treatment planning, or clinical best practices.</div><div class="agent-suggestions"><button class="agent-chip" onclick="sendAgentChip(this)">How many patients did I see this week?</button><button class="agent-chip" onclick="sendAgentChip(this)">Which patients need follow-up?</button><button class="agent-chip" onclick="sendAgentChip(this)">Compare composite resin brands for pediatric restorations</button><button class="agent-chip" onclick="sendAgentChip(this)">What\'s the protocol for a pulpotomy on a primary molar?</button></div></div>';
-}
-
-function onAgentKeydown(e){
-  if(e.key === "Enter" && !e.shiftKey){ e.preventDefault(); sendAgentMessage(); }
-}
-
-function autoResizeAgent(){
-  const el = document.getElementById("agentInput");
-  el.style.height = "auto";
-  el.style.height = Math.min(el.scrollHeight, 120) + "px";
-}
-
-function startNew(){
-  rawTranscript="";structuredNotes=null;recommendations=null;currentNoteId=null;currentTemplateMeta=null;selectedTemplateId=null;
-  document.getElementById("patientName").value="";document.getElementById("patientId").value="";
-  document.getElementById("visitDate").value=new Date().toISOString().split("T")[0];
-  document.getElementById("manualInput").value="";
-  document.getElementById("templateSelect").value="";onTemplateChange();
-  document.getElementById("structuredView").classList.remove("visible");
-  document.getElementById("recordView").classList.remove("hidden");
-  document.getElementById("recsPanel").classList.remove("visible");
-  closeSaved(); closeSearch(); closeTimeline();
-  document.getElementById("btnNew").classList.remove("visible");
-  document.getElementById("patientHistory").classList.remove("visible");
-  document.getElementById("validationMsg").classList.remove("visible");
-  removeScannedImage();
-  updateTranscriptDisplay("");updateProcessBtn();
-  window.scrollTo({ top: 0, behavior: "smooth" });
-}
-
-// ===== EXPORT =====
-function buildPlainText(){
-  const name=document.getElementById("patientName").value,id=document.getElementById("patientId").value,date=document.getElementById("visitDate").value;
-  const tmplName=currentTemplateMeta?currentTemplateMeta.name:"SOAP FORMAT";
-  let t="DENTAL CLINICAL NOTES ("+tmplName+")\n═══════════════════════════════════════\n";
-  if(name)t+="Patient: "+name+"\n";if(id)t+="ID: "+id+"\n";
-  t+="Date: "+date+"\nProvider: Dr. Amira Mahmoud\n═══════════════════════════════════════\n\n";
-  if(currentTemplateMeta){
-    currentTemplateMeta.sections.forEach(sec=>{
-      const secData=structuredNotes[sec.key]||{};
-      const hasData=sec.fields.some(f=>{const v=secData[f.key];return v&&v!=="[blank]"&&v.trim();});
-      if(!hasData)return;
-      t+=sec.title+"\n───────────────────────────────────────\n";
-      sec.fields.forEach(f=>{const v=secData[f.key]||"[blank]";t+=f.label+": "+v+"\n";});
-      t+="\n";
-    });
-  }else{
-    Object.entries(SECTION_GROUPS).forEach(([g,keys])=>{keys.filter(k=>structuredNotes[k]&&String(structuredNotes[k]).trim()).forEach(k=>{t+=LABELS[k].toUpperCase()+"\n"+structuredNotes[k]+"\n\n";});});
-  }
-  if(recommendations&&recommendations.length){t+="═══════════════════════════════════════\nAI CLINICAL CONSIDERATIONS (Advisory)\n───────────────────────────────────────\n";recommendations.forEach(r=>t+="• ["+r.category.toUpperCase()+"] "+r.title+"\n  "+r.detail+"\n");t+="\n";}
-  t+="═══════════════════════════════════════\nDocumented via DentaVoice\n";return t;
-}
-
-function copyAll(){
-  if(!structuredNotes)return;
-  navigator.clipboard.writeText(buildPlainText()).then(()=>{const b=document.getElementById("btnCopy");b.classList.add("copied");b.innerHTML="Copied!";setTimeout(()=>{b.classList.remove("copied");b.innerHTML=ico("clipboard")+" Copy";},2000);});
-  logAudit("copy_note","patient_notes",currentNoteId,{});
-}
-
-function exportPDF(){
-  if(!structuredNotes)return;
-  const{jsPDF}=window.jspdf;const doc=new jsPDF();
-  const name=document.getElementById("patientName").value,id=document.getElementById("patientId").value,date=document.getElementById("visitDate").value;
-  const tmplName=currentTemplateMeta?currentTemplateMeta.name:"SOAP Format";
-  const pageW=doc.internal.pageSize.getWidth();let y=20;
-  doc.setFillColor(15,23,42);doc.rect(0,0,pageW,35,"F");
-  doc.setTextColor(255,255,255);doc.setFontSize(18);doc.setFont(undefined,"bold");
-  doc.text("DentaVoice — Clinical Notes",14,15);
-  doc.setFontSize(10);doc.setFont(undefined,"normal");
-  doc.text(tmplName+" · Dr. Amira Mahmoud",14,23);
-  doc.text("Generated: "+new Date().toLocaleString(),14,30);
-  y=45;doc.setTextColor(0,0,0);doc.setFontSize(11);doc.setFont(undefined,"bold");
-  if(name){doc.text("Patient: "+name,14,y);y+=6;}if(id){doc.text("ID: "+id,14,y);y+=6;}
-  doc.text("Visit Date: "+date,14,y);y+=10;doc.setDrawColor(200);doc.line(14,y,pageW-14,y);y+=8;
-  if(currentTemplateMeta){
-    currentTemplateMeta.sections.forEach(sec=>{
-      const secData=structuredNotes[sec.key]||{};
-      if(y>255){doc.addPage();y=20;}
-      doc.setFontSize(11);doc.setFont(undefined,"bold");doc.setTextColor(37,99,235);doc.text(sec.title,14,y);y+=6;
-      sec.fields.forEach(f=>{
-        const v=secData[f.key]||"[blank]";
-        if(y>272){doc.addPage();y=20;}
-        doc.setFontSize(8);doc.setFont(undefined,"bold");doc.setTextColor(80,80,80);doc.text(f.label+":",14,y);
-        doc.setFontSize(9);doc.setFont(undefined,"normal");doc.setTextColor(60,60,60);
-        const lines=doc.splitTextToSize(v,pageW-60);doc.text(lines,56,y);y+=Math.max(lines.length*4.5,5);
-      });
-      y+=4;
-    });
-  }else{
-    Object.entries(SECTION_GROUPS).forEach(([g,keys])=>{keys.filter(k=>structuredNotes[k]&&String(structuredNotes[k]).trim()).forEach(key=>{if(y>265){doc.addPage();y=20;}doc.setFontSize(9);doc.setFont(undefined,"bold");doc.setTextColor(37,99,235);doc.text(LABELS[key].toUpperCase(),14,y);y+=5;doc.setFontSize(10);doc.setFont(undefined,"normal");doc.setTextColor(60,60,60);doc.splitTextToSize(String(structuredNotes[key]),pageW-28).forEach(line=>{if(y>275){doc.addPage();y=20;}doc.text(line,14,y);y+=5;});y+=4;});});
-  }
-  doc.setFontSize(8);doc.setTextColor(150);doc.text("Confidential — PHIPA/PIPEDA Protected · DentaVoice",14,290);
-  doc.save("DentaVoice_"+(name||"Note").replace(/\s+/g,"_")+"_"+date+".pdf");
-  logAudit("export_pdf","patient_notes",currentNoteId,{});showToast("PDF downloaded");
-}
-
-function exportCSV(){
-  if(!structuredNotes)return;
-  const name=document.getElementById("patientName").value,id=document.getElementById("patientId").value,date=document.getElementById("visitDate").value;
-  let csv="Section,Field,Content\n";csv+='"Info","Patient Name","'+(name||"").replace(/"/g,'""')+'"\n';csv+='"Info","Patient ID","'+(id||"").replace(/"/g,'""')+'"\n';
-  csv+='"Info","Visit Date","'+date+'"\n';csv+='"Info","Provider","Dr. Amira Mahmoud"\n';
-  if(currentTemplateMeta){
-    csv+='"Info","Template","'+currentTemplateMeta.name.replace(/"/g,'""')+'"\n';
-    currentTemplateMeta.sections.forEach(sec=>{
-      const secData=structuredNotes[sec.key]||{};
-      sec.fields.forEach(f=>{
-        const v=(secData[f.key]||"[blank]").replace(/"/g,'""');
-        csv+='"'+sec.title.replace(/"/g,'""')+'","'+f.label.replace(/"/g,'""')+'","'+v+'"\n';
-      });
-    });
-  }else{
-    Object.entries(SECTION_GROUPS).forEach(([g,keys])=>{keys.filter(k=>structuredNotes[k]&&String(structuredNotes[k]).trim()).forEach(k=>{csv+='"'+LABELS[k].replace(/"/g,'""')+'","","'+String(structuredNotes[k]).replace(/"/g,'""')+'"\n';});});
-  }
-  const blob=new Blob([csv],{type:"text/csv"});const url=URL.createObjectURL(blob);const a=document.createElement("a");a.href=url;
-  a.download="DentaVoice_"+(name||"Note").replace(/\s+/g,"_")+"_"+date+".csv";a.click();URL.revokeObjectURL(url);
-  logAudit("export_csv","patient_notes",currentNoteId,{});showToast("CSV downloaded");
-}
-
-// ===== HELPERS =====
-function showError(msg){document.getElementById("errorText").textContent=msg;document.getElementById("errorBox").classList.add("visible");}
-function hideError(){document.getElementById("errorBox").classList.remove("visible");}
-function showToast(msg){const t=document.getElementById("toast");t.textContent=msg;t.classList.add("show");setTimeout(()=>t.classList.remove("show"),2500);}
-function showLoading(s){document.getElementById("loadingStep").textContent=s;document.getElementById("loadingOverlay").classList.add("visible");}
-function updateLoadingStep(s){document.getElementById("loadingStep").textContent=s;}
-function hideLoading(){document.getElementById("loadingOverlay").classList.remove("visible");}
-function esc(str){const d=document.createElement("div");d.textContent=str||"";return d.innerHTML;}
-</script>
-</body>
-</html>
+};
